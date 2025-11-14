@@ -6,16 +6,18 @@ namespace Domain.Entities
     {
         public Guid IdentityId { get; private set; }
         public string Email { get; private set; }
+        public string PhoneNumber { get; private set; }
 
         private User() { }
 
-        public static User Create(Guid identityId, string email)
+        public static User Create(Guid identityId, string email, string phoneNumber)
         {
             return new User
             {
                 Id = Guid.NewGuid(),
                 IdentityId = identityId,
-                Email = email
+                Email = email,
+                PhoneNumber = phoneNumber
             };
         }
 

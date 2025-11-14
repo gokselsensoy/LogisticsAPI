@@ -28,8 +28,8 @@ namespace Application.Features.Users.Commands.SyncUser
 
             if (existingUser == null)
             {
-                var newUser = User.Create(request.IdentityId, request.Email);
-                _userRepository.Add(newUser);
+                //var newUser = User.Create(request.IdentityId, request.Email);
+                //_userRepository.Add(newUser);
             }
             else
             {
