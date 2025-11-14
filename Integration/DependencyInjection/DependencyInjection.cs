@@ -23,6 +23,15 @@ namespace Integration.DependencyInjection
                 // client.BaseAddress = new Uri(configuration["GoogleApiSettings:BaseUrl"]);
             });
 
+
+            services.AddTransient<S2STokenHandler>();
+
+            services.AddHttpClient<IIdentityService, HttpIdentityService>(client =>
+            {
+                client.BaseAddress = new Uri(configuration["Auth:Authority"]);
+            })
+            .AddHttpMessageHandler<S2STokenHandler>();
+
             return services;
         }
     }

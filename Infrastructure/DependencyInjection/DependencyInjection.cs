@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.EntityRepositories;
+using Application.Abstractions.Repositories;
 using Domain.Repositories;
 using Domain.SeedWork;
 using Infrastructure.Persistence.Context;
@@ -26,6 +27,8 @@ namespace Infrastructure.DependencyInjection
 
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderQueryRepository, OrderQueryRepository>();
+
+            services.AddScoped<IUserRepository, UserRepository>();
 
             // 5. Diğer servisler (Email vb.)
             // services.AddTransient<IEmailService, EmailService>();
