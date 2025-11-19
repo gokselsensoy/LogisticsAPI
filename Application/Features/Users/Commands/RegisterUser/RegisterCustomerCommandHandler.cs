@@ -28,7 +28,7 @@ namespace Application.Features.Users.Commands.RegisterUser
             Guid? identityId = await _identityService.CreateWorkerUserAsync(
                 request.Email,
                 request.Password,
-                //"Customer", // Role
+                request.Role,
                 cancellationToken);
 
             // Adım B: Kimlik al

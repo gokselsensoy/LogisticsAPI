@@ -13,16 +13,16 @@ namespace Integration.Services
             _httpClient = httpClient;
         }
 
-        public async Task<Guid?> CreateWorkerUserAsync(string email, string password, CancellationToken cancellationToken)
+        public async Task<Guid?> CreateWorkerUserAsync(string email, string password, string role, CancellationToken cancellationToken)
         {
             var request = new
             {
                 Email = email,
                 Password = password,
-                Role = "Worker"
+                Role = role,
             };
 
-            var response = await _httpClient.PostAsJsonAsync("/api/auth/internal-register", request, cancellationToken);
+            var response = await _httpClient.PostAsJsonAsync("/api/Auth/internal-register", request, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {

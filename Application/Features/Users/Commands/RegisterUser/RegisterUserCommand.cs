@@ -8,5 +8,6 @@ namespace Application.Features.Users.Commands.RegisterUser
         public string Password { get; set; }
 
         public string PhoneNumber { get; set; }
+        public string Role { get; set; }
     }
 }
