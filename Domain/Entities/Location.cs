@@ -1,4 +1,6 @@
-﻿using Domain.SeedWork;
+﻿using Domain;
+using Domain.Entities;
+using Domain.SeedWork;
 using NetTopologySuite.Geometries;
 using System.Drawing;
 
@@ -86,6 +88,8 @@ namespace Domain
         public string Name { get; private set; } // Örn: "6-Pack"
         public string Sku { get; private set; } // Stok Kodu
         public string Barcode { get; private set; }
+        public PackageType Type { get; private set; }
+        public int AtomicQuantity { get; private set; }
 
         public int QuantityInPackage { get; private set; } // İçinde kaç adet Product var?
 
@@ -93,13 +97,51 @@ namespace Domain
         public double WeightKg { get; private set; } // Ağırlık hesabı için
 
         // İade ve Depozito Ayarları
+        public bool IsOrderable { get; private set; }
         public bool IsReturnable { get; private set; } // Geri iade edilebilir mi?
         public Money DepositPrice { get; private set; } // Depozito ücreti var mı?
+    }
+
+    public enum PackageType
+    {
+        Pallet,
+        Parcel,
+        Palleremme,
+        Piece
     }
 
     // =========================================================================
     // 4. PARTIES (TARAFLAR: TEDARİKÇİ, MÜŞTERİ, TAŞIYICI)
     // =========================================================================
+
+    public class Department : Entity
+    {
+        // Bu departman ya bir Supplier'a ya da Transporter'a aittir.
+        public Guid? SupplierId { get; private set; }
+        public Guid? TransporterId { get; private set; }
+
+        public string Name { get; private set; } // "Depo Yönetimi", "Filo Yönetimi"
+
+        // Bir departmana bağlı çalışanlar
+        private readonly List<Worker> _workers = new();
+        public IReadOnlyCollection<Worker> Workers => _workers.AsReadOnly();
+    }
+
+    public class Worker : Entity
+    {
+        public Guid DepartmentId { get; private set; }
+        public Guid IdentityUserId { get; private set; } // Auth bağlantısı burada!
+
+        public string FullName { get; private set; }
+        public WorkerRole Role { get; private set; } // Manager, Staff, Operator
+    }
+
+    public enum WorkerRole
+    {
+        Manager,
+        Operator,
+        WarehouseStaff
+    }
 
     // TEDARİKÇİ
     public class Supplier : Entity, IAggregateRoot
@@ -110,6 +152,15 @@ namespace Domain
         // Ayarlar
         public int MinDeliveryHours { get; private set; } // Min teslim süresi
         public Guid? AutoAssignTransporterId { get; private set; } // Otomatik taşıyıcı
+
+        private readonly List<Department> _departments = new();
+        public IReadOnlyCollection<Department> Departments => _departments.AsReadOnly();
+
+        private readonly List<SupplierCustomerRelation> _customerRelations = new();
+        public IReadOnlyCollection<SupplierCustomerRelation> CustomerRelations => _customerRelations.AsReadOnly();
+
+        private readonly List<SupplierTransporterRelation> _transporterRelations = new();
+        public IReadOnlyCollection<SupplierTransporterRelation> TransporterRelations => _transporterRelations.AsReadOnly();
 
         // Terminaller (Depolar)
         private readonly List<Terminal> _terminals = new();
@@ -168,8 +219,23 @@ namespace Domain
 
         private readonly List<Vehicle> _vehicles = new();
         private readonly List<Driver> _drivers = new();
+        private readonly List<Department> _departments = new();
         public IReadOnlyCollection<Vehicle> Vehicles => _vehicles.AsReadOnly();
         public IReadOnlyCollection<Driver> Drivers => _drivers.AsReadOnly();
+        public IReadOnlyCollection<Department> Departments => _departments.AsReadOnly();
+    }
+
+    public class SupplierCustomerRelation : Entity
+    {
+        public Guid SupplierId { get; private set; }
+        public Guid CustomerId { get; private set; }
+    }
+
+    public class SupplierTransporterRelation : Entity
+    {
+        public Guid SupplierId { get; private set; }
+        public Guid TransporterId { get; private set; }
+        // Örn: Sözleşme bitiş tarihi, öncelik sırası vb.
     }
 
     public class Vehicle : Entity
@@ -196,7 +262,24 @@ namespace Domain
         public string LicenseNumber { get; private set; }
         public WorkSchedule WorkSchedule { get; private set; } // Vardiya
         public bool IsAvailable { get; private set; }
+
+        private readonly List<VehicleAssignment> _assignments = new();
+        public IReadOnlyCollection<VehicleAssignment> Assignments => _assignments.AsReadOnly();
     }
+
+    public class VehicleAssignment : Entity
+    {
+        public Guid VehicleId { get; private set; }
+        public Guid DriverId { get; private set; }
+
+        public DateTime StartTime { get; private set; }
+        public DateTime EndTime { get; private set; }
+
+        // İsteğe bağlı: Periyodik mi? (Her Pazartesi 09:00-17:00)
+        public bool IsRecurring { get; private set; }
+        public DayOfWeek? RecurDay { get; private set; }
+    }
+}
 
     // =========================================================================
     // 5. ORDERING (SİPARİŞ SÜRECİ)
@@ -209,7 +292,8 @@ namespace Domain
 
         // PostGIS ile hesaplanıp seçilen çıkış noktası
         public Guid SourceTerminalId { get; private set; }
-        public Guid ShippingAddressId { get; private set; } // CustomerAddress Id
+        public Guid ShippingAddressId { get; private set; } // Referans (Analytics için)
+        public Location ShippingAddressSnapshot { get; private set; } // Değer (Değişmezlik için)
 
         public OrderStatus Status { get; private set; }
         public DateTime OrderDate { get; private set; }
