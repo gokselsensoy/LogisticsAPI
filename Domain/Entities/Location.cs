@@ -279,7 +279,6 @@ namespace Domain
         public bool IsRecurring { get; private set; }
         public DayOfWeek? RecurDay { get; private set; }
     }
-}
 
     // =========================================================================
     // 5. ORDERING (SİPARİŞ SÜRECİ)
