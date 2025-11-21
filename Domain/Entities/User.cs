@@ -333,6 +333,35 @@ namespace Domain.Entities
         public int Quantity { get; private set; }
     }
 
+    public class Shipment : Entity, IAggregateRoot
+    {
+        public Guid OrderId { get; private set; }
+        public Guid SourceTerminalId { get; private set; }
+        public Location Destination { get; private set; }
+
+        // Atama
+        public Guid? AssignedTransporterId { get; private set; }
+
+        public ShipmentStatus Status { get; private set; }
+
+        // Bu shipment içinde hangi paketlerden kaç tane var?
+        private readonly List<ShipmentItem> _items = new();
+    }
+
+    public class ShipmentItem : Entity { public Guid PackageId; public int Quantity; }
+    public enum ShipmentStatus { Pending, Planned, Loaded, InTransit, Delivered, Failed }
+
+    // Transporter'ın yaptığı günlük plan (Task Creation Ekranı)
+    public class DeliveryPlan : Entity, IAggregateRoot
+    {
+        public Guid TransporterId { get; private set; }
+        public DateTime PlanDate { get; private set; }
+
+        // Bir plan birden fazla rotadan oluşur (Her araç için bir rota)
+        private readonly List<Route> _routes = new();
+        public IReadOnlyCollection<Route> Routes => _routes.AsReadOnly();
+    }
+
     // =========================================================================
     // 5. LOGISTICS (FİLO VE ROTA)
     // =========================================================================
@@ -376,6 +405,28 @@ namespace Domain.Entities
     }
 
     public enum TaskType { Delivery, ReturnPickup, DepositCheck }
+
+    public class ReturnRequest : Entity, IAggregateRoot
+    {
+        public Guid CustomerId { get; private set; }
+        public Guid? OriginalOrderId { get; private set; }
+        public Guid TargetTerminalId { get; private set; } // Nereye dönecek?
+
+        public ReturnStatus Status { get; private set; } // Requested, Approved, PickedUp, Refunded
+
+        private readonly List<ReturnItem> _items = new();
+        public IReadOnlyCollection<ReturnItem> Items => _items.AsReadOnly();
+    }
+
+    public class ReturnItem : Entity
+    {
+        public Guid PackageId { get; private set; }
+        public int Quantity { get; private set; }
+        public ReturnReason Reason { get; private set; } // Damaged, Expired, EmptyDeposit
+    }
+
+    public enum ReturnReason { Damaged, Expired, WrongItem, EmptyPackageDeposit }
+    public enum ReturnStatus { Requested, Approved, AssignedToRoute, PickedUp, Completed, Rejected }
 
     public class CorporateCustomer : Company // Base Company tablosuna bağlı
     {
