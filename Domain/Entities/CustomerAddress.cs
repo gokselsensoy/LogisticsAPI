@@ -1,20 +1,21 @@
-﻿using Domain.SeedWork;
+﻿using Domain.Enums;
+using Domain.SeedWork;
+using Domain.ValueObjects;
 
 namespace Domain.Entities
 {
-    // ŞUBE (Fiziksel Mekan - Sipariş buradan verilir)
-    public class SavedAddress : Entity
+    public class CustomerAddress : Entity
     {
         public Guid CustomerId { get; private set; }
         public string Title { get; private set; } // "Kadıköy Şubesi"
-        public Location Location { get; private set; } // Koordinat
+        public Address Address { get; private set; } // Koordinat
         public AddressType AddressType { get; private set; }
 
-        public SavedAddress(Guid customerId, string title, Location location)
+        public CustomerAddress(Guid customerId, string title, Address address)
         {
             CustomerId = customerId;
             Title = title;
-            Location = location;
+            Address = address;
         }
     }
 }

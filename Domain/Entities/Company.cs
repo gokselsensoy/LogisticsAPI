@@ -8,68 +8,52 @@ namespace Domain.Entities
 
     // [Company]: Tüzel Kişilik (Base Class)
     // Transporter, Supplier ve Kurumsal Müşteri buradan türer.
-    public abstract class Member : Entity, IAggregateRoot
+    public abstract class Company : Entity, IAggregateRoot
     {
         public string Name { get; private set; }
-        public string BillingAddress { get; private set; }
+        public string? CvrNumber { get; private set; }
 
-        // Bu şirkette çalışanlar (Worker tablosu ile bağlı)
+        // --- Ortak Varlıklar ---
+        private readonly List<Vehicle> _fleet = new();
+        public IReadOnlyCollection<Vehicle> Fleet => _fleet.AsReadOnly();
+
+        private readonly List<Department> _departments = new();
+        public IReadOnlyCollection<Department> Departments => _departments.AsReadOnly();
+
+        private readonly List<Terminal> _terminals = new();
+        public IReadOnlyCollection<Terminal> Terminals => _terminals.AsReadOnly();
+
         private readonly List<Worker> _workers = new();
         public IReadOnlyCollection<Worker> Workers => _workers.AsReadOnly();
 
-        protected Member(string name)
+        protected Company(string name, string? cvrNumber)
         {
             Id = Guid.NewGuid();
             Name = name;
+            CvrNumber = cvrNumber;
         }
+
+        // Ortak Metotlar
+        public void AddVehicle(Vehicle vehicle) => _fleet.Add(vehicle);
+        public void AddDepartment(Department department) => _departments.Add(department);
     }
 
-    public class TransporterCompany : Member
+    public class Transporter : Company
     {
-        public string CvrNumber { get; private set; }
-        public TransporterCompany(string name) : base(name) { }
-        // Filo, Araçlar vb. buraya eklenecek
-    }
 
-    public class SupplierCompany : Member
-    {
-        public string CvrNumber { get; private set; }
-        public SupplierCompany(string name) : base(name) { }
-        // Terminaller vb. buraya eklenecek
-    }
-
-    // KURUMSAL MÜŞTERİ (Zincir Market/Restoran)
-    public class CorporateCustomer : Member
-    {
-        public string CvrNumber { get; private set; }
-        private readonly List<SavedAddress> _addresses = new();
-        public IReadOnlyCollection<SavedAddress> Addresses => _addresses.AsReadOnly();
-
-        public CorporateCustomer(string name) : base(name) { }
-
-        public void AddAddress(string name, Location location)
+        public Transporter(string name, string? cvrNumber)
+            : base(name, cvrNumber)
         {
-            _branches.Add(new CustomerBranch(Id, name, location));
         }
     }
 
-    public class IndividualCustomer : Member
+    public class Supplier : Company
     {
-        public Guid AppUserId { get; private set; }
+        private readonly List<Product> _products = new();
+        public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
 
-        // Bireysel müşterinin şubesi olmaz, adres defteri olur.
-        private readonly List<SavedAddress> _addresses = new();
-        public IReadOnlyCollection<SavedAddress> Addresses => _addresses.AsReadOnly();
+        public Supplier(string name, string? cvrNumber) : base(name, cvrNumber) { }
 
-        public IndividualCustomer(Guid appUserId)
-        {
-            Id = Guid.NewGuid();
-            AppUserId = appUserId;
-        }
-
-        public void AddAddress(string title, Location location)
-        {
-            _addresses.Add(new SavedAddress(Id, title, location));
-        }
+        public void AddProduct(Product product) => _products.Add(product);
     }
 }
