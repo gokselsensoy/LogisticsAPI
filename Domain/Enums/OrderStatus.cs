@@ -1,9 +1,4 @@
 ﻿namespace Domain.Enums
 {
-    public enum OrderStatus
-    {
-        Pending,
-        Shipped,
-        Cancelled
-    }
- }   
+    public enum OrderStatus { Draft, Confirmed, Shipped, Delivered, Cancelled, Returned }
+}   

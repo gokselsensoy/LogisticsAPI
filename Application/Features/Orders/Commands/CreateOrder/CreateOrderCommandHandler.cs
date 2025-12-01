@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Services;
 using AutoMapper;
-using Domain.Entities;
+using Domain.Entities.Order;
+using Domain.Entities.Order.Order;
 using Domain.Repositories;
 using Domain.SeedWork;
 using Domain.ValueObjects;

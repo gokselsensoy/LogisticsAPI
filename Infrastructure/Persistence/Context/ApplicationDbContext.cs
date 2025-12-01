@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Entities.Order;
+using Domain.Entities.Order.Order;
 using Domain.SeedWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

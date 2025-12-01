@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using Domain.Entities.Order;
+using Domain.Entities.Order.Order;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Reflection.Emit;

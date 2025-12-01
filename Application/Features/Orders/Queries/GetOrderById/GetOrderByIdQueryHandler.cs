@@ -2,7 +2,8 @@
 using Application.Exceptions;
 using Application.Features.Orders.DTOs;
 using AutoMapper;
-using Domain.Entities;
+using Domain.Entities.Order;
+using Domain.Entities.Order.Order;
 using Domain.Repositories;
 using MediatR;
 
