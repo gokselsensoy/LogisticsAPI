@@ -7,6 +7,8 @@ namespace Domain.Entities.Company
         private readonly List<Product> _products = new();
         public IReadOnlyCollection<Product> Products => _products.AsReadOnly();
 
+        private Supplier() : base(null!, null) { }
+
         public Supplier(string name, string? cvrNumber) : base(name, cvrNumber) { }
 
         public void AddProduct(Product product) => _products.Add(product);

@@ -1,5 +1,4 @@
-﻿using Application.Features.Users.Commands.SyncUser;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -18,12 +17,12 @@ namespace WebApi.Controllers
             _sender = sender;
         }
 
-        [HttpPost("user-sync")]
-        public async Task<IActionResult> SyncUser([FromBody] SyncUserCommand command)
-        {
-            // Gelen isteği doğrudan Application katmanındaki Handler'a yönlendir
-            await _sender.Send(command);
-            return Ok();
-        }
+        //[HttpPost("user-sync")]
+        //public async Task<IActionResult> SyncUser([FromBody] SyncUserCommand command)
+        //{
+        //    // Gelen isteği doğrudan Application katmanındaki Handler'a yönlendir
+        //    await _sender.Send(command);
+        //    return Ok();
+        //}
     }
 }

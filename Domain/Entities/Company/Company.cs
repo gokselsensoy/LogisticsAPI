@@ -1,7 +1,7 @@
 ﻿using Domain.Entities.Departments;
 using Domain.SeedWork;
 using Domain.ValueObjects;
-using System.Drawing;
+using NetTopologySuite.Geometries;
 
 namespace Domain.Entities.Company
 {
@@ -23,6 +23,7 @@ namespace Domain.Entities.Company
         private readonly List<Worker> _workers = new();
         public IReadOnlyCollection<Worker> Workers => _workers.AsReadOnly();
 
+        protected Company() { }
         protected Company(string name, string? cvrNumber)
         {
             Id = Guid.NewGuid();
@@ -32,12 +33,20 @@ namespace Domain.Entities.Company
 
         // Ortak Metotlar
         public void AddVehicle(Vehicle vehicle) => _fleet.Add(vehicle);
+
         public void AddDepartment(Department department) => _departments.Add(department);
+
+        public void AddTerminal(Terminal terminal) => _terminals.Add(terminal);
+
+        public void AddWorker(Worker worker)
+        {
+            _workers.Add(worker);
+        }
 
         public Department CreateDefaultDepartment()
         {
             var defaultDept = new Department("Merkez Ofis", this.Id,
-                new Address("", "", "", "", "", new Point(0, 0))); // Adres sonradan güncellenir
+                new Address("", "", "", "", "", new Point(0, 0)));
 
             _departments.Add(defaultDept);
             return defaultDept;

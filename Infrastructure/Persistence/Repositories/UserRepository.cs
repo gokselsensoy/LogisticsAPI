@@ -14,20 +14,20 @@ namespace Infrastructure.Persistence.Repositories
             _context = context;
         }
 
-        public void Add(User user)
+        public void Add(AppUser user)
         {
-            _context.Users.Add(user);
+            _context.AppUsers.Add(user);
         }
 
-        public async Task<User?> GetByIdentityIdAsync(Guid identityId, CancellationToken cancellationToken = default)
+        public async Task<AppUser?> GetByIdentityIdAsync(Guid identityId, CancellationToken cancellationToken = default)
         {
-            return await _context.Users
+            return await _context.AppUsers
                 .FirstOrDefaultAsync(u => u.IdentityId == identityId, cancellationToken);
         }
 
-        public void Update(User user)
+        public void Update(AppUser user)
         {
-            _context.Users.Update(user);
+            _context.AppUsers.Update(user);
         }
     }
 }

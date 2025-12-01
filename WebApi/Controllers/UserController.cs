@@ -1,6 +1,4 @@
-﻿using Application.Features.Users.Commands.RegisterUser;
-using Application.Features.Users.Commands.SyncUser;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -16,11 +14,11 @@ namespace WebApi.Controllers
             _sender = sender;
         }
 
-        [HttpPost("register")]
-        public async Task<IActionResult> SyncUser([FromBody] RegisterUserCommand command)
-        {
-            await _sender.Send(command);
-            return Ok();
-        }
+        //[HttpPost("register")]
+        //public async Task<IActionResult> SyncUser([FromBody] RegisterUserCommand command)
+        //{
+        //    await _sender.Send(command);
+        //    return Ok();
+        //}
     }
 }

@@ -5,25 +5,29 @@ namespace Domain.Entities.Customer
 {
     public class CorporateResponsible : Entity
     {
-        public Guid CorporateId { get; private set; }
+        public Guid CorporateCustomerId { get; private set; }
         public Guid AppUserId { get; private set; }
         public CorporateRole Role { get; private set; }
-        private readonly List<CorporateAddressResponsibleMap> _assignedBranches = new();
-        public IReadOnlyCollection<CorporateAddressResponsibleMap> AssignedBranches => _assignedBranches.AsReadOnly();
+
+        // Şube Haritası
+        private readonly List<CorporateAddressResponsibleMap> _assignedAddresses = new();
+        public IReadOnlyCollection<CorporateAddressResponsibleMap> AssignedAddresses => _assignedAddresses.AsReadOnly();
+
+        private CorporateResponsible() { }
 
         public CorporateResponsible(Guid corporateCustomerId, Guid appUserId, CorporateRole role)
         {
-            CorporateId = corporateCustomerId;
+            Id = Guid.NewGuid();
+            CorporateCustomerId = corporateCustomerId;
             AppUserId = appUserId;
             Role = role;
         }
 
-        // Çalışana şube atama metodu
-        public void AssignBranch(Guid branchId)
+        public void AssignAddress(Guid addressId)
         {
-            if (!_assignedBranches.Any(x => x.BranchId == branchId))
+            if (!_assignedAddresses.Any(x => x.AddressId == addressId))
             {
-                _assignedBranches.Add(new CorporateAddressResponsibleMap(Id, branchId));
+                _assignedAddresses.Add(new CorporateAddressResponsibleMap(Id, addressId));
             }
         }
     }

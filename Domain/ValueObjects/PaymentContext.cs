@@ -1,4 +1,5 @@
-﻿using Domain.SeedWork;
+﻿using Domain.Enums;
+using Domain.SeedWork;
 
 namespace Domain.ValueObjects
 {

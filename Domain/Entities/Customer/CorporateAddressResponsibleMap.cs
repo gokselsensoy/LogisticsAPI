@@ -4,13 +4,13 @@ namespace Domain.Entities.Customer
 {
     public class CorporateAddressResponsibleMap : Entity
     {
-        public Guid CorporateWorkerId { get; private set; }
-        public Guid BranchId { get; private set; }
+        public Guid ResponsibleId { get; private set; }
+        public Guid AddressId { get; private set; }
 
-        public CorporateAddressResponsibleMap(Guid corporateWorkerId, Guid branchId)
+        public CorporateAddressResponsibleMap(Guid responsibleId, Guid addressId)
         {
-            CorporateWorkerId = corporateWorkerId;
-            BranchId = branchId;
+            ResponsibleId = responsibleId;
+            AddressId = addressId;
         }
     }
 }

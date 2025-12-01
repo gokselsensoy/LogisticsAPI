@@ -1,7 +1,5 @@
 ﻿using Domain.SeedWork;
 using NetTopologySuite.Geometries;
-using System.Collections.Generic;
-using System.Drawing;
 
 namespace Domain.ValueObjects
 {

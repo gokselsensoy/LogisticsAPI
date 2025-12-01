@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Company\Commands\RegisterCorporoteCustomer\" />
+    <Folder Include="Features\Users\" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,6 @@
-﻿using Domain.SeedWork;
+﻿using Domain.Enums;
+using Domain.SeedWork;
+using Domain.ValueObjects;
 
 namespace Domain.Entities.Task
 {
@@ -7,7 +9,7 @@ namespace Domain.Entities.Task
         public Guid RouteId { get; private set; }
         public int Sequence { get; private set; }
         public TaskType Type { get; private set; }
-        public Location TargetLocation { get; private set; }
+        public Address TargetLocation { get; private set; }
 
         // Görev neyle ilgili?
         public Guid? OrderId { get; private set; } // Teslimat ise

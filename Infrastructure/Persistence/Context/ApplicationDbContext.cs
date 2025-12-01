@@ -1,5 +1,5 @@
-﻿using Domain.Entities.Order;
-using Domain.Entities.Order.Order;
+﻿using Domain.Entities;
+using Domain.Entities.Order;
 using Domain.SeedWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -77,7 +77,7 @@ namespace Infrastructure.Persistence.Context
         }
         #endregion
 
-        public DbSet<User> Users { get; set; }
+        public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
 

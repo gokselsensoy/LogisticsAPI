@@ -4,6 +4,12 @@
     {
         public Guid AppUserId { get; private set; }
 
-        public IndividualCustomer(string name) : base(name) { }
+        private IndividualCustomer() : base(null!, null!, null!) { }
+
+        public IndividualCustomer(string name, Guid appUserId, string email, string phone)
+            : base(name, email, phone)
+        {
+            AppUserId = appUserId;
+        }
     }
 }

@@ -14,11 +14,16 @@ namespace Domain.Entities.Departments
 
         private Worker() { }
 
-        public Worker(Guid companyId, Guid departmentId, Guid appUserId)
+        public Worker(Guid companyId, Guid departmentId, Guid appUserId, List<WorkerRole>? roles = null)
         {
             CompanyId = companyId;
             DepartmentId = departmentId;
             AppUserId = appUserId;
+
+            if (roles != null && roles.Any())
+            {
+                _roles.AddRange(roles);
+            }
         }
 
         public void ChangeDepartment(Guid newDepartmentId)

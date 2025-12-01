@@ -32,7 +32,7 @@ namespace Domain.Entities.Inventory
         }
 
         // Stok Ekleme Metodu (Domain Logic)
-        public InventoryTransaction AddStock(Guid packageId, int quantity, Guid ownerId, InventoryState state, Guid userId, string? note = null)
+        public InventoryTransaction AddStock(Guid packageId, int quantity, Guid ownerId, InventoryState state, Guid workerId, string? note = null)
         {
             var stock = _stocks.FirstOrDefault(s => s.PackageId == packageId && s.OwnerId == ownerId && s.State == state);
 
@@ -54,13 +54,13 @@ namespace Domain.Entities.Inventory
                 quantityChange: quantity, // Pozitif (+)
                 quantityAfter: stock.Quantity, // İşlem sonrası güncel stok (Snapshot)
                 type: TransactionType.Inbound,
-                userId: userId,
+                workerId: workerId,
                 note: note
             );
         }
 
         // Stok Çıkarma (History Kaydı Dönüyor)
-        public InventoryTransaction RemoveStock(Guid packageId, int quantity, Guid ownerId, InventoryState state, Guid userId, string? note = null)
+        public InventoryTransaction RemoveStock(Guid packageId, int quantity, Guid ownerId, InventoryState state, Guid workerId, string? note = null)
         {
             var stock = _stocks.FirstOrDefault(s => s.PackageId == packageId && s.OwnerId == ownerId && s.State == state);
 
@@ -84,7 +84,7 @@ namespace Domain.Entities.Inventory
                 quantityChange: -quantity, // Negatif (-)
                 quantityAfter: stock.Quantity, // 0 veya kalan
                 type: TransactionType.Outbound,
-                userId: userId,
+                workerId: workerId,
                 note: note
             );
         }

@@ -2,6 +2,6 @@
 {
     public interface IIdentityService
     {
-        Task<Guid?> CreateWorkerUserAsync(string email, string password, string role, CancellationToken cancellationToken);
+        Task<Guid?> CreateUserAsync(string email, string password, string role, CancellationToken cancellationToken);
     }
 }

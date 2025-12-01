@@ -2,10 +2,8 @@
 {
     public class Transporter : Company
     {
+        private Transporter() : base(null!, null) { }
 
-        public Transporter(string name, string? cvrNumber)
-            : base(name, cvrNumber)
-        {
-        }
+        public Transporter(string name, string? cvrNumber) : base(name, cvrNumber) { }
     }
 }

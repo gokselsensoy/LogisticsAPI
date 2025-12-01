@@ -13,21 +13,23 @@ namespace Integration.Services
             _httpClient = httpClient;
         }
 
-        public async Task<Guid?> CreateWorkerUserAsync(string email, string password, string role, CancellationToken cancellationToken)
+        // Genel Kullanıcı Oluşturma (Worker, Customer, Freelancer hepsi kullanır)
+        public async Task<Guid?> CreateUserAsync(string email, string password, string role, CancellationToken cancellationToken)
         {
             var request = new
             {
                 Email = email,
                 Password = password,
-                Role = role,
+                Role = role
             };
 
-            var response = await _httpClient.PostAsJsonAsync("/api/Auth/internal-register", request, cancellationToken);
+            var response = await _httpClient.PostAsJsonAsync("/api/auth/internal-register", request, cancellationToken);
 
             if (!response.IsSuccessStatusCode)
             {
-                // TODO: Loglama yapılmalı
-                return null;
+                var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                // Hatayı loglamak veya fırlatmak daha iyidir
+                throw new Exception($"IdentityAPI Hatası ({response.StatusCode}): {errorContent}");
             }
 
             var result = await response.Content.ReadFromJsonAsync<CreateInternalUserResponse>(cancellationToken: cancellationToken);

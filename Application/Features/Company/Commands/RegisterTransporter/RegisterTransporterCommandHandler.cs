@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
+using Domain.Entities;
 using Domain.Entities.Company;
 using Domain.Entities.Departments;
 using Domain.Enums;
@@ -32,13 +33,13 @@ namespace Application.Features.Company.Commands.RegisterTransporter
         {
             // 1. IdentityAPI'de Kullanıcı Oluştur (S2S)
             var identityId = await _identityService.CreateUserAsync(
-                request.Email, request.Password, "Transporter", token);
+                request.Email, request.Password, "Multillo.Transporter", token);
 
             if (identityId == null) throw new Exception("Kullanıcı oluşturulamadı.");
 
             // 2. LogisticsAPI'de User Projeksiyonunu Oluştur (Senkronizasyon)
-            var localUser = User.Create(identityId.Value, request.Email, request.Phone);
-            _userRepo.Add(localUser);
+            var localUser = AppUser.Create(identityId.Value, request.Email, request.Phone, request.FullName);
+            _userRepository.Add(localUser);
 
             // 3. Şirketi (Transporter) Oluştur
             var transporter = new Transporter(request.CompanyName, request.CvrNumber);
@@ -58,7 +59,7 @@ namespace Application.Features.Company.Commands.RegisterTransporter
             transporter.AddWorker(ownerWorker); // Aggregate Root üzerinden ekle
 
             // 6. Kaydet
-            _transporterRepo.Add(transporter);
+            _transporterRepository.Add(transporter);
             await _unitOfWork.SaveChangesAsync(token);
 
             return transporter.Id;
