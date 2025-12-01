@@ -22,5 +22,13 @@ namespace Domain.Entities
                 FullName = fullName
             };
         }
+
+        public void SyncEmail(string newEmail)
+        {
+            if (!string.IsNullOrWhiteSpace(newEmail) && Email != newEmail)
+            {
+                Email = newEmail;
+            }
+        }
     }
 }

@@ -25,10 +25,15 @@ namespace Infrastructure.DependencyInjection
 
             services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<ITransporterRepository, TransporterRepository>();
+            services.AddScoped<ISupplierRepository, SupplierRepository>();
+            services.AddScoped<IFreelancerRepository, FreelancerRepository>();
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderQueryRepository, OrderQueryRepository>();
 
-            services.AddScoped<IUserRepository, UserRepository>();
 
             // 5. Diğer servisler (Email vb.)
             // services.AddTransient<IEmailService, EmailService>();
