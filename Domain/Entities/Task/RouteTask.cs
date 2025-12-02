@@ -14,5 +14,7 @@ namespace Domain.Entities.Task
         // Görev neyle ilgili?
         public Guid? OrderId { get; private set; } // Teslimat ise
         public Guid? ReturnRequestId { get; private set; } // İade ise
+
+        private RouteTask() { }
     }
 }

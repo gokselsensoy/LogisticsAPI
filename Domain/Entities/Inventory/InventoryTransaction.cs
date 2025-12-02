@@ -18,6 +18,8 @@ namespace Domain.Entities.Inventory
         public DateTime CreatedAt { get; private set; } // Ne zaman?
         public string? Note { get; private set; } // "Admin manuel ekledi", "Sipariş #123 için"
 
+        private InventoryTransaction() { }
+
         public InventoryTransaction(Guid inventoryId, Guid packageId, Guid ownerId, int quantityChange, int quantityAfter, TransactionType type, Guid workerId, string? note)
         {
             Id = Guid.NewGuid();

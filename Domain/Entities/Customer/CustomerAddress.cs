@@ -11,6 +11,8 @@ namespace Domain.Entities.Customer
         public Address Address { get; private set; } // Koordinat
         public AddressType AddressType { get; private set; }
 
+        private CustomerAddress() { }
+
         public CustomerAddress(Guid customerId, string title, Address address)
         {
             CustomerId = customerId;

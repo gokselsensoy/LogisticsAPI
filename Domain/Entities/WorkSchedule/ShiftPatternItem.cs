@@ -11,6 +11,8 @@ namespace Domain.Entities.WorkSchedule
         public AssignmentType Type { get; private set; }
         public Guid? DefaultVehicleId { get; private set; } // Bu saat aralığındaki varsayılan araç
 
+        private ShiftPatternItem() { }
+
         public ShiftPatternItem(Guid patternId, TimeSpan start, TimeSpan end, AssignmentType type, Guid? vehicleId)
         {
             WeeklyShiftPatternId = patternId;

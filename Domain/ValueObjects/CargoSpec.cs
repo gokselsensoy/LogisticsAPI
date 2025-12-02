@@ -8,6 +8,8 @@ namespace Domain.ValueObjects
         public double WeightKg { get; private set; }
         public double VolumeM3 { get; private set; }
 
+        private CargoSpec() { }
+
         public CargoSpec(string desc, double weight, double volume)
         {
             Description = desc; WeightKg = weight; VolumeM3 = volume;

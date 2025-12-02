@@ -7,6 +7,8 @@ namespace Domain.Entities.Customer
         public Guid ResponsibleId { get; private set; }
         public Guid AddressId { get; private set; }
 
+        private CorporateAddressResponsibleMap() { }
+
         public CorporateAddressResponsibleMap(Guid responsibleId, Guid addressId)
         {
             ResponsibleId = responsibleId;

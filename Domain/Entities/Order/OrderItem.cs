@@ -16,6 +16,8 @@ namespace Domain.Entities.Order
         public int Quantity { get; private set; }
         public Money UnitPriceSnapshot { get; private set; } // *** Snapshot *** (Zamlardan etkilenmez)
 
+        private OrderItem() { }
+
         public OrderItem(Guid orderId, Guid? packageId, string name, CargoSpec spec, int quantity, Money unitPrice)
         {
             OrderId = orderId;

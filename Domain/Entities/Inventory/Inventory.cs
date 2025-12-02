@@ -19,6 +19,8 @@ namespace Domain.Entities.Inventory
         private readonly List<Stock> _stocks = new();
         public IReadOnlyCollection<Stock> Stocks => _stocks.AsReadOnly();
 
+        private Inventory() { }
+
         public Inventory(Guid terminalId, string area, string? corridor, string? place, string? shelf, bool isVirtual)
         {
             Id = Guid.NewGuid();

@@ -7,6 +7,7 @@ namespace Domain.ValueObjects
         public string Name { get; private set; } // "Ahmet Yılmaz"
         public string Phone { get; private set; }
         public string Email { get; private set; }
+        private ContactInfo() { }
 
         public ContactInfo(string name, string phone, string email)
         {

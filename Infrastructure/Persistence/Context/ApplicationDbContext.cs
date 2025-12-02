@@ -1,5 +1,11 @@
 ﻿using Domain.Entities;
+using Domain.Entities.Company;
+using Domain.Entities.Customer;
+using Domain.Entities.Departments;
+using Domain.Entities.Inventory;
 using Domain.Entities.Order;
+using Domain.Entities.Task;
+using Domain.Entities.WorkSchedule;
 using Domain.SeedWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -78,11 +84,49 @@ namespace Infrastructure.Persistence.Context
         #endregion
 
         public DbSet<AppUser> AppUsers { get; set; }
+        public DbSet<Company> Companies { get; set; }
+        public DbSet<Transporter> Transporters { get; set; }
+        public DbSet<Supplier> Suppliers { get; set; }
+        public DbSet<Freelancer> Freelancers { get; set; }
+
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<CorporateCustomer> CorporateCustomers { get; set; }
+        public DbSet<IndividualCustomer> IndividualCustomers { get; set; }
+        public DbSet<CorporateResponsible> CorporateResponsibles { get; set; }
+        public DbSet<CustomerAddress> CustomerAddresses { get; set; }
+        public DbSet<CorporateAddressResponsibleMap> CorporateAddressResponsibleMap { get; set; }
+
+        public DbSet<Department> Departments { get; set; }
+        public DbSet<Terminal> Terminals { get; set; }
+        public DbSet<Vehicle> Vehicles { get; set; }
+        public DbSet<Worker> Workers { get; set; }
+
+        public DbSet<Inventory> Inventories { get; set; }
+        public DbSet<InventoryTransaction> InventoryTransactions { get; set; }
+        public DbSet<Stock> Stocks { get; set; }
+        public DbSet<Package> Packages { get; set; }
+        public DbSet<Product> Products { get; set; }
+
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<ReturnRequest> ReturnRequests { get; set; }
+        public DbSet<ReturnItem> ReturnItems { get; set; }
+        public DbSet<Shipment> Shipments { get; set; }
+        public DbSet<ShipmentItem> ShipmentItems { get; set; }
+
+        public DbSet<WeeklyShiftPattern> WeeklyShiftPatterns { get; set; }
+        public DbSet<ShiftPatternItem> ShiftPatternItems { get; set; }
+        public DbSet<DailyWorkSchedule> DailyWorkSchedules { get; set; }
+        public DbSet<ScheduleAllocation> ScheduleAllocations { get; set; }
+
+        public DbSet<DeliveryPlan> DeliveryPlans { get; set; }
+        public DbSet<Route> Routes { get; set; }
+        public DbSet<RouteTask> RouteTasks{ get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.HasPostgresExtension("postgis");
             base.OnModelCreating(modelBuilder);
             modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         }

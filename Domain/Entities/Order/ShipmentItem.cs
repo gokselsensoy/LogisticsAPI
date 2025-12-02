@@ -17,6 +17,8 @@ namespace Domain.Entities.Order
         public int RejectedQuantity { get; private set; } // İade/Kabul edilmeyen
         public string? RejectionReason { get; private set; }
 
+        private ShipmentItem() { }
+
         // Şoför sahada günceller
         public void UpdateActuals(int loaded, int delivered, int rejected, string? reason)
         {

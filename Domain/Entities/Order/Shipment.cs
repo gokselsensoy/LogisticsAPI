@@ -20,13 +20,14 @@ namespace Domain.Entities.Order
         public Address DeliveryAddress { get; private set; }
 
 
-        public Guid? AssignedTransporterId { get; private set; }
-        public Guid? AssignedFreelancerId { get; private set; }
+        public Guid AssignedTransporterId { get; private set; }
 
         public ShipmentStatus Status { get; private set; }
 
         private readonly List<ShipmentItem> _items = new();
         public IReadOnlyCollection<ShipmentItem> Items => _items.AsReadOnly();
+
+        private Shipment() { }
 
         public Shipment(
             ShipmentType type,

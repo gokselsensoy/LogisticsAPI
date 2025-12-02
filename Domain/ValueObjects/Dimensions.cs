@@ -9,6 +9,7 @@ namespace Domain.ValueObjects
         public double Height { get; private set; }
         public double Depth { get; private set; }
         public double VolumeM3 => Width * Height * Depth;
+        private Dimensions() { }
 
         public Dimensions(double width, double height, double depth)
         {

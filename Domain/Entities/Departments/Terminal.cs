@@ -11,6 +11,8 @@ namespace Domain.Entities.Departments
         public string? ContactPhone { get; private set; }
         public string? ContactEmail { get; private set; }
 
+        private Terminal() { }
+
         public Terminal(string name, Address address)
         {
             Id = Guid.NewGuid();

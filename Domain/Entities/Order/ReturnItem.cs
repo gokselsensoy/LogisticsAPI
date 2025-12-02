@@ -9,5 +9,7 @@ namespace Domain.Entities.Order
         public string Description { get; private set; } // "3 tane boş kasa"
         public int Quantity { get; private set; }
         public ReturnReason Reason { get; private set; } // Deposit, Damaged
+
+        private ReturnItem() { }
     }
 }

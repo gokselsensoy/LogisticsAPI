@@ -12,6 +12,8 @@ namespace Domain.Entities.Inventory
 
         public InventoryState State { get; private set; }
 
+        private Stock() { }
+
         public Stock(Guid locationId, Guid packageId, int quantity, Guid ownerId, InventoryState state)
         {
             InventoryLocationId = locationId;

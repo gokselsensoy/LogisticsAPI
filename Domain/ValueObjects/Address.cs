@@ -116,9 +116,10 @@ namespace Domain.ValueObjects
             yield return ZipCode;
             yield return City;
             yield return FloorLabel ?? string.Empty;
-            yield return FloorNumber ?? -999; // Nullable int için default
+            yield return FloorNumber ?? -999;
             yield return Door ?? string.Empty;
             yield return Location;
+            yield return FormattedAddress;
         }
     }
 }

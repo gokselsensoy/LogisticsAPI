@@ -8,6 +8,8 @@ namespace Domain.ValueObjects
         public DateTime Start { get; private set; }
         public DateTime End { get; private set; }
 
+        private TimeRange() { }
+
         public TimeRange(DateTime start, DateTime end)
         {
             if (end < start) throw new DomainException("Bitiş zamanı başlangıçtan önce olamaz.");

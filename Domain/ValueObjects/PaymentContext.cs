@@ -9,6 +9,8 @@ namespace Domain.ValueObjects
         public bool IsProductSettlementRequired { get; private set; } // Supplier'a ödeme?
         public bool IsLogisticsSettlementRequired { get; private set; } // Transporter'a ödeme?
 
+        private PaymentContext() { }
+
         public PaymentContext(PaymentChannel channel)
         {
             Channel = channel;

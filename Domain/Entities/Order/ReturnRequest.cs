@@ -22,5 +22,7 @@ namespace Domain.Entities.Order
         public IReadOnlyCollection<ReturnItem> Items => _items.AsReadOnly();
 
         public Guid? CreatedShipmentId { get; private set; }
+
+        private ReturnRequest() { }
     }
 }

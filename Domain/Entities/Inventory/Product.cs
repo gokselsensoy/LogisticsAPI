@@ -14,6 +14,8 @@ namespace Domain.Entities.Inventory
         private readonly List<Package> _packages = new();
         public IReadOnlyCollection<Package> Packages => _packages.AsReadOnly();
 
+        private Product() { }
+
         public Product(Guid supplierId, string name)
         {
             Id = Guid.NewGuid();
