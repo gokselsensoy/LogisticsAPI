@@ -1,0 +1,10 @@
+﻿using Domain.Entities.Customer;
+using Domain.SeedWork;
+
+namespace Domain.Repositories
+{
+    public interface IIndividualCustomerRepository : IRepository<IndividualCustomer>
+    {
+        Task<IndividualCustomer?> GetByAppUserIdAsync(Guid appUserId, CancellationToken token);
+    }
+}
