@@ -20,7 +20,7 @@ namespace Application.Features.Departments.Commands.CreateDepartment
 
         // --- ADRES DETAYLARI (Opsiyonel) ---
         public string? Floor { get; set; }      // Örn: "st", "1", "kl"
-        public string? Door { get; set; }       // Örn: "th", "tv"
+        public string? Door { get; set; }       // Örn: "th", "tv" //
 
         // --- KONUM (Harita için) ---
         public double Latitude { get; set; }    // Enlem
