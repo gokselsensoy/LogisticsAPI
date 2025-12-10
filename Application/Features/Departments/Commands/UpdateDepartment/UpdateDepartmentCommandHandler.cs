@@ -33,7 +33,7 @@ namespace Application.Features.Departments.Commands.UpdateDepartment
         {
             // 1. Yetki Kontrolü
             var worker = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (worker == null || (!worker.Roles.Contains(WorkerRole.Admin) && !worker.Roles.Contains(WorkerRole.Admin)))
+            if (worker == null || (!worker.Roles.Contains(WorkerRole.Admin)))
                 throw new UnauthorizedAccessException("Yetkiniz yok.");
 
             // 2. Şirketi ve Departmanları Çek

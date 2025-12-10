@@ -34,7 +34,7 @@ namespace Application.Features.Departments.Commands.CreateDepartment
         {
             // 1. Yetki ve Şirket Kontrolü
             var worker = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (worker == null || (!worker.Roles.Contains(WorkerRole.Admin) && !worker.Roles.Contains(WorkerRole.Admin)))
+            if (worker == null || (!worker.Roles.Contains(WorkerRole.Admin)))
                 throw new UnauthorizedAccessException("Departman ekleme yetkiniz yok.");
 
             var company = await _companyRepo.GetByIdAsync(worker.CompanyId, token);

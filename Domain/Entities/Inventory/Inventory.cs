@@ -4,7 +4,7 @@ using Domain.SeedWork;
 namespace Domain.Entities.Inventory
 {
     // 2. DETAYLI LOKASYON (Depocu ürünü bulsun diye)
-    public class Inventory : Entity
+    public class Inventory : FullAuditedEntity, IAggregateRoot
     {
         public Guid TerminalId { get; private set; }
         public string LocationCode { get; private set; }
@@ -30,7 +30,36 @@ namespace Domain.Entities.Inventory
             Place = place;
             Shelf = shelf;
             IsVirtual = isVirtual;
-            LocationCode = $"{Area}-{Corridor}-{Place}-{Shelf}".Trim('-');
+            LocationCode = GenerateLocationCode();
+        }
+
+        public static Inventory CreateVirtual(Guid terminalId)
+        {
+            var inventory = new Inventory();
+            inventory.Id = Guid.NewGuid();
+            inventory.TerminalId = terminalId;
+            inventory.IsVirtual = true;
+            inventory.Area = "Virtual";
+            inventory.LocationCode = "VIRTUAL"; // Sabit kod
+
+            // Diğer alanlar null kalır (default)
+            inventory.Corridor = null;
+            inventory.Place = null;
+            inventory.Shelf = null;
+
+            return inventory;
+        }
+        public void Delete()
+        {
+            if (IsVirtual)
+            {
+                throw new Exception("Sanal (Virtual) envanter silinemez!");
+            }
+
+            // FullAuditedEntity özelliği sayesinde Interceptor bunu yakalayıp Soft Delete yapacak
+            IsDeleted = true;
+            // Ancak Application katmanında _repo.Remove(this) çağrılmalı ki Interceptor tetiklensin.
+            // Veya direkt burada Event fırlatılabilir.
         }
 
         // Stok Ekleme Metodu (Domain Logic)
@@ -89,6 +118,12 @@ namespace Domain.Entities.Inventory
                 workerId: workerId,
                 note: note
             );
+        }
+
+        private string GenerateLocationCode()
+        {
+            // Kod üretme mantığın buraya...
+            return $"{Area}-{Corridor}-{Place}-{Shelf}".Trim('-');
         }
     }
 }

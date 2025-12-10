@@ -5,7 +5,7 @@ namespace Domain.Entities.Inventory
 {
     public class Stock : Entity
     {
-        public Guid InventoryLocationId { get; private set; }
+        public Guid InventoryId { get; private set; }
         public Guid PackageId { get; private set; }
         public int Quantity { get; private set; }
         public Guid OwnerId { get; private set; }
@@ -14,9 +14,9 @@ namespace Domain.Entities.Inventory
 
         private Stock() { }
 
-        public Stock(Guid locationId, Guid packageId, int quantity, Guid ownerId, InventoryState state)
+        public Stock(Guid inventoryId, Guid packageId, int quantity, Guid ownerId, InventoryState state)
         {
-            InventoryLocationId = locationId;
+            InventoryId = inventoryId;
             PackageId = packageId;
             Quantity = quantity;
             OwnerId = ownerId;

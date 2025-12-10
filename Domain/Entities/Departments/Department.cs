@@ -3,7 +3,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities.Departments
 {
-    public class Department : FullAuditedEntity
+    public class Department : FullAuditedEntity, IAggregateRoot
     {
         public string Name { get; private set; }
         public Guid CompanyId { get; private set; }
@@ -11,6 +11,8 @@ namespace Domain.Entities.Departments
         public string? ContactPhone { get; private set; }
         public string? ContactEmail { get; private set; }
         public Guid? ManagerId { get; private set; } // WorkerId
+        private readonly List<Terminal> _terminals = new();
+        public IReadOnlyCollection<Terminal> Terminals => _terminals.AsReadOnly();
         private Department() { }
 
         public Department(Guid companyId, string name, Address address, string? contactPhone, string? contactEmail, Guid? managerId)

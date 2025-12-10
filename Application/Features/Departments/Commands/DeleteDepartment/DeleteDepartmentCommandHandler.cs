@@ -29,7 +29,7 @@ namespace Application.Features.Departments.Commands.DeleteDepartment
         {
             // 1. Yetkiliyi Bul
             var worker = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (worker == null || !worker.Roles.Contains(WorkerRole.Admin)) // Sadece Owner silebilir
+            if (worker == null || !worker.Roles.Contains(WorkerRole.Admin))
                 throw new UnauthorizedAccessException("Departman silme yetkiniz yok.");
 
             // 2. Şirketi ve Departmanları Getir

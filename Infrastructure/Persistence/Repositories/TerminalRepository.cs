@@ -1,0 +1,25 @@
+﻿using Domain.Entities.Departments;
+using Domain.Repositories;
+using Infrastructure.Persistence.Context;
+using Microsoft.EntityFrameworkCore;
+
+namespace Infrastructure.Persistence.Repositories
+{
+    public class TerminalRepository : BaseRepository<Terminal>, ITerminalRepository
+    {
+        public TerminalRepository(ApplicationDbContext context) : base(context)
+        {
+        }
+
+        public async Task<List<Terminal>> GetByCompanyIdAsync(Guid companyId, CancellationToken token)
+        {
+            var query = from t in _context.Set<Terminal>()
+                        join d in _context.Set<Department>() on t.DepartmentId equals d.Id
+                        where d.CompanyId == companyId && !t.IsDeleted && !d.IsDeleted // Soft Delete kontrolü
+                        select t;
+
+            return await query.ToListAsync(token);
+        }
+    }
+
+}

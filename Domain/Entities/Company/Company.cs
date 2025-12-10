@@ -18,9 +18,6 @@ namespace Domain.Entities.Company
         private readonly List<Department> _departments = new();
         public IReadOnlyCollection<Department> Departments => _departments.AsReadOnly();
 
-        private readonly List<Terminal> _terminals = new();
-        public IReadOnlyCollection<Terminal> Terminals => _terminals.AsReadOnly();
-
         private readonly List<Worker> _workers = new();
         public IReadOnlyCollection<Worker> Workers => _workers.AsReadOnly();
 
@@ -68,8 +65,6 @@ namespace Domain.Entities.Company
         #endregion
 
         public void AddVehicle(Vehicle vehicle) => _fleet.Add(vehicle);
-
-        public void AddTerminal(Terminal terminal) => _terminals.Add(terminal);
 
         public void AddWorker(Worker worker)
         {
