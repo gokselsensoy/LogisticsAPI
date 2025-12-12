@@ -21,5 +21,4 @@ namespace Infrastructure.Persistence.Repositories
             return await query.ToListAsync(token);
         }
     }
-
 }

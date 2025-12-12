@@ -7,4 +7,5 @@ namespace Domain.Repositories
     {
         Task<List<Terminal>> GetByCompanyIdAsync(Guid companyId, CancellationToken token);
     }
+    
 }

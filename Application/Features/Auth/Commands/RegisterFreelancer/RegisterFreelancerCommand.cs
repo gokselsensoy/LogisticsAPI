@@ -5,7 +5,6 @@ namespace Application.Features.Auth.Commands.RegisterFreelancer
 {
     public class RegisterFreelancerCommand : ICommand<Guid>
     {
-        public string AppUserId { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
         public string Phone { get; set; }

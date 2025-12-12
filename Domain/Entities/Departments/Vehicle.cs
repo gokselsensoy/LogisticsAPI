@@ -25,11 +25,11 @@ namespace Domain.Entities.Departments
         // Factory 1: Şirket Aracı (Supplier veya Transporter)
         public static Vehicle CreateCompanyVehicle(
             Guid companyId, // SupplierId veya TransporterId buraya gelir
+            Guid departmentId,
             string plate,
             VehicleType type,
             double weight,
-            double volume,
-            Guid departmentId)
+            double volume)
         {
             if (companyId == Guid.Empty) throw new DomainException("CompanyId boş olamaz.");
 

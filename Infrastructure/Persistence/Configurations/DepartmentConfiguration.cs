@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Departments;
+﻿using Domain.Entities.Company;
+using Domain.Entities.Departments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -28,6 +29,12 @@ namespace Infrastructure.Persistence.Configurations
                  .HasColumnName("Address_Location")
                  .HasColumnType("geometry (point, 4326)");
             });
+
+            builder.HasOne<Company>()  // Departman bir Company'ye bağlıdır.
+               .WithMany()         // Company'nin birden çok departmanı olabilir (Parametre BOŞ bırakılır çünkü Company'de liste yok).
+               .HasForeignKey(d => d.CompanyId) // Bağlantı bu ID ile sağlanır.
+               .IsRequired()       // Her departmanın bir şirketi olmak zorundadır.
+               .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Departments;
+using Domain.Enums;
 using Domain.Events.DepartmentEvents;
 using Domain.SeedWork;
 using Domain.ValueObjects;
@@ -11,16 +12,6 @@ namespace Domain.Entities.Company
         public string Name { get; private set; }
         public string CvrNumber { get; private set; }
 
-        // --- Ortak Varlıklar ---
-        private readonly List<Vehicle> _fleet = new();
-        public IReadOnlyCollection<Vehicle> Fleet => _fleet.AsReadOnly();
-
-        private readonly List<Department> _departments = new();
-        public IReadOnlyCollection<Department> Departments => _departments.AsReadOnly();
-
-        private readonly List<Worker> _workers = new();
-        public IReadOnlyCollection<Worker> Workers => _workers.AsReadOnly();
-
         protected Company() { }
         protected Company(string name, string? cvrNumber)
         {
@@ -30,54 +21,70 @@ namespace Domain.Entities.Company
         }
 
 
-        #region Department Methods
-        public void AddDepartment(string name, Address address, string? contactPhone, string? contactEmail, Guid? managerId)
+        #region Worker Factory
+        public Worker CreateWorker(Guid appUserId, string fullName, string phone, List<WorkerRole> roles)
         {
-            var department = new Department(this.Id, name, address, contactPhone, contactEmail, managerId);
-            _departments.Add(department);
+            // Şirket kuralları (Örn: Pasif şirkete işçi alınmaz)
+            // if (!IsActive) throw new DomainException("Şirket pasif.");
 
-            AddDomainEvent(new DepartmentCreatedEvent(department.Id, this.Id, name));
-        }
+            var worker = new Worker(
+                this.Id,    // CompanyId
+                this.Id,    // DepartmentId (Varsayılan olarak Merkeze ata veya parametre al)
+                appUserId,
+                fullName,
+                phone,
+                roles
+            );
 
-        public void UpdateDepartment(Guid departmentId, string name, Address newAddress, string? phone, string? email, Guid? managerId)
-        {
-            var dept = _departments.FirstOrDefault(d => d.Id == departmentId);
-            if (dept == null) throw new Exception("Departman bulunamadı.");
-
-            dept.UpdateDetails(name, phone, email);
-            dept.Relocate(newAddress);
-            dept.AssignManager(managerId);
-
-            AddDomainEvent(new DepartmentUpdatedEvent(dept.Id, this.Id));
-        }
-
-        public void RemoveDepartment(Guid departmentId)
-        {
-            var dept = _departments.FirstOrDefault(d => d.Id == departmentId);
-            if (dept == null) throw new Exception("Departman bulunamadı.");
-
-            // EF Core bunu "Deleted" olarak işaretler.
-            // Bizim Interceptor bunu yakalar, "Deleted"ı iptal eder ve "IsDeleted = true" yapar.
-            _departments.Remove(dept);
-
-            AddDomainEvent(new DepartmentDeletedEvent(dept.Id, this.Id));
+            return worker;
         }
         #endregion
 
-        public void AddVehicle(Vehicle vehicle) => _fleet.Add(vehicle);
-
-        public void AddWorker(Worker worker)
+        #region Department Factory
+        // CreateDepartment: Sadece üretir. Kaydetmek Handler'ın işidir.
+        public Department CreateDepartment(string name, Address address, string? contactPhone, string? contactEmail, Guid? managerId)
         {
-            _workers.Add(worker);
+            var department = new Department(
+                this.Id, // CompanyId
+                name,
+                address,
+                contactPhone,
+                contactEmail,
+                managerId
+            );
+
+            // Domain Event fırlatabiliriz (Loglama veya yan etkiler için)
+            AddDomainEvent(new DepartmentCreatedEvent(department.Id, this.Id, name));
+
+            return department;
         }
 
+        // Default Department Üretimi (Register sırasında kullanılır)
         public Department CreateDefaultDepartment()
         {
-            var defaultDept = new Department(this.Id, "Default Department",
-                new Address("", "", "", "", "", new Point(0, 0)), "", "", null);
+            // Boş bir adres ile varsayılan departman
+            var defaultAddress = new Address("", "", "", "", "", new NetTopologySuite.Geometries.Point(0, 0));
 
-            _departments.Add(defaultDept);
+            var defaultDept = new Department(
+                this.Id,
+                "Merkez Ofis", // veya "Headquarters"
+                defaultAddress,
+                null,
+                null,
+                null
+            );
+
+            // Event fırlat
+            AddDomainEvent(new DepartmentCreatedEvent(defaultDept.Id, this.Id, defaultDept.Name));
+
             return defaultDept;
         }
+        #endregion
+
+        // --- UPDATE VE REMOVE METOTLARI NEREYE GİTTİ? ---
+        // Cevap: Artık Company içinde değiller.
+        // Department bir Aggregate Root olduğu için;
+        // UpdateDepartment -> Department.UpdateDetails() (Kendi içinde)
+        // RemoveDepartment -> _departmentRepo.Delete() (Handler içinde)
     }
 }

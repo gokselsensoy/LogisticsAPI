@@ -33,7 +33,11 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<ITransporterRepository, TransporterRepository>();
             services.AddScoped<ISupplierRepository, SupplierRepository>();
 
+            services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<IWorkerRepository, WorkerRepository>();
+
+            services.AddScoped<ITerminalRepository, TerminalRepository>();
+            services.AddScoped<IInventoryRepository, InventoryRepository>();
 
             services.AddScoped<IFreelancerRepository, FreelancerRepository>();
 

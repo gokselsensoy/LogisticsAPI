@@ -8,10 +8,13 @@ namespace Domain.Entities.Customer
 
         private IndividualCustomer() : base(null!, null!, null!) { }
 
-        public IndividualCustomer(string name, Guid appUserId, string email, string phone)
+        public IndividualCustomer(Guid appUserId, string name, string email, string phone)
             : base(name, email, phone)
         {
             AppUserId = appUserId;
+            Name = name;
+            Email = email;
+            PhoneNumber = phone;
 
             AddDomainEvent(new IndividualCustomerRegisteredEvent(this.Id, name, email));
         }

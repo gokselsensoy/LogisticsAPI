@@ -18,21 +18,28 @@ namespace Integration.Services
         #region Get By Email Async
         public async Task<UserDto?> GetByEmailAsync(string email, CancellationToken cancellationToken)
         {
-            // IdentityAPI'de bu endpoint'in olduğunu varsayıyoruz:
-            // GET /api/users/by-email/{email}
-            try
-            {
-                var response = await _httpClient.GetFromJsonAsync<UserDto>(
-                    $"/api/users/by-email/{email}",
-                    cancellationToken);
+            var url = $"/api/users/by-email?email={Uri.EscapeDataString(email)}";
 
-                return response;
-            }
-            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            // 1. GetFromJsonAsync yerine GetAsync kullanıyoruz
+            var response = await _httpClient.GetAsync(url, cancellationToken);
+
+            // 2. Eğer 404 ise null dön (Kullanıcı yok)
+            if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                // Kullanıcı yoksa null dön
                 return null;
             }
+
+            // 3. Eğer başarısızsa (500, 400, 401 vs.) hatanın İÇERİĞİNİ oku
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+
+                // Hata fırlatırken bu içeriği de mesaja ekle
+                throw new Exception($"Identity API Hatası ({response.StatusCode}): {errorContent}");
+            }
+
+            // 4. Başarılıysa JSON'ı deserialize et
+            return await response.Content.ReadFromJsonAsync<UserDto>(cancellationToken: cancellationToken);
         }
         #endregion
 
@@ -97,6 +104,15 @@ namespace Integration.Services
             }
 
             return await response.Content.ReadFromJsonAsync<TokenResponse>(cancellationToken: cancellationToken);
+        }
+        #endregion
+
+        #region Add Role
+        public async Task AddToRoleAsync(Guid identityId, string role, CancellationToken token)
+        {
+            // IdentityAPI'de POST /api/users/{id}/roles endpoint'i olmalı
+            var response = await _httpClient.PostAsJsonAsync($"/api/users/{identityId}/roles", new { Role = role }, token);
+            response.EnsureSuccessStatusCode();
         }
         #endregion
     }

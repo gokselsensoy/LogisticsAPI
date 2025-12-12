@@ -28,23 +28,35 @@ namespace Application.Features.Auth.Commands.RegisterFreelancer
         }
         public async Task<Guid> Handle(RegisterFreelancerCommand request, CancellationToken token)
         {
-            // 1. Identity
-            var identityId = await _identityService.CreateUserAsync(
-                request.Email, request.Password, "Freelancer", token);
+            Guid appUserId;
 
-            // 2. Local User
-            var localUser = AppUser.Create(identityId.Value, request.Email, request.Phone, request.FullName);
-            _userRepository.Add(localUser);
+            // 1. Kullanıcı Kontrolü
+            var existingUser = await _identityService.GetByEmailAsync(request.Email, token);
 
-            // 3. Freelancer Entity
+            if (existingUser != null)
+            {
+                var appUser = await _userRepository.GetByIdentityIdAsync(existingUser.Id, token);
+                appUserId = appUser.Id;
+                await _identityService.AddToRoleAsync(existingUser.Id, "Freelancer", token);
+            }
+            else
+            {
+                var newId = await _identityService.CreateUserAsync(request.Email, request.Password, "Freelancer", token);
+                var appUser = AppUser.Create(newId.Value, request.Email);
+                _userRepository.Add(appUser);
+                appUserId = appUser.Id;
+            }
+
+            // 2. Freelancer Profilini Oluştur
+            // Burada da İsim ve Telefon Command'den geliyor
             var freelancer = new Freelancer(
-                localUser.Id,
-                request.FullName,
+                appUserId,
+                request.FullName, // <-- Freelancer tablosuna yazılacak isim
+                request.Phone, // <-- Freelancer tablosuna yazılacak tel
                 request.CvrNumber,
                 request.Email
             );
 
-            // 4. Kaydet
             _freelancerRepository.Add(freelancer);
             await _unitOfWork.SaveChangesAsync(token);
 

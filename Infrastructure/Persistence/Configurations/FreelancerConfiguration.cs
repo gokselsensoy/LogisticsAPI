@@ -9,9 +9,6 @@ namespace Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<Freelancer> builder)
         {
             builder.ToTable("Freelancers");
-
-            // Araçlar
-            builder.HasMany(f => f.Vehicles).WithOne().HasForeignKey(v => v.FreelancerId);
         }
     }
 }

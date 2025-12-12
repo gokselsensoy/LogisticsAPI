@@ -7,6 +7,8 @@ namespace Domain.Entities.Customer
     {
         public Guid CorporateCustomerId { get; private set; }
         public Guid AppUserId { get; private set; }
+        public string FullName { get; private set; }
+        public string Phone { get; private set; }
         public CorporateRole Role { get; private set; }
 
         // Şube Haritası
@@ -15,11 +17,13 @@ namespace Domain.Entities.Customer
 
         private CorporateResponsible() { }
 
-        public CorporateResponsible(Guid corporateCustomerId, Guid appUserId, CorporateRole role)
+        public CorporateResponsible(Guid corporateCustomerId, Guid appUserId, string fullName, string phone, CorporateRole role)
         {
             Id = Guid.NewGuid();
             CorporateCustomerId = corporateCustomerId;
             AppUserId = appUserId;
+            FullName = fullName;
+            Phone = phone;
             Role = role;
         }
 

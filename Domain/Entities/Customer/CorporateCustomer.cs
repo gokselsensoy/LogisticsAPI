@@ -21,9 +21,10 @@ namespace Domain.Entities.Customer
         }
 
         // Admin ekleme metodu
-        public void AddResponsible(Guid appUserId, CorporateRole role)
+        public void AddResponsible(Guid appUserId, string fullName, string phone, CorporateRole role)
         {
-            _responsibles.Add(new CorporateResponsible(Id, appUserId, role));
+            _responsibles.Add(new CorporateResponsible(Id, appUserId, fullName, phone, role));
+            // AddDomainEvent(new CorporateResponsibleCreatedEvent(responsible.Id, email, ...));
         }
     }
 }

@@ -13,6 +13,7 @@ namespace Application.Features.Departments.Commands.CreateDepartment
         private readonly ICurrentUserService _currentUser;
         private readonly IWorkerRepository _workerRepo;
         private readonly ICompanyRepository _companyRepo;
+        private readonly IDepartmentRepository _departmentRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly GeometryFactory _geometryFactory; // Konum oluşturucu
 
@@ -20,11 +21,13 @@ namespace Application.Features.Departments.Commands.CreateDepartment
             ICurrentUserService currentUser,
             IWorkerRepository workerRepo,
             ICompanyRepository companyRepo,
+            IDepartmentRepository departmentRepo,
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;
             _workerRepo = workerRepo;
             _companyRepo = companyRepo;
+            _departmentRepo = departmentRepo;
             _unitOfWork = unitOfWork;
             // SRID 4326 (GPS/Dünya Standardı) için factory
             _geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
@@ -57,7 +60,7 @@ namespace Application.Features.Departments.Commands.CreateDepartment
             );
 
             // 4. Domain Metodunu Çağır (Aggregate Root Üzerinden)
-            company.AddDepartment(
+            var department = company.CreateDepartment(
                 request.Name,
                 address,
                 request.Phone,
@@ -65,11 +68,13 @@ namespace Application.Features.Departments.Commands.CreateDepartment
                 request.ManagerId
             );
 
+            _departmentRepo.Add(department);
+
             // 5. Kaydet
             await _unitOfWork.SaveChangesAsync(token);
 
             // Son eklenen ID'yi döndür
-            return company.Departments.Last().Id;
+            return department.Id;
         }
     }
 }

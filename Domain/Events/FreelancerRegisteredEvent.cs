@@ -2,5 +2,5 @@
 
 namespace Domain.Events
 {
-    public record FreelancerRegisteredEvent(Guid FreelancerId, string Name, string Email) : IDomainEvent;
+    public record FreelancerRegisteredEvent(Guid FreelancerId, string FullName, string Phone, string CvrNumber, string Email) : IDomainEvent;
 }

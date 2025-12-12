@@ -14,7 +14,7 @@ namespace Application.Features.Terminals.Commands.CreateTerminal
         private readonly ICurrentUserService _currentUser;
         private readonly IWorkerRepository _workerRepo;
         private readonly ITerminalRepository _terminalRepo;
-        private readonly IRepository<Department> _departmentRepo; // Departman kontrolü için
+        private readonly IDepartmentRepository _departmentRepo; // Departman kontrolü için
         private readonly IUnitOfWork _unitOfWork;
         private readonly GeometryFactory _geometryFactory;
 
@@ -22,7 +22,7 @@ namespace Application.Features.Terminals.Commands.CreateTerminal
             ICurrentUserService currentUser,
             IWorkerRepository workerRepo,
             ITerminalRepository terminalRepo,
-            IRepository<Department> departmentRepo,
+            IDepartmentRepository departmentRepo,
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;

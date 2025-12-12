@@ -7,258 +7,13 @@ using NetTopologySuite.Geometries;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class table_create : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "CreatedDate",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Price",
-                table: "OrderItems");
-
-            migrationBuilder.DropColumn(
-                name: "ProductId",
-                table: "OrderItems");
-
-            migrationBuilder.RenameColumn(
-                name: "ShippingZipCode",
-                table: "Orders",
-                newName: "Del_ZipCode");
-
-            migrationBuilder.RenameColumn(
-                name: "ShippingStreet",
-                table: "Orders",
-                newName: "Del_Street");
-
-            migrationBuilder.RenameColumn(
-                name: "ShippingCity",
-                table: "Orders",
-                newName: "Del_City");
-
             migrationBuilder.AlterDatabase()
                 .Annotation("Npgsql:PostgresExtension:postgis", ",,");
-
-            migrationBuilder.AlterColumn<Guid>(
-                name: "CustomerId",
-                table: "Orders",
-                type: "uuid",
-                nullable: true,
-                oldClrType: typeof(Guid),
-                oldType: "uuid");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Del_ZipCode",
-                table: "Orders",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(10)",
-                oldMaxLength: 10);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Del_Street",
-                table: "Orders",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(200)",
-                oldMaxLength: 200);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "Del_City",
-                table: "Orders",
-                type: "text",
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "character varying(100)",
-                oldMaxLength: 100);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Contact_Email",
-                table: "Orders",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Contact_Name",
-                table: "Orders",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Contact_Phone",
-                table: "Orders",
-                type: "character varying(20)",
-                maxLength: 20,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Currency",
-                table: "Orders",
-                type: "character varying(3)",
-                maxLength: 3,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "CustomerAddressId",
-                table: "Orders",
-                type: "uuid",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Del_BuildingNo",
-                table: "Orders",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Del_Country",
-                table: "Orders",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Del_Door",
-                table: "Orders",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Del_FloorLabel",
-                table: "Orders",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<int>(
-                name: "Del_FloorNumber",
-                table: "Orders",
-                type: "integer",
-                nullable: true);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Del_FormattedAddress",
-                table: "Orders",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<Point>(
-                name: "Del_Location",
-                table: "Orders",
-                type: "geometry (point, 4326)",
-                nullable: false);
-
-            migrationBuilder.AddColumn<string>(
-                name: "ExternalReferenceCode",
-                table: "Orders",
-                type: "text",
-                nullable: true);
-
-            migrationBuilder.AddColumn<int>(
-                name: "Origin",
-                table: "Orders",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<int>(
-                name: "Payment_Channel",
-                table: "Orders",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "Payment_LogSettlement",
-                table: "Orders",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<bool>(
-                name: "Payment_ProdSettlement",
-                table: "Orders",
-                type: "boolean",
-                nullable: false,
-                defaultValue: false);
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "SupplierId",
-                table: "Orders",
-                type: "uuid",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "TotalAmount",
-                table: "Orders",
-                type: "numeric(18,2)",
-                nullable: false,
-                defaultValue: 0m);
-
-            migrationBuilder.AddColumn<string>(
-                name: "NameSnapshot",
-                table: "OrderItems",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "PackageId",
-                table: "OrderItems",
-                type: "uuid",
-                nullable: true);
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "Price_Amount",
-                table: "OrderItems",
-                type: "numeric(18,2)",
-                nullable: false,
-                defaultValue: 0m);
-
-            migrationBuilder.AddColumn<string>(
-                name: "Price_Currency",
-                table: "OrderItems",
-                type: "character varying(3)",
-                maxLength: 3,
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Spec_Desc",
-                table: "OrderItems",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
-
-            migrationBuilder.AddColumn<double>(
-                name: "Spec_Volume",
-                table: "OrderItems",
-                type: "double precision",
-                nullable: false,
-                defaultValue: 0.0);
-
-            migrationBuilder.AddColumn<double>(
-                name: "Spec_Weight",
-                table: "OrderItems",
-                type: "double precision",
-                nullable: false,
-                defaultValue: 0.0);
 
             migrationBuilder.CreateTable(
                 name: "AppUsers",
@@ -267,8 +22,14 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     IdentityId = table.Column<Guid>(type: "uuid", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
-                    FullName = table.Column<string>(type: "text", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: false)
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -337,7 +98,8 @@ namespace Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     AppUserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
+                    FullName = table.Column<string>(type: "text", nullable: false),
+                    Phone = table.Column<string>(type: "text", nullable: false),
                     CvrNumber = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
@@ -346,7 +108,7 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "InventoryLocations",
+                name: "Inventories",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -356,11 +118,19 @@ namespace Infrastructure.Migrations
                     Area = table.Column<string>(type: "text", nullable: false),
                     Corridor = table.Column<string>(type: "text", nullable: true),
                     Place = table.Column<string>(type: "text", nullable: true),
-                    Shelf = table.Column<string>(type: "text", nullable: true)
+                    Shelf = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_InventoryLocations", x => x.Id);
+                    table.PrimaryKey("PK_Inventories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -381,6 +151,41 @@ namespace Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_InventoryTransactions", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    Origin = table.Column<int>(type: "integer", nullable: false),
+                    ExternalReferenceCode = table.Column<string>(type: "text", nullable: true),
+                    CustomerId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Contact_Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    Contact_Phone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Contact_Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    CustomerAddressId = table.Column<Guid>(type: "uuid", nullable: true),
+                    Del_Location = table.Column<Point>(type: "geometry (point, 4326)", nullable: false),
+                    Del_Street = table.Column<string>(type: "text", nullable: false),
+                    Del_BuildingNo = table.Column<string>(type: "text", nullable: false),
+                    Del_ZipCode = table.Column<string>(type: "text", nullable: false),
+                    Del_City = table.Column<string>(type: "text", nullable: false),
+                    Del_Country = table.Column<string>(type: "text", nullable: false),
+                    Del_FloorNumber = table.Column<int>(type: "integer", nullable: true),
+                    Del_FloorLabel = table.Column<string>(type: "text", nullable: true),
+                    Del_Door = table.Column<string>(type: "text", nullable: true),
+                    Del_FormattedAddress = table.Column<string>(type: "text", nullable: false),
+                    SupplierId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Payment_Channel = table.Column<int>(type: "integer", nullable: false),
+                    Payment_ProdSettlement = table.Column<bool>(type: "boolean", nullable: false),
+                    Payment_LogSettlement = table.Column<bool>(type: "boolean", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -486,7 +291,15 @@ namespace Infrastructure.Migrations
                     Address_Full = table.Column<string>(type: "text", nullable: false),
                     ContactPhone = table.Column<string>(type: "text", nullable: true),
                     ContactEmail = table.Column<string>(type: "text", nullable: true),
-                    ManagerId = table.Column<Guid>(type: "uuid", nullable: true)
+                    ManagerId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -517,37 +330,6 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Terminals",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    DepartmentId = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "text", nullable: false),
-                    Address_Location = table.Column<Point>(type: "geometry (point, 4326)", nullable: false),
-                    Address_Street = table.Column<string>(type: "text", nullable: false),
-                    Address_BuildingNo = table.Column<string>(type: "text", nullable: false),
-                    Address_ZipCode = table.Column<string>(type: "text", nullable: false),
-                    Address_City = table.Column<string>(type: "text", nullable: false),
-                    Address_Country = table.Column<string>(type: "text", nullable: false),
-                    Address_FloorNumber = table.Column<int>(type: "integer", nullable: true),
-                    Address_FloorLabel = table.Column<string>(type: "text", nullable: true),
-                    Address_Door = table.Column<string>(type: "text", nullable: true),
-                    Address_FormattedAddress = table.Column<string>(type: "text", nullable: false),
-                    ContactPhone = table.Column<string>(type: "text", nullable: true),
-                    ContactEmail = table.Column<string>(type: "text", nullable: true),
-                    CompanyId = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Terminals", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Terminals_Companies_CompanyId",
-                        column: x => x.CompanyId,
-                        principalTable: "Companies",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Transporters",
                 columns: table => new
                 {
@@ -572,6 +354,8 @@ namespace Infrastructure.Migrations
                     CompanyId = table.Column<Guid>(type: "uuid", nullable: false),
                     DepartmentId = table.Column<Guid>(type: "uuid", nullable: false),
                     AppUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FullName = table.Column<string>(type: "text", nullable: false),
+                    Phone = table.Column<string>(type: "text", nullable: false),
                     Roles = table.Column<int[]>(type: "integer[]", nullable: false)
                 },
                 constraints: table =>
@@ -730,7 +514,7 @@ namespace Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    InventoryLocationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    InventoryId = table.Column<Guid>(type: "uuid", nullable: false),
                     PackageId = table.Column<Guid>(type: "uuid", nullable: false),
                     Quantity = table.Column<int>(type: "integer", nullable: false),
                     OwnerId = table.Column<Guid>(type: "uuid", nullable: false),
@@ -740,9 +524,35 @@ namespace Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Stocks", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Stocks_InventoryLocations_InventoryLocationId",
-                        column: x => x.InventoryLocationId,
-                        principalTable: "InventoryLocations",
+                        name: "FK_Stocks_Inventories_InventoryId",
+                        column: x => x.InventoryId,
+                        principalTable: "Inventories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderItems",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    OrderId = table.Column<Guid>(type: "uuid", nullable: false),
+                    PackageId = table.Column<Guid>(type: "uuid", nullable: true),
+                    NameSnapshot = table.Column<string>(type: "text", nullable: false),
+                    Spec_Desc = table.Column<string>(type: "text", nullable: false),
+                    Spec_Weight = table.Column<double>(type: "double precision", nullable: false),
+                    Spec_Volume = table.Column<double>(type: "double precision", nullable: false),
+                    Quantity = table.Column<int>(type: "integer", nullable: false),
+                    Price_Amount = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    Price_Currency = table.Column<string>(type: "character varying(3)", maxLength: 3, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OrderItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_OrderItems_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -819,6 +629,46 @@ namespace Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Terminals",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    DepartmentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Address_Location = table.Column<Point>(type: "geometry (point, 4326)", nullable: false),
+                    Address_Street = table.Column<string>(type: "text", nullable: false),
+                    Address_BuildingNo = table.Column<string>(type: "text", nullable: false),
+                    Address_ZipCode = table.Column<string>(type: "text", nullable: false),
+                    Address_City = table.Column<string>(type: "text", nullable: false),
+                    Address_Country = table.Column<string>(type: "text", nullable: false),
+                    Address_FloorNumber = table.Column<int>(type: "integer", nullable: true),
+                    Address_FloorLabel = table.Column<string>(type: "text", nullable: true),
+                    Address_Door = table.Column<string>(type: "text", nullable: true),
+                    Address_FormattedAddress = table.Column<string>(type: "text", nullable: false),
+                    ContactPhone = table.Column<string>(type: "text", nullable: true),
+                    ContactEmail = table.Column<string>(type: "text", nullable: true),
+                    ManagerId = table.Column<Guid>(type: "uuid", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    LastModifiedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    IsActive = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Terminals", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Terminals_Departments_DepartmentId",
+                        column: x => x.DepartmentId,
+                        principalTable: "Departments",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Products",
                 columns: table => new
                 {
@@ -844,6 +694,8 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     CorporateCustomerId = table.Column<Guid>(type: "uuid", nullable: false),
                     AppUserId = table.Column<Guid>(type: "uuid", nullable: false),
+                    FullName = table.Column<string>(type: "text", nullable: false),
+                    Phone = table.Column<string>(type: "text", nullable: false),
                     Role = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -963,10 +815,15 @@ namespace Infrastructure.Migrations
                 column: "CompanyId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_InventoryLocations_TerminalId_LocationCode",
-                table: "InventoryLocations",
+                name: "IX_Inventories_TerminalId_LocationCode",
+                table: "Inventories",
                 columns: new[] { "TerminalId", "LocationCode" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderItems_OrderId",
+                table: "OrderItems",
+                column: "OrderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Packages_ProductId",
@@ -1009,14 +866,14 @@ namespace Infrastructure.Migrations
                 column: "ShipmentId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Stocks_InventoryLocationId",
+                name: "IX_Stocks_InventoryId",
                 table: "Stocks",
-                column: "InventoryLocationId");
+                column: "InventoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Terminals_CompanyId",
+                name: "IX_Terminals_DepartmentId",
                 table: "Terminals",
-                column: "CompanyId");
+                column: "DepartmentId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vehicles_CompanyId",
@@ -1047,13 +904,13 @@ namespace Infrastructure.Migrations
                 name: "CustomerAddresses");
 
             migrationBuilder.DropTable(
-                name: "Departments");
-
-            migrationBuilder.DropTable(
                 name: "IndividualCustomers");
 
             migrationBuilder.DropTable(
                 name: "InventoryTransactions");
+
+            migrationBuilder.DropTable(
+                name: "OrderItems");
 
             migrationBuilder.DropTable(
                 name: "Packages");
@@ -1092,6 +949,9 @@ namespace Infrastructure.Migrations
                 name: "CorporateResponsibles");
 
             migrationBuilder.DropTable(
+                name: "Orders");
+
+            migrationBuilder.DropTable(
                 name: "Products");
 
             migrationBuilder.DropTable(
@@ -1110,7 +970,10 @@ namespace Infrastructure.Migrations
                 name: "Shipments");
 
             migrationBuilder.DropTable(
-                name: "InventoryLocations");
+                name: "Inventories");
+
+            migrationBuilder.DropTable(
+                name: "Departments");
 
             migrationBuilder.DropTable(
                 name: "Freelancers");
@@ -1129,206 +992,6 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Companies");
-
-            migrationBuilder.DropColumn(
-                name: "Contact_Email",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Contact_Name",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Contact_Phone",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Currency",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "CustomerAddressId",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Del_BuildingNo",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Del_Country",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Del_Door",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Del_FloorLabel",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Del_FloorNumber",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Del_FormattedAddress",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Del_Location",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "ExternalReferenceCode",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Origin",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Payment_Channel",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Payment_LogSettlement",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "Payment_ProdSettlement",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "SupplierId",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "TotalAmount",
-                table: "Orders");
-
-            migrationBuilder.DropColumn(
-                name: "NameSnapshot",
-                table: "OrderItems");
-
-            migrationBuilder.DropColumn(
-                name: "PackageId",
-                table: "OrderItems");
-
-            migrationBuilder.DropColumn(
-                name: "Price_Amount",
-                table: "OrderItems");
-
-            migrationBuilder.DropColumn(
-                name: "Price_Currency",
-                table: "OrderItems");
-
-            migrationBuilder.DropColumn(
-                name: "Spec_Desc",
-                table: "OrderItems");
-
-            migrationBuilder.DropColumn(
-                name: "Spec_Volume",
-                table: "OrderItems");
-
-            migrationBuilder.DropColumn(
-                name: "Spec_Weight",
-                table: "OrderItems");
-
-            migrationBuilder.RenameColumn(
-                name: "Del_ZipCode",
-                table: "Orders",
-                newName: "ShippingZipCode");
-
-            migrationBuilder.RenameColumn(
-                name: "Del_Street",
-                table: "Orders",
-                newName: "ShippingStreet");
-
-            migrationBuilder.RenameColumn(
-                name: "Del_City",
-                table: "Orders",
-                newName: "ShippingCity");
-
-            migrationBuilder.AlterDatabase()
-                .OldAnnotation("Npgsql:PostgresExtension:postgis", ",,");
-
-            migrationBuilder.AlterColumn<Guid>(
-                name: "CustomerId",
-                table: "Orders",
-                type: "uuid",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"),
-                oldClrType: typeof(Guid),
-                oldType: "uuid",
-                oldNullable: true);
-
-            migrationBuilder.AlterColumn<string>(
-                name: "ShippingZipCode",
-                table: "Orders",
-                type: "character varying(10)",
-                maxLength: 10,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "ShippingStreet",
-                table: "Orders",
-                type: "character varying(200)",
-                maxLength: 200,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
-
-            migrationBuilder.AlterColumn<string>(
-                name: "ShippingCity",
-                table: "Orders",
-                type: "character varying(100)",
-                maxLength: 100,
-                nullable: false,
-                oldClrType: typeof(string),
-                oldType: "text");
-
-            migrationBuilder.AddColumn<DateTime>(
-                name: "CreatedDate",
-                table: "Orders",
-                type: "timestamp with time zone",
-                nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
-
-            migrationBuilder.AddColumn<decimal>(
-                name: "Price",
-                table: "OrderItems",
-                type: "numeric",
-                nullable: false,
-                defaultValue: 0m);
-
-            migrationBuilder.AddColumn<Guid>(
-                name: "ProductId",
-                table: "OrderItems",
-                type: "uuid",
-                nullable: false,
-                defaultValue: new Guid("00000000-0000-0000-0000-000000000000"));
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
-                    IdentityId = table.Column<Guid>(type: "uuid", nullable: false),
-                    PhoneNumber = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Users_IdentityId",
-                table: "Users",
-                column: "IdentityId",
-                unique: true);
         }
     }
 }

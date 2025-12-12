@@ -7,24 +7,21 @@ namespace Domain.Entities.Company
     public class Freelancer : Entity, IAggregateRoot
     {
         public Guid AppUserId { get; private set; }
-        public string Name { get; private set; }
+        public string FullName { get; private set; }
+        public string Phone { get; private set; }
         public string? CvrNumber { get; private set; }
-
-        private readonly List<Vehicle> _vehicles = new();
-        public IReadOnlyCollection<Vehicle> Vehicles => _vehicles.AsReadOnly();
 
         private Freelancer() { }
 
-        public Freelancer(Guid appUserId, string name, string? cvrNumber, string email)
+        public Freelancer(Guid appUserId, string fullName, string phone, string? cvrNumber, string email)
         {
             Id = Guid.NewGuid();
             AppUserId = appUserId;
-            Name = name;
+            FullName = fullName;
+            Phone = phone;
             CvrNumber = cvrNumber;
 
-            AddDomainEvent(new FreelancerRegisteredEvent(this.Id, name, email));
+            AddDomainEvent(new FreelancerRegisteredEvent(this.Id, fullName, phone, cvrNumber, email));
         }
-
-        public void AddVehicle(Vehicle vehicle) => _vehicles.Add(vehicle);
     }
 }

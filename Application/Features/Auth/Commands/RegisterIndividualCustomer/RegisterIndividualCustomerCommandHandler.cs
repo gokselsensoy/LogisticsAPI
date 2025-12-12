@@ -1,6 +1,9 @@
-﻿using Application.Abstractions.Services;
+﻿using Application.Abstractions.Repositories;
+using Application.Abstractions.Services;
 using Domain.Entities;
+using Domain.Entities.Company;
 using Domain.Entities.Customer;
+using Domain.Repositories;
 using Domain.SeedWork;
 using MediatR;
 
@@ -9,14 +12,14 @@ namespace Application.Features.Auth.Commands.RegisterIndividualCustomer
     public class RegisterIndividualCustomerCommandHandler : IRequestHandler<RegisterIndividualCustomerCommand, Guid>
     {
         private readonly IIdentityService _identityService;
-        private readonly IRepository<IndividualCustomer> _customerRepository;
-        private readonly IRepository<AppUser> _userRepository;
+        private readonly IIndividualCustomerRepository _customerRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
 
         public RegisterIndividualCustomerCommandHandler(
             IIdentityService identityService,
-            IRepository<IndividualCustomer> customerRepository,
-            IRepository<AppUser> userRepository,
+            IIndividualCustomerRepository customerRepository,
+            IUserRepository userRepository,
             IUnitOfWork unitOfWork)
         {
             _identityService = identityService;
@@ -27,27 +30,27 @@ namespace Application.Features.Auth.Commands.RegisterIndividualCustomer
 
         public async Task<Guid> Handle(RegisterIndividualCustomerCommand request, CancellationToken token)
         {
-            var identityId = await _identityService.CreateUserAsync(
-                request.Email,
-                request.Password,
-                "IndividualCustomer",
-                token);
+            Guid appUserId;
 
-            if (identityId == null)
-                throw new Exception("Kimlik oluşturulamadı.");
+            var existingUser = await _identityService.GetByEmailAsync(request.Email, token);
 
-            var localUser = AppUser.Create(
-                identityId.Value,
-                request.Email,
-                request.Phone,
-                request.FullName
-            );
-
-            _userRepository.Add(localUser);
+            if (existingUser != null)
+            {
+                var appUser = await _userRepository.GetByIdentityIdAsync(existingUser.Id, token);
+                appUserId = appUser.Id;
+                await _identityService.AddToRoleAsync(existingUser.Id, "IndividualCustomer", token);
+            }
+            else
+            {
+                var newId = await _identityService.CreateUserAsync(request.Email, request.Password, "IndividualCustomer", token);
+                var appUser = AppUser.Create(newId.Value, request.Email);
+                _userRepository.Add(appUser);
+                appUserId = appUser.Id;
+            }
 
             var individualCustomer = new IndividualCustomer(
+                appUserId,
                 request.FullName,
-                localUser.Id,
                 request.Email,
                 request.Phone
             );

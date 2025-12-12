@@ -24,6 +24,12 @@ namespace Infrastructure.Persistence.Repositories
             _context.AppUsers.Update(user);
         }
 
+        public async Task<AppUser?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        {
+            return await _context.AppUsers
+                .FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+        }
+
         public async Task<AppUser?> GetByIdentityIdAsync(Guid identityId, CancellationToken cancellationToken = default)
         {
             return await _context.AppUsers

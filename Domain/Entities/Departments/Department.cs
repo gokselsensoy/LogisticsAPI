@@ -1,4 +1,6 @@
-﻿using Domain.SeedWork;
+﻿using Domain.Events.DepartmentEvents;
+using Domain.Exceptions;
+using Domain.SeedWork;
 using Domain.ValueObjects;
 
 namespace Domain.Entities.Departments
@@ -11,8 +13,7 @@ namespace Domain.Entities.Departments
         public string? ContactPhone { get; private set; }
         public string? ContactEmail { get; private set; }
         public Guid? ManagerId { get; private set; } // WorkerId
-        private readonly List<Terminal> _terminals = new();
-        public IReadOnlyCollection<Terminal> Terminals => _terminals.AsReadOnly();
+
         private Department() { }
 
         public Department(Guid companyId, string name, Address address, string? contactPhone, string? contactEmail, Guid? managerId)
@@ -28,9 +29,15 @@ namespace Domain.Entities.Departments
 
         public void UpdateDetails(string name, string? phone, string? email)
         {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new DomainException("Departman ismi boş olamaz.");
+
             Name = name;
             ContactPhone = phone;
             ContactEmail = email;
+
+            // Kendi değiştiğini haber veriyor
+            AddDomainEvent(new DepartmentUpdatedEvent(Id, CompanyId));
         }
 
         public void Relocate(Address newAddress)

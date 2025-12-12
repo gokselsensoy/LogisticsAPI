@@ -10,9 +10,6 @@ namespace Infrastructure.Persistence.Configurations
         {
             builder.ToTable("Companies");
             builder.UseTptMappingStrategy();
-
-            builder.HasMany(c => c.Departments).WithOne().HasForeignKey(d => d.CompanyId);
-            builder.HasMany(c => c.Workers).WithOne().HasForeignKey(w => w.CompanyId);
         }
     }
 }

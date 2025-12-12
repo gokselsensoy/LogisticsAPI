@@ -13,6 +13,7 @@ namespace Application.Features.Departments.Commands.UpdateDepartment
         private readonly ICurrentUserService _currentUser;
         private readonly IWorkerRepository _workerRepo;
         private readonly ICompanyRepository _companyRepo;
+        private readonly IDepartmentRepository _departmentRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly GeometryFactory _geometryFactory;
 
@@ -20,11 +21,13 @@ namespace Application.Features.Departments.Commands.UpdateDepartment
             ICurrentUserService currentUser,
             IWorkerRepository workerRepo,
             ICompanyRepository companyRepo,
+            IDepartmentRepository departmentRepo,
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;
             _workerRepo = workerRepo;
             _companyRepo = companyRepo;
+            _departmentRepo = departmentRepo;
             _unitOfWork = unitOfWork;
             _geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
         }
@@ -38,8 +41,8 @@ namespace Application.Features.Departments.Commands.UpdateDepartment
 
             // 2. Şirketi ve Departmanları Çek
             // (Repo'da Include(d => d.Departments) olduğundan emin ol)
-            var company = await _companyRepo.GetByIdWithDepartmentsAsync(worker.CompanyId, token);
-            if (company == null) throw new Exception("Şirket bulunamadı.");
+            var department = await _departmentRepo.GetByIdAsync(request.DepartmentId, token);
+            if (department == null) throw new Exception("Departman bulunamadı.");
 
             // 3. Yeni Konum ve Adres Oluştur
             var location = _geometryFactory.CreatePoint(new Coordinate(request.Longitude, request.Latitude));
@@ -55,20 +58,11 @@ namespace Application.Features.Departments.Commands.UpdateDepartment
                 request.Door
             );
 
-            // 4. Domain Logic: Güncelle
-            // Company içindeki "UpdateDepartment" metodumuz; 
-            // - UpdateDetails
-            // - Relocate
-            // - AssignManager 
-            // metodlarını sırasıyla çağırıp işi bitiriyor.
-            company.UpdateDepartment(
-                request.DepartmentId,
-                request.Name,
-                newAddress,
-                request.Phone,
-                request.Email,
-                request.ManagerId
-            );
+            department.UpdateDetails(request.Name, request.Phone, request.Email);
+            department.Relocate(newAddress);
+            department.AssignManager(request.ManagerId);
+
+            _departmentRepo.Update(department);
 
             // 5. Kaydet
             await _unitOfWork.SaveChangesAsync(token);

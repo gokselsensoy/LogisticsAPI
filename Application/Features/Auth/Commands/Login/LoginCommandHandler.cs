@@ -83,7 +83,7 @@ namespace Application.Features.Auth.Commands.Login
                     ProfileType = "Freelancer",
                     Id = freelancer.Id,
                     CompanyId = null,
-                    Name = freelancer.Name,
+                    Name = freelancer.FullName,
                     Roles = new List<string> { "Freelancer" }
                 });
             }
@@ -144,7 +144,6 @@ namespace Application.Features.Auth.Commands.Login
                     Id = localUser.Id,
                     IdentityId = localUser.IdentityId,
                     Email = localUser.Email,
-                    FullName = localUser.FullName,
 
                     // Profil verilerini doldur
                     WorkerId = activeProfile.ProfileType == "Worker" || activeProfile.ProfileType == "Freelancer" ? activeProfile.Id : null,

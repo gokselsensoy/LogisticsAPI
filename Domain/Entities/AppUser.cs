@@ -3,27 +3,24 @@ using Domain.SeedWork;
 
 namespace Domain.Entities
 {
-    public class AppUser : Entity, IAggregateRoot
+    public class AppUser : FullAuditedEntity, IAggregateRoot
     {
         public Guid IdentityId { get; private set; }
         public string Email { get; private set; }
-        public string FullName { get; private set; }
-        public string PhoneNumber { get; private set; }
 
         private AppUser() { }
 
-        public static AppUser Create(Guid identityId, string email, string phone, string fullName)
+        public static AppUser Create(Guid identityId, string email)
         {
             var user = new AppUser
             {
                 Id = Guid.NewGuid(),
                 IdentityId = identityId,
                 Email = email,
-                PhoneNumber = phone,
-                FullName = fullName
+                IsActive = true
             };
 
-            user.AddDomainEvent(new AppUserCreatedEvent(user.Id, email, fullName));
+            user.AddDomainEvent(new AppUserCreatedEvent(user.Id, email));
 
             return user;
         }
@@ -34,6 +31,14 @@ namespace Domain.Entities
             {
                 Email = newEmail;
             }
+        }
+
+        public void DeactivateAndScrambleEmail()
+        {
+            // Email'i bozuyoruz ki tekrar aynı email ile kayıt olunabilsin.
+            Email = $"deleted_{Guid.NewGuid()}@deleted.com";
+            IsActive = false;
+            // İstersen IsDeleted=true da yapabilirsin ama email'i değiştirmek Unique Index için şart.
         }
     }
 }

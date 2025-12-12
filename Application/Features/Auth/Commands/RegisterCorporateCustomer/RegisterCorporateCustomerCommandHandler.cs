@@ -1,6 +1,8 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
+using Application.Features.Auth.Commands.RegisterSupplier;
 using Domain.Entities;
+using Domain.Entities.Company;
 using Domain.Entities.Customer;
 using Domain.Enums;
 using Domain.Repositories;
@@ -30,20 +32,49 @@ namespace Application.Features.Auth.Commands.RegisterCorporateCustomer
 
         public async Task<Guid> Handle(RegisterCorporateCustomerCommand request, CancellationToken token)
         {
-            var identityId = await _identityService.CreateUserAsync(
-                request.Email, request.Password, "CorporateCustomer", token);
+            Guid appUserId;
+            Guid identityId;
 
-            var localUser = AppUser.Create(identityId.Value, request.Email, request.Phone, request.FullName);
-            _userRepository.Add(localUser);
+            // 1. KULLANICI KONTROLÜ
+            var existingIdentityUser = await _identityService.GetByEmailAsync(request.Email, token);
 
+            if (existingIdentityUser != null)
+            {
+                // Kullanıcı var -> Mevcut ID'yi kullan
+                identityId = existingIdentityUser.Id;
+
+                var existingAppUser = await _userRepository.GetByIdentityIdAsync(identityId, token);
+                appUserId = existingAppUser.Id;
+
+                // Rol Ekle: Adamın "Supplier" rolü yoksa ekle
+                await _identityService.AddToRoleAsync(identityId, "CorporateCustomer", token);
+
+                // GÜVENLİK NOTU:
+                // Public bir kayıt ekranında (Login olmadan), birisi başkasının emailini girip şirket kurabilir mi?
+                // Normalde burada şifre kontrolü yapılır veya "Email zaten var, lütfen giriş yapıp şirket ekleyin" denir.
+                // Ancak senin isteğin üzerine "Direkt Bağla" yapıyoruz. 
+                // Eğer request.Password geliyorsa, IdentityService.CheckPassword ile doğrulama yapman iyi olur.
+                // TO DO: BU SEBEPLE BURAYA EMAİL CONFİRMATİON TARZI BİR ŞEY GELECEK
+            }
+            else
+            {
+                // Kullanıcı yok -> Yarat
+                var newIdentityId = await _identityService.CreateUserAsync(request.Email, request.Password, "CorporateCustomer", token);
+                identityId = newIdentityId.Value;
+
+                var newAppUser = AppUser.Create(identityId, request.Email);
+                _userRepository.Add(newAppUser);
+                appUserId = newAppUser.Id;
+            }
+
+            // 2. Şirketi (Corporate Customer) Oluştur
             var corporateCustomer = new CorporateCustomer(
                 request.CorporateName, request.CvrNumber, request.Email, request.Phone);
 
-            corporateCustomer.AddResponsible(localUser.Id, CorporateRole.Admin);
+            corporateCustomer.AddResponsible(appUserId, request.FullName, request.Phone, CorporateRole.Admin);
 
             _customerRepository.Add(corporateCustomer);
             await _unitOfWork.SaveChangesAsync(token);
-
             return corporateCustomer.Id;
         }
     }

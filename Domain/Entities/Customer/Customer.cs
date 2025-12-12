@@ -2,7 +2,7 @@
 
 namespace Domain.Entities.Customer
 {
-    public abstract class Customer : Entity, IAggregateRoot
+    public abstract class Customer : FullAuditedEntity, IAggregateRoot
     {
         public string Name { get; protected set; }
         public string Email { get; protected set; }

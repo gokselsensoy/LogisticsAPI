@@ -138,16 +138,19 @@ namespace Infrastructure.Persistence.Context
             {
                 if (typeof(ISoftDeletableEntity).IsAssignableFrom(entityType.ClrType))
                 {
-                    var parameter = Expression.Parameter(entityType.ClrType, "e");
-                    var propertyMethodInfo = typeof(EF).GetMethod("Property")?.MakeGenericMethod(typeof(bool));
-                    var isDeletedProperty = Expression.Call(propertyMethodInfo, parameter, Expression.Constant("IsDeleted"));
+                    if (entityType.BaseType == null)
+                    {
+                        var parameter = Expression.Parameter(entityType.ClrType, "e");
+                        var propertyMethodInfo = typeof(EF).GetMethod("Property")?.MakeGenericMethod(typeof(bool));
+                        var isDeletedProperty = Expression.Call(propertyMethodInfo, parameter, Expression.Constant("IsDeleted"));
 
-                    // IsDeleted == true görülmek istendiği zaman sorguda IgnoreQueryFilters eklenecek.
-                    // e => e.IsDeleted == false
-                    BinaryExpression compareExpression = Expression.MakeBinary(ExpressionType.Equal, isDeletedProperty, Expression.Constant(false));
-                    var lambda = Expression.Lambda(compareExpression, parameter);
+                        // IsDeleted == true görülmek istendiği zaman sorguda IgnoreQueryFilters eklenecek.
+                        // e => e.IsDeleted == false
+                        BinaryExpression compareExpression = Expression.MakeBinary(ExpressionType.Equal, isDeletedProperty, Expression.Constant(false));
+                        var lambda = Expression.Lambda(compareExpression, parameter);
 
-                    modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+                        modelBuilder.Entity(entityType.ClrType).HasQueryFilter(lambda);
+                    }
                 }
             }
         }
