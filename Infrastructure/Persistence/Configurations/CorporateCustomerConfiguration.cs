@@ -9,8 +9,6 @@ namespace Infrastructure.Persistence.Configurations
         public void Configure(EntityTypeBuilder<CorporateCustomer> builder)
         {
             builder.ToTable("CorporateCustomers");
-
-            builder.HasMany(c => c.Responsibles).WithOne().HasForeignKey(r => r.CorporateCustomerId);
         }
     }
 }

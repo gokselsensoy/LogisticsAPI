@@ -4,8 +4,10 @@ using Application.Features.Auth.Commands.RegisterFreelancer;
 using Application.Features.Auth.Commands.RegisterIndividualCustomer;
 using Application.Features.Auth.Commands.RegisterSupplier;
 using Application.Features.Auth.Commands.RegisterTransporter;
+using Application.Features.Auth.Commands.SelectProfile;
 using Application.Features.Auth.DTOs;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -24,6 +26,15 @@ namespace WebApi.Controllers
         [HttpPost("login")]
         public async Task<ActionResult<LoginResponse>> Login([FromBody] LoginCommand command)
         {
+            var response = await _sender.Send(command);
+            return Ok(response);
+        }
+
+        [HttpPost("select-profile")]
+        [Authorize]
+        public async Task<IActionResult> SelectProfile([FromBody] SelectProfileCommand command)
+        {
+            // SelectProfileCommand handler'ı yeni bir LoginResponse (Yeni Token) döner.
             var response = await _sender.Send(command);
             return Ok(response);
         }

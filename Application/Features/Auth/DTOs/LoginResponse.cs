@@ -6,9 +6,7 @@
         public string RefreshToken { get; set; }
         public int ExpiresIn { get; set; }
 
-        // Frontend State'i için gerekli bilgiler
-        public UserDto CurrentContext { get; set; }
-
         public List<UserProfileDto> AvailableProfiles { get; set; } = new();
+        public bool IsContextSelected { get; set; }
     }
 }

@@ -7,9 +7,6 @@ namespace Domain.Entities.Customer
     {
         public string CvrNumber { get; private set; }
 
-        private readonly List<CorporateResponsible> _responsibles = new();
-        public IReadOnlyCollection<CorporateResponsible> Responsibles => _responsibles.AsReadOnly();
-
         private CorporateCustomer() : base(null!, null!, null!) { }
 
         public CorporateCustomer(string name, string cvrNumber, string email, string phone)
@@ -20,11 +17,16 @@ namespace Domain.Entities.Customer
             AddDomainEvent(new CorporateCustomerRegisteredEvent(this.Id, name, email));
         }
 
-        // Admin ekleme metodu
-        public void AddResponsible(Guid appUserId, string fullName, string phone, CorporateRole role)
+        public void UpdateCvr(string newCvr)
         {
-            _responsibles.Add(new CorporateResponsible(Id, appUserId, fullName, phone, role));
-            // AddDomainEvent(new CorporateResponsibleCreatedEvent(responsible.Id, email, ...));
+            CvrNumber = newCvr;
+        }
+
+        public CorporateResponsible CreateResponsible(Guid appUserId, string fullName, string phone, List<CorporateRole> roles)
+        {
+            // Burada 'this.Id' diyerek Sorumlu'yu bu şirkete bağlıyoruz.
+            // CorporateResponsible constructor'ı (companyId, appUserId, name...) sırasında olmalı.
+            return new CorporateResponsible(this.Id, appUserId, fullName, phone, roles);
         }
     }
 }

@@ -43,6 +43,7 @@ namespace Infrastructure.DependencyInjection
 
             services.AddScoped<ICustomerRepository, CustomerRepository>();
             services.AddScoped<ICorporateCustomerRepository, CorporateCustomerRepository>();
+            services.AddScoped<ICorporateResponsibleRepository, CorporateResponsibleRepository>();
             services.AddScoped<IIndividualCustomerRepository, IndividualCustomerRepository>();
 
             services.AddScoped<IOrderRepository, OrderRepository>();

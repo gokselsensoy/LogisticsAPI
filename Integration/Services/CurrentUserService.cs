@@ -32,5 +32,7 @@ namespace Integration.Services
                 return Guid.TryParse(companyClaim, out var guid) ? guid : null;
             }
         }
+
+        public string? Role => _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value;
     }
 }

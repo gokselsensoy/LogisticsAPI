@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Application.Features.Auth.DTOs;
+using Application.Shared.Models;
 using Domain.Entities.Departments;
 using Domain.Repositories;
 using MediatR;
@@ -18,6 +19,7 @@ namespace Application.Features.Auth.Commands.Login
         private readonly IFreelancerRepository _freelancerRepo;
         private readonly IIndividualCustomerRepository _individualCustomerRepo;
         private readonly ICorporateCustomerRepository _corporateCustomerRepo;
+        private readonly ICorporateResponsibleRepository _corporateResponsibleRepo;
 
         public LoginCommandHandler(
             IIdentityService identityService,
@@ -26,7 +28,8 @@ namespace Application.Features.Auth.Commands.Login
             ICompanyRepository companyRepo,
             IFreelancerRepository freelancerRepo,
             IIndividualCustomerRepository individualCustomerRepo,
-            ICorporateCustomerRepository corporateCustomerRepo)
+            ICorporateCustomerRepository corporateCustomerRepo,
+            ICorporateResponsibleRepository corporateResponsibleRepo)
         {
             _identityService = identityService;
             _userRepo = userRepo;
@@ -35,46 +38,41 @@ namespace Application.Features.Auth.Commands.Login
             _freelancerRepo = freelancerRepo;
             _individualCustomerRepo = individualCustomerRepo;
             _corporateCustomerRepo = corporateCustomerRepo;
+            _corporateResponsibleRepo = corporateResponsibleRepo;
         }
 
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken token)
         {
-            // 1. IdentityAPI'den Token Al
-            // Not: request.ClientType varsa kullanabilirsin, yoksa "multillo_web" hardcoded olabilir.
-            // Ben senin kodundaki gibi request.ClientType'ı bıraktım.
-            var tokenResponse = await _identityService.LoginAsync(request.Email, request.Password, request.ClientType, token);
+            // 1. ADIM: LoginAsync ile Doğrulama Yap (ValidateUserAsync yerine)
+            // Bu metod token dönerse şifre doğrudur.
+            var baseTokenResponse = await _identityService.LoginAsync(request.Email, request.Password, request.ClientType, token);
 
-            if (tokenResponse == null)
+            if (baseTokenResponse == null)
                 throw new Exception("Giriş başarısız. Kullanıcı adı veya şifre hatalı.");
 
             // 2. Yerel Kullanıcıyı (AppUser) Bul
             var localUser = await _userRepo.GetByEmailAsync(request.Email, token);
-
             if (localUser == null)
                 throw new Exception("Kullanıcı sistemde bulunamadı (Senkronizasyon hatası).");
 
-            // 3. TÜM PROFİLLERİ TARA (AvailableProfiles listesini doldur)
-            // Artık 'else' yok! Hepsini bağımsız kontrol ediyoruz.
+            // 3. TÜM PROFİLLERİ TOPLA (Worker, Freelancer, Customer...)
             var profiles = new List<UserProfileDto>();
 
-            // A. WORKER KONTROLÜ
-            var worker = await _workerRepo.GetByAppUserIdWithCompanyAsync(localUser.Id, token);
-            if (worker != null)
+            // A. WORKER
+            var workerDataList = await _workerRepo.GetAllByAppUserIdWithCompanyAsync(localUser.Id, token);
+            foreach (var item in workerDataList)
             {
-                var company = await _companyRepo.GetByIdAsync(worker.CompanyId, token);
-
                 profiles.Add(new UserProfileDto
                 {
                     ProfileType = "Worker",
-                    Id = worker.Id,
-                    CompanyId = worker.CompanyId,
-                    Name = company?.Name ?? "Bilinmeyen Şirket",
-                    // Worker'ın içindeki Enum listesini String listesine çeviriyoruz
-                    Roles = worker.Roles.Select(r => r.ToString()).ToList()
+                    Id = item.Worker.Id,
+                    CompanyId = item.Company.Id,
+                    Name = item.Company.Name,
+                    Roles = item.Worker.Roles.Select(r => r.ToString()).ToList()
                 });
             }
 
-            // B. FREELANCER KONTROLÜ
+            // B. FREELANCER
             var freelancer = await _freelancerRepo.GetByAppUserIdAsync(localUser.Id, token);
             if (freelancer != null)
             {
@@ -88,7 +86,7 @@ namespace Application.Features.Auth.Commands.Login
                 });
             }
 
-            // C. INDIVIDUAL CUSTOMER KONTROLÜ
+            // C. INDIVIDUAL CUSTOMER
             var indCustomer = await _individualCustomerRepo.GetByAppUserIdAsync(localUser.Id, token);
             if (indCustomer != null)
             {
@@ -102,58 +100,67 @@ namespace Application.Features.Auth.Commands.Login
                 });
             }
 
-            // D. CORPORATE RESPONSIBLE KONTROLÜ
-            var corpCustomer = await _corporateCustomerRepo.GetByResponsibleAppUserIdAsync(localUser.Id, token);
-            if (corpCustomer != null)
+            // D. CORPORATE RESPONSIBLE
+            var corporateDataList = await _corporateResponsibleRepo.GetResponsiblesWithCustomerAsync(localUser.Id, token);
+
+            foreach (var item in corporateDataList)
             {
-                // İlgili sorumluyu (Responsible) bul
-                var responsible = corpCustomer.Responsibles.First(r => r.AppUserId == localUser.Id);
+                // item.Responsible -> CorporateResponsible entity'si
+                // item.Customer    -> CorporateCustomer entity'si (Şirket bilgisi için)
 
                 profiles.Add(new UserProfileDto
                 {
                     ProfileType = "CorporateResponsible",
-                    Id = responsible.Id,
-                    CompanyId = corpCustomer.Id,
-                    Name = corpCustomer.Name,
-                    Roles = new List<string> { responsible.Role.ToString() }
+                    Id = item.Responsible.Id,       // Giriş yapan sorumlu ID'si
+                    CompanyId = item.Customer.Id,   // Bağlı olduğu Kurumsal Müşteri ID'si
+                    Name = item.Customer.Name,      // Şirket Adı
+                                                    // Enum -> String dönüşümü
+                    Roles = item.Responsible.Roles.Select(r => r.ToString()).ToList()
                 });
             }
 
-            // 4. AKTİF PROFİLİ SEÇ (Default Context Logic)
+            // Profil yoksa hata
             if (!profiles.Any())
                 throw new Exception("Kullanıcının aktif bir rolü/profili bulunamadı.");
 
-            // Öncelik Sıralaması: Worker > Freelancer > Corporate > Individual
-            var activeProfile = profiles.FirstOrDefault(p => p.ProfileType == "Worker")
-                                ?? profiles.FirstOrDefault(p => p.ProfileType == "Freelancer")
-                                ?? profiles.FirstOrDefault(p => p.ProfileType == "CorporateResponsible")
-                                ?? profiles.First();
 
+            // 4. KARAR ANI (Single vs Multiple)
+            TokenResponse finalTokenResponse;
+            bool isContextSelected;
 
+            if (profiles.Count == 1)
+            {
+                // SENARYO 1: TEK PROFİL (OTOMATİK SEÇİM)
+                var p = profiles.First();
 
-            // 5. CEVABI DÖN
+                // Base token'ı bırak, "Dolu Token" (CompanyId'li) iste
+                finalTokenResponse = await _identityService.CreateTokenForProfileAsync(
+                    localUser.IdentityId,
+                    p.CompanyId,
+                    p.ProfileType,
+                    p.Roles,
+                    request.ClientType,
+                    token
+                );
+                isContextSelected = true;
+            }
+            else
+            {
+                // SENARYO 2: ÇOKLU PROFİL (MANUEL SEÇİM GEREKİYOR)
+                // İlk başta aldığımız Base Token'ı kullanıyoruz.
+                // Bu token ile henüz şirket işlemleri yapamaz ama SelectProfile endpoint'ine istek atabilir.
+                finalTokenResponse = baseTokenResponse;
+                isContextSelected = false;
+            }
+
+            // 5. CEVAP
             return new LoginResponse
             {
-                AccessToken = tokenResponse.AccessToken,
-                RefreshToken = tokenResponse.RefreshToken,
-                ExpiresIn = tokenResponse.ExpiresIn,
-
-                // Seçilen aktif profili UserDto formatına çevir
-                CurrentContext = new UserDto
-                {
-                    Id = localUser.Id,
-                    IdentityId = localUser.IdentityId,
-                    Email = localUser.Email,
-
-                    // Profil verilerini doldur
-                    WorkerId = activeProfile.ProfileType == "Worker" || activeProfile.ProfileType == "Freelancer" ? activeProfile.Id : null,
-                    CompanyId = activeProfile.CompanyId,
-                    CompanyName = activeProfile.Name,
-                    Roles = activeProfile.Roles // Liste olarak atıyoruz
-                },
-
-                // Frontend'de "Hesap Değiştir" menüsü için tüm listeyi dönüyoruz
-                AvailableProfiles = profiles
+                AccessToken = finalTokenResponse.AccessToken,
+                RefreshToken = finalTokenResponse.RefreshToken,
+                ExpiresIn = finalTokenResponse.ExpiresIn,
+                AvailableProfiles = profiles,
+                IsContextSelected = isContextSelected
             };
         }
     }

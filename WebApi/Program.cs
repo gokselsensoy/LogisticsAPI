@@ -9,6 +9,7 @@ using WebApi.Hubs;
 using WebApi.Middleware;
 using WebApi.Services;
 using Application.Abstractions.Services;
+using OpenIddict.Validation.AspNetCore;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -64,6 +65,30 @@ try
     builder.Services.AddInfrastructureServices(builder.Configuration);
     builder.Services.AddIntegrationServices(builder.Configuration);
     builder.Services.AddDistributedMemoryCache();
+    builder.Services.AddIntegrationServices(builder.Configuration);
+    builder.Services.AddDistributedMemoryCache();
+    // 1. Varsayılan Kimlik Doğrulama Şemasını Belirle
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+        options.DefaultAuthenticateScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+    });
+
+    // 2. OpenIddict Validation Servisi
+    builder.Services.AddOpenIddict()
+        .AddValidation(options =>
+        {
+            // IdentityAPI adresi (SetIssuer). IdentityAPI'deki adresle BİREBİR AYNI olmalı.
+            // Port numarasını (7001) kendi IdentityAPI portuna göre kontrol et.
+            options.SetIssuer("https://localhost:7296");
+
+            // IdentityAPI ile iletişim için HTTP client kullan
+            options.UseSystemNetHttp();
+
+            // ASP.NET Core entegrasyonu
+            options.UseAspNetCore();
+        });
     #region Redis Info
     // Production için (Redis'e geçmek istersen):
     // 1. Microsoft.Extensions.Caching.StackExchangeRedis paketini ekle
@@ -91,6 +116,31 @@ try
         {
             options.IncludeXmlComments(xmlPath);
         }
+
+        options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+            Scheme = "Bearer",
+            BearerFormat = "JWT",
+            In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+            Description = "Token'ı buraya yapıştırın. (Örn: eyJhbGci...)"
+        });
+
+        options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                {
+                    Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                    {
+                        Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                        Id = "Bearer"
+                    }
+                },
+                new string[] {}
+            }
+        });
 
         // Eğer Application katmanındaki DTO'larda da yorumlar varsa, onun XML dosyasını da ekleyebilirsiniz:
         var appXmlFilename = $"{typeof(Application.DependencyInjection.DependencyInjection).Assembly.GetName().Name}.xml";

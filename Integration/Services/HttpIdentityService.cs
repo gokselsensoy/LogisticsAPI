@@ -115,5 +115,53 @@ namespace Integration.Services
             response.EnsureSuccessStatusCode();
         }
         #endregion
+
+        #region Create Token
+        public async Task<TokenResponse> CreateTokenForProfileAsync(Guid userId, Guid? companyId, string profileType, List<string> roles, string clientId, CancellationToken token)
+        {
+            // 1. Verileri Key-Value Pair listesine dönüştür (Form Formatı)
+            var parameters = new List<KeyValuePair<string, string>>
+            {
+                // Standart dışı bir işlem olduğu için özel bir grant_type uyduruyoruz
+                new KeyValuePair<string, string>("grant_type", "profile_exchange"),
+                new KeyValuePair<string, string>("client_id", clientId),
+
+                new KeyValuePair<string, string>("user_id", userId.ToString()),
+                new KeyValuePair<string, string>("profile_type", profileType)
+            };
+
+            if (companyId.HasValue)
+            {
+                parameters.Add(new KeyValuePair<string, string>("company_id", companyId.Value.ToString()));
+            }
+
+            // Listeyi Form formatında ekleme (roles=Admin&roles=User gibi)
+            if (roles != null)
+            {
+                foreach (var role in roles)
+                {
+                    parameters.Add(new KeyValuePair<string, string>("roles", role));
+                }
+            }
+
+            // 2. İçeriği FormUrlEncodedContent olarak hazırla
+            var content = new FormUrlEncodedContent(parameters);
+
+            // 3. PostAsync ile gönder (PostAsJsonAsync DEĞİL!)
+            var response = await _httpClient.PostAsync("/api/token/generate-for-profile", content, token);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync(token);
+                throw new HttpRequestException($"IdentityAPI Error ({response.StatusCode}): {errorContent}", null, response.StatusCode);
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<TokenResponse>(cancellationToken: token);
+
+            if (result == null) throw new Exception("IdentityAPI null cevap döndü.");
+
+            return result;
+        }
+        #endregion
     }
 }

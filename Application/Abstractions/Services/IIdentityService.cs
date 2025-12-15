@@ -9,5 +9,7 @@ namespace Application.Abstractions.Services
         Task<TokenResponse?> LoginAsync(string email, string password, string clientType, CancellationToken cancellationToken);
         Task<UserDto?> GetByEmailAsync(string email, CancellationToken cancellationToken);
         Task AddToRoleAsync(Guid identityId, string role, CancellationToken token);
+
+        Task<TokenResponse> CreateTokenForProfileAsync(Guid userId, Guid? companyId, string profileType, List<string> roles, string clientId, CancellationToken token);
     }
 }

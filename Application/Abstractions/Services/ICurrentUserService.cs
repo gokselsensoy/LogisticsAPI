@@ -4,5 +4,6 @@
     {
         Guid UserId { get; }
         Guid? CompanyId { get; }
+        string? Role { get; }
     }
 }
