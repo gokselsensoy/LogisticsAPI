@@ -11,7 +11,6 @@ namespace Application.Features.Terminals.Commands.DeleteTerminal
     public class DeleteTerminalCommandHandler : IRequestHandler<DeleteTerminalCommand>
     {
         private readonly ICurrentUserService _currentUser;
-        private readonly IWorkerRepository _workerRepo;
         private readonly ITerminalRepository _terminalRepo;
         private readonly IDepartmentRepository _departmentRepo; // Departman kontrolü için
         private readonly IUnitOfWork _unitOfWork;
@@ -19,13 +18,11 @@ namespace Application.Features.Terminals.Commands.DeleteTerminal
 
         public DeleteTerminalCommandHandler(
             ICurrentUserService currentUser,
-            IWorkerRepository workerRepo,
             ITerminalRepository terminalRepo,
             IDepartmentRepository departmentRepo,
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;
-            _workerRepo = workerRepo;
             _terminalRepo = terminalRepo;
             _departmentRepo = departmentRepo;
             _unitOfWork = unitOfWork;
@@ -34,16 +31,18 @@ namespace Application.Features.Terminals.Commands.DeleteTerminal
 
         public async Task Handle(DeleteTerminalCommand request, CancellationToken token)
         {
-            var worker = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (worker == null || !worker.Roles.Contains(WorkerRole.Admin))
-                throw new UnauthorizedAccessException();
+            if (!_currentUser.CompanyId.HasValue)
+                throw new UnauthorizedAccessException("Bu işlem için bir şirket profili ile giriş yapmalısınız.");
+
+            if (!_currentUser.Roles.Contains("Admin")) // Rol string olarak geliyorsa
+                throw new UnauthorizedAccessException("Departman ekleme yetkiniz yok.");
 
             var terminal = await _terminalRepo.GetByIdAsync(request.TerminalId, token);
             if (terminal == null) throw new Exception("Terminal bulunamadı.");
 
             // Şirket Kontrolü
             var department = await _departmentRepo.GetByIdAsync(terminal.DepartmentId, token);
-            if (department.CompanyId != worker.CompanyId)
+            if (department.CompanyId != _currentUser.CompanyId.Value)
                 throw new UnauthorizedAccessException();
 
             // Soft Delete (Interceptor araya girip IsDeleted=true yapacak)

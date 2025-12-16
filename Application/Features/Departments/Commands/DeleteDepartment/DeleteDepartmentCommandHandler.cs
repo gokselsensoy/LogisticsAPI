@@ -10,21 +10,15 @@ namespace Application.Features.Departments.Commands.DeleteDepartment
     public class DeleteDepartmentCommandHandler : IRequestHandler<DeleteDepartmentCommand>
     {
         private readonly ICurrentUserService _currentUser;
-        private readonly IWorkerRepository _workerRepo;
-        private readonly ICompanyRepository _companyRepo;
         private readonly IDepartmentRepository _departmentRepo;
         private readonly IUnitOfWork _unitOfWork;
 
         public DeleteDepartmentCommandHandler(
             ICurrentUserService currentUser,
-            IWorkerRepository workerRepo,
-            ICompanyRepository companyRepo,
             IDepartmentRepository departmentRepo,
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;
-            _workerRepo = workerRepo;
-            _companyRepo = companyRepo;
             _departmentRepo = departmentRepo;
             _unitOfWork = unitOfWork;
         }
@@ -32,8 +26,10 @@ namespace Application.Features.Departments.Commands.DeleteDepartment
         public async Task Handle(DeleteDepartmentCommand request, CancellationToken token)
         {
             // 1. Yetkiliyi Bul
-            var worker = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (worker == null || !worker.Roles.Contains(WorkerRole.Admin))
+            if (!_currentUser.CompanyId.HasValue)
+                throw new UnauthorizedAccessException("Bu işlem için bir şirket profili ile giriş yapmalısınız.");
+
+            if (!_currentUser.Roles.Contains("Admin"))
                 throw new UnauthorizedAccessException("Departman silme yetkiniz yok.");
 
             var department = await _departmentRepo.GetByIdAsync(request.DepartmentId, token);

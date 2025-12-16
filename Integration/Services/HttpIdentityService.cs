@@ -117,31 +117,32 @@ namespace Integration.Services
         #endregion
 
         #region Create Token
-        public async Task<TokenResponse> CreateTokenForProfileAsync(Guid userId, Guid? companyId, string profileType, List<string> roles, string clientId, CancellationToken token)
+        public async Task<TokenResponse> CreateTokenForProfileAsync(
+            Guid userId,
+            Guid appUserId,
+            Guid? companyId,
+            string profileType,
+            Guid? profileId,
+            List<string> roles,
+            string clientId,
+            CancellationToken token)
         {
             // 1. Verileri Key-Value Pair listesine dönüştür (Form Formatı)
             var parameters = new List<KeyValuePair<string, string>>
             {
-                // Standart dışı bir işlem olduğu için özel bir grant_type uyduruyoruz
-                new KeyValuePair<string, string>("grant_type", "profile_exchange"),
-                new KeyValuePair<string, string>("client_id", clientId),
-
-                new KeyValuePair<string, string>("user_id", userId.ToString()),
-                new KeyValuePair<string, string>("profile_type", profileType)
+                new("grant_type", "profile_exchange"),
+                new("client_id", clientId),
+                new("user_id", userId.ToString()),
+                new("app_user_id", appUserId.ToString()), // <-- GÖNDERİYORUZ
+                new("profile_type", profileType)
             };
 
-            if (companyId.HasValue)
-            {
-                parameters.Add(new KeyValuePair<string, string>("company_id", companyId.Value.ToString()));
-            }
+            if (companyId.HasValue) parameters.Add(new("company_id", companyId.Value.ToString()));
+            if (profileId.HasValue) parameters.Add(new("profile_id", profileId.Value.ToString())); // <-- GÖNDERİYORUZ
 
-            // Listeyi Form formatında ekleme (roles=Admin&roles=User gibi)
             if (roles != null)
             {
-                foreach (var role in roles)
-                {
-                    parameters.Add(new KeyValuePair<string, string>("roles", role));
-                }
+                foreach (var role in roles) parameters.Add(new("roles", role));
             }
 
             // 2. İçeriği FormUrlEncodedContent olarak hazırla

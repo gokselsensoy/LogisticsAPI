@@ -12,23 +12,17 @@ namespace Application.Features.Workers.Commands.UpdateWorker
     {
         private readonly ICurrentUserService _currentUser;
         private readonly IWorkerRepository _workerRepo;
-        private readonly IUserRepository _userRepo;
-        private readonly IIdentityService _identityService;
         private readonly IDepartmentRepository _departmentRepo;
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateWorkerCommandHandler(
             ICurrentUserService currentUser,
             IWorkerRepository workerRepo,
-            IUserRepository userRepo,
-            IIdentityService identityService,
             IDepartmentRepository departmentRepo,
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;
             _workerRepo = workerRepo;
-            _userRepo = userRepo;
-            _identityService = identityService;
             _departmentRepo = departmentRepo;
             _unitOfWork = unitOfWork;
         }
@@ -36,13 +30,15 @@ namespace Application.Features.Workers.Commands.UpdateWorker
         public async Task Handle(UpdateWorkerCommand request, CancellationToken token)
         {
             // 1. Yetki
-            var initiator = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (initiator == null || !initiator.Roles.Contains(WorkerRole.Admin))
-                throw new UnauthorizedAccessException();
+            if (!_currentUser.CompanyId.HasValue)
+                throw new UnauthorizedAccessException("Bu işlem için bir şirket profili ile giriş yapmalısınız.");
+
+            if (!_currentUser.Roles.Contains("Admin")) // Rol string olarak geliyorsa
+                throw new UnauthorizedAccessException("Personel ekleme yetkiniz yok.");
 
             // 2. Hedef Worker'ı Bul
             var targetWorker = await _workerRepo.GetByIdAsync(request.WorkerId, token);
-            if (targetWorker == null || targetWorker.CompanyId != initiator.CompanyId)
+            if (targetWorker == null || targetWorker.CompanyId != _currentUser.CompanyId.Value)
                 throw new Exception("Çalışan bulunamadı.");
 
             targetWorker.UpdatePersonalDetails(request.FullName, request.Phone);
@@ -52,7 +48,7 @@ namespace Application.Features.Workers.Commands.UpdateWorker
             {
                 // Departman bizim şirkette mi kontrolü yapılmalı
                 var dept = await _departmentRepo.GetByIdAsync(request.DepartmentId, token);
-                if (dept.CompanyId != initiator.CompanyId) throw new Exception("Geçersiz departman.");
+                if (dept.CompanyId != _currentUser.CompanyId.Value) throw new Exception("Geçersiz departman.");
 
                 targetWorker.ChangeDepartment(request.DepartmentId);
             }

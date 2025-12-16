@@ -11,7 +11,7 @@ namespace Domain.Entities.Departments
         public Address Address { get; private set; }
         public string? ContactPhone { get; private set; }
         public string? ContactEmail { get; private set; }
-        public Guid? ManagerId { get; private set; }
+        public Guid? ManagerId { get; private set; } // WorkerId
 
         private Terminal() { }
 

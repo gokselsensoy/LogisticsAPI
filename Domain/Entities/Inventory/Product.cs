@@ -10,6 +10,8 @@ namespace Domain.Entities.Inventory
     {
         public Guid SupplierId { get; private set; }
         public string Name { get; private set; }
+        // Category
+        // Description
 
         private readonly List<Package> _packages = new();
         public IReadOnlyCollection<Package> Packages => _packages.AsReadOnly();

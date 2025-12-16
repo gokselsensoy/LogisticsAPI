@@ -64,7 +64,7 @@ namespace Application.Features.Auth.Commands.SelectProfile
                     selectedProfile = new UserProfileDto
                     {
                         ProfileType = "Worker",
-                        Id = worker.Id,
+                        ProfileId = worker.Id,
                         CompanyId = worker.CompanyId,
                         Roles = worker.Roles.Select(r => r.ToString()).ToList()
                     };
@@ -78,7 +78,7 @@ namespace Application.Features.Auth.Commands.SelectProfile
                     selectedProfile = new UserProfileDto
                     {
                         ProfileType = "Freelancer",
-                        Id = freelancer.Id,
+                        ProfileId = freelancer.Id,
                         CompanyId = null,
                         Roles = new List<string> { "Freelancer" }
                     };
@@ -92,7 +92,7 @@ namespace Application.Features.Auth.Commands.SelectProfile
                     selectedProfile = new UserProfileDto
                     {
                         ProfileType = "IndividualCustomer",
-                        Id = indCustomer.Id,
+                        ProfileId = indCustomer.Id,
                         CompanyId = null,
                         Roles = new List<string> { "IndividualCustomer" }
                     };
@@ -106,8 +106,8 @@ namespace Application.Features.Auth.Commands.SelectProfile
 
                     selectedProfile = new UserProfileDto
                     {
-                        ProfileType = "Worker",
-                        Id = responsible.Id,
+                        ProfileType = "CorporateResponsible",
+                        ProfileId = responsible.Id,
                         CompanyId = responsible.CorporateCustomerId,
                         Roles = responsible.Roles.Select(r => r.ToString()).ToList()
                     };
@@ -121,8 +121,10 @@ namespace Application.Features.Auth.Commands.SelectProfile
             // Artık CompanyId ve Rolleri biliyoruz.
             var tokenResponse = await _identityService.CreateTokenForProfileAsync(
                 localUser.IdentityId,
+                localUser.Id,
                 selectedProfile.CompanyId,
                 selectedProfile.ProfileType,
+                selectedProfile.ProfileId,
                 selectedProfile.Roles,
                 request.ClientId,
                 token

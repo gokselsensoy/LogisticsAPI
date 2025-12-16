@@ -11,22 +11,16 @@ namespace Application.Features.Departments.Commands.UpdateDepartment
     public class UpdateDepartmentCommandHandler : IRequestHandler<UpdateDepartmentCommand>
     {
         private readonly ICurrentUserService _currentUser;
-        private readonly IWorkerRepository _workerRepo;
-        private readonly ICompanyRepository _companyRepo;
         private readonly IDepartmentRepository _departmentRepo;
         private readonly IUnitOfWork _unitOfWork;
         private readonly GeometryFactory _geometryFactory;
 
         public UpdateDepartmentCommandHandler(
             ICurrentUserService currentUser,
-            IWorkerRepository workerRepo,
-            ICompanyRepository companyRepo,
             IDepartmentRepository departmentRepo,
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;
-            _workerRepo = workerRepo;
-            _companyRepo = companyRepo;
             _departmentRepo = departmentRepo;
             _unitOfWork = unitOfWork;
             _geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
@@ -35,9 +29,11 @@ namespace Application.Features.Departments.Commands.UpdateDepartment
         public async Task Handle(UpdateDepartmentCommand request, CancellationToken token)
         {
             // 1. Yetki Kontrolü
-            var worker = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (worker == null || (!worker.Roles.Contains(WorkerRole.Admin)))
-                throw new UnauthorizedAccessException("Yetkiniz yok.");
+            if (!_currentUser.CompanyId.HasValue)
+                throw new UnauthorizedAccessException("Bu işlem için bir şirket profili ile giriş yapmalısınız.");
+
+            if (!_currentUser.Roles.Contains("Admin")) // Rol string olarak geliyorsa
+                throw new UnauthorizedAccessException("Departman güncelleme yetkiniz yok.");
 
             // 2. Şirketi ve Departmanları Çek
             // (Repo'da Include(d => d.Departments) olduğundan emin ol)

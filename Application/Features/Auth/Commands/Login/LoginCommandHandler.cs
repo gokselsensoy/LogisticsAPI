@@ -65,7 +65,7 @@ namespace Application.Features.Auth.Commands.Login
                 profiles.Add(new UserProfileDto
                 {
                     ProfileType = "Worker",
-                    Id = item.Worker.Id,
+                    ProfileId = item.Worker.Id,
                     CompanyId = item.Company.Id,
                     Name = item.Company.Name,
                     Roles = item.Worker.Roles.Select(r => r.ToString()).ToList()
@@ -79,7 +79,7 @@ namespace Application.Features.Auth.Commands.Login
                 profiles.Add(new UserProfileDto
                 {
                     ProfileType = "Freelancer",
-                    Id = freelancer.Id,
+                    ProfileId = freelancer.Id,
                     CompanyId = null,
                     Name = freelancer.FullName,
                     Roles = new List<string> { "Freelancer" }
@@ -93,7 +93,7 @@ namespace Application.Features.Auth.Commands.Login
                 profiles.Add(new UserProfileDto
                 {
                     ProfileType = "IndividualCustomer",
-                    Id = indCustomer.Id,
+                    ProfileId = indCustomer.Id,
                     CompanyId = null,
                     Name = indCustomer.Name,
                     Roles = new List<string> { "IndividualCustomer" }
@@ -111,7 +111,7 @@ namespace Application.Features.Auth.Commands.Login
                 profiles.Add(new UserProfileDto
                 {
                     ProfileType = "CorporateResponsible",
-                    Id = item.Responsible.Id,       // Giriş yapan sorumlu ID'si
+                    ProfileId = item.Responsible.Id,       // Giriş yapan sorumlu ID'si
                     CompanyId = item.Customer.Id,   // Bağlı olduğu Kurumsal Müşteri ID'si
                     Name = item.Customer.Name,      // Şirket Adı
                                                     // Enum -> String dönüşümü
@@ -136,8 +136,10 @@ namespace Application.Features.Auth.Commands.Login
                 // Base token'ı bırak, "Dolu Token" (CompanyId'li) iste
                 finalTokenResponse = await _identityService.CreateTokenForProfileAsync(
                     localUser.IdentityId,
+                    localUser.Id,
                     p.CompanyId,
                     p.ProfileType,
+                    p.ProfileId,
                     p.Roles,
                     request.ClientType,
                     token

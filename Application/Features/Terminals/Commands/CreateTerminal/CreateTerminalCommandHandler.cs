@@ -12,7 +12,6 @@ namespace Application.Features.Terminals.Commands.CreateTerminal
     public class CreateTerminalCommandHandler : IRequestHandler<CreateTerminalCommand, Guid>
     {
         private readonly ICurrentUserService _currentUser;
-        private readonly IWorkerRepository _workerRepo;
         private readonly ITerminalRepository _terminalRepo;
         private readonly IDepartmentRepository _departmentRepo; // Departman kontrolü için
         private readonly IUnitOfWork _unitOfWork;
@@ -20,13 +19,11 @@ namespace Application.Features.Terminals.Commands.CreateTerminal
 
         public CreateTerminalCommandHandler(
             ICurrentUserService currentUser,
-            IWorkerRepository workerRepo,
             ITerminalRepository terminalRepo,
             IDepartmentRepository departmentRepo,
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;
-            _workerRepo = workerRepo;
             _terminalRepo = terminalRepo;
             _departmentRepo = departmentRepo;
             _unitOfWork = unitOfWork;
@@ -36,16 +33,18 @@ namespace Application.Features.Terminals.Commands.CreateTerminal
         public async Task<Guid> Handle(CreateTerminalCommand request, CancellationToken token)
         {
             // 1. İşlemi yapanı bul
-            var worker = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (worker == null || (!worker.Roles.Contains(WorkerRole.Admin)))
-                throw new UnauthorizedAccessException("Yetkiniz yok.");
+            if (!_currentUser.CompanyId.HasValue)
+                throw new UnauthorizedAccessException("Bu işlem için bir şirket profili ile giriş yapmalısınız.");
+
+            if (!_currentUser.Roles.Contains("Admin")) // Rol string olarak geliyorsa
+                throw new UnauthorizedAccessException("Terminal ekleme yetkiniz yok.");
 
             // 2. GÜVENLİK KONTROLÜ: Departman bu şirkete mi ait?
             // Kullanıcı kafasına göre ID gönderip başka şirketin departmanına terminal ekleyemesin.
             var department = await _departmentRepo.GetByIdAsync(request.DepartmentId, token);
             if (department == null) throw new Exception("Departman bulunamadı.");
 
-            if (department.CompanyId != worker.CompanyId)
+            if (department.CompanyId != _currentUser.CompanyId.Value)
                 throw new UnauthorizedAccessException("Bu departman sizin şirketinize ait değil.");
 
             // 3. Adres ve Konum

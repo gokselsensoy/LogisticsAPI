@@ -11,7 +11,6 @@ namespace Application.Features.Departments.Commands.CreateDepartment
     public class CreateDepartmentCommandHandler : IRequestHandler<CreateDepartmentCommand, Guid>
     {
         private readonly ICurrentUserService _currentUser;
-        private readonly IWorkerRepository _workerRepo;
         private readonly ICompanyRepository _companyRepo;
         private readonly IDepartmentRepository _departmentRepo;
         private readonly IUnitOfWork _unitOfWork;
@@ -25,7 +24,6 @@ namespace Application.Features.Departments.Commands.CreateDepartment
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;
-            _workerRepo = workerRepo;
             _companyRepo = companyRepo;
             _departmentRepo = departmentRepo;
             _unitOfWork = unitOfWork;
@@ -36,11 +34,13 @@ namespace Application.Features.Departments.Commands.CreateDepartment
         public async Task<Guid> Handle(CreateDepartmentCommand request, CancellationToken token)
         {
             // 1. Yetki ve Şirket Kontrolü
-            var worker = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (worker == null || (!worker.Roles.Contains(WorkerRole.Admin)))
+            if (!_currentUser.CompanyId.HasValue)
+                throw new UnauthorizedAccessException("Bu işlem için bir şirket profili ile giriş yapmalısınız.");
+
+            if (!_currentUser.Roles.Contains("Admin")) // Rol string olarak geliyorsa
                 throw new UnauthorizedAccessException("Departman ekleme yetkiniz yok.");
 
-            var company = await _companyRepo.GetByIdAsync(worker.CompanyId, token);
+            var company = await _companyRepo.GetByIdAsync(_currentUser.CompanyId.Value, token);
             if (company == null) throw new Exception("Şirket bulunamadı.");
 
             // 2. Coğrafi Noktayı Oluştur (Lon, Lat sırasıyla!)

@@ -24,6 +24,15 @@ namespace Integration.Services
             }
         }
 
+        public Guid AppUserId
+        {
+            get
+            {
+                var val = _httpContextAccessor.HttpContext?.User?.FindFirst("app_user_id")?.Value;
+                return Guid.TryParse(val, out var guid) ? guid : Guid.Empty;
+            }
+        }
+
         public Guid? CompanyId
         {
             get
@@ -33,6 +42,18 @@ namespace Integration.Services
             }
         }
 
-        public string? Role => _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.Role)?.Value;
+        public Guid? ProfileId
+        {
+            get
+            {
+                var val = _httpContextAccessor.HttpContext?.User?.FindFirst("profile_id")?.Value;
+                return Guid.TryParse(val, out var guid) ? guid : null;
+            }
+        }
+
+        public string? ProfileType => _httpContextAccessor.HttpContext?.User?.FindFirst("profile_type")?.Value;
+
+        public List<string> Roles => _httpContextAccessor.HttpContext?.User?.FindAll(ClaimTypes.Role)
+                                    .Select(c => c.Value).ToList() ?? new List<string>();
     }
 }

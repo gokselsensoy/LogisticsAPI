@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Domain.Entities;
+using Domain.Entities.Company;
 using Domain.Entities.Departments;
 using Domain.Enums;
 using Domain.Events.WorkerEvents;
@@ -13,6 +14,7 @@ namespace Application.Features.Workers.Commands.CreateWorker
     public class CreateWorkerCommandHandler : IRequestHandler<CreateWorkerCommand, Guid>
     {
         private readonly ICurrentUserService _currentUser;
+        private readonly ICompanyRepository _companyRepository;
         private readonly IWorkerRepository _workerRepo;
         private readonly IUserRepository _userRepo;
         private readonly IIdentityService _identityService;
@@ -21,6 +23,7 @@ namespace Application.Features.Workers.Commands.CreateWorker
 
         public CreateWorkerCommandHandler(
             ICurrentUserService currentUser,
+            ICompanyRepository companyRepository,
             IWorkerRepository workerRepo,
             IUserRepository userRepo,
             IIdentityService identityService,
@@ -28,6 +31,7 @@ namespace Application.Features.Workers.Commands.CreateWorker
             IUnitOfWork unitOfWork)
         {
             _currentUser = currentUser;
+            _companyRepository = companyRepository;
             _workerRepo = workerRepo;
             _userRepo = userRepo;
             _identityService = identityService;
@@ -38,8 +42,10 @@ namespace Application.Features.Workers.Commands.CreateWorker
         public async Task<Guid> Handle(CreateWorkerCommand request, CancellationToken token)
         {
             // 1. Yetki Kontrolü (İşlemi yapan Admin mi?)
-            var initiator = await _workerRepo.GetByAppUserIdWithCompanyAsync(_currentUser.UserId, token);
-            if (initiator == null || !initiator.Roles.Contains(WorkerRole.Admin))
+            if (!_currentUser.CompanyId.HasValue)
+                throw new UnauthorizedAccessException("Bu işlem için bir şirket profili ile giriş yapmalısınız.");
+
+            if (!_currentUser.Roles.Contains("Admin")) // Rol string olarak geliyorsa
                 throw new UnauthorizedAccessException("Personel ekleme yetkiniz yok.");
 
             Guid appUserId;
@@ -58,15 +64,35 @@ namespace Application.Features.Workers.Commands.CreateWorker
 
                 appUserId = existingAppUser.Id;
 
-                // Rol Kontrolü: Adamda "Worker" rolü var mı? Yoksa ekle.
                 // Not: IdentityService'e "HasRole" sorabilirsin veya direkt "AddToRole" çağırabilirsin (Idempotent ise).
-                // Biz güvenli tarafta olup ekleyelim (IdentityAPI zaten varsa hata vermemeli veya kontrol etmeli).
-                await _identityService.AddToRoleAsync(identityId, "Worker", token);
+                // Biz güvenli tarafta olup ekleyelim (IdentityAPI zaten varsa hata vermemeli veya kontrol etmeli)
+                var company = await _companyRepository.GetByIdAsync(_currentUser.CompanyId.Value);
+                if (company == null) throw new Exception("Şirket bulunamadı.");
+
+                string roleToAssign = company switch
+                {
+                    Transporter => "Transporter",
+                    Supplier => "Supplier",
+                    _ => throw new Exception("Geçersiz şirket tipi.")
+                };
+
+                // O rolü kullanıcıya ekle
+                await _identityService.AddToRoleAsync(identityId, roleToAssign, token);
             }
             else
             {
+                var company = await _companyRepository.GetByIdAsync(_currentUser.CompanyId.Value);
+                if (company == null) throw new Exception("Şirket bulunamadı.");
+
+                string roleToAssign = company switch
+                {
+                    Transporter => "Transporter",
+                    Supplier => "Supplier",
+                    _ => throw new Exception("Geçersiz şirket tipi.")
+                };
+
                 // SENARYO 2: Kullanıcı Yok, Sıfırdan Oluştur
-                var newIdentityId = await _identityService.CreateUserAsync(request.Email, request.Password, "Worker", token);
+                var newIdentityId = await _identityService.CreateUserAsync(request.Email, request.Password, roleToAssign, token);
                 if (newIdentityId == null) throw new Exception("Kullanıcı oluşturulamadı.");
 
                 identityId = newIdentityId.Value;
@@ -79,7 +105,7 @@ namespace Application.Features.Workers.Commands.CreateWorker
             }
 
             var worker = new Worker(
-                initiator.CompanyId,
+                _currentUser.CompanyId.Value,
                 request.DepartmentId,
                 appUserId,      // Bulduğumuz veya Yarattığımız ID
                 request.FullName, // <-- Worker'a özel isim
