@@ -1,7 +1,6 @@
 ﻿using Domain.Entities.Company;
 using Domain.Repositories;
 using Infrastructure.Persistence.Context;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Persistence.Repositories
 {

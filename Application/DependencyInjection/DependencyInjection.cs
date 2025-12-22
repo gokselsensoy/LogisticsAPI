@@ -1,4 +1,5 @@
-﻿using Application.Pipelines;
+﻿using Application.Features.Schedules.Commands.GenerateSchedule.Services;
+using Application.Pipelines;
 using Application.Pipelines.Application.Pipelines;
 using FluentValidation;
 using MediatR;
@@ -21,6 +22,7 @@ namespace Application.DependencyInjection
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(CachingPipelineBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(TransactionPipelineBehaviour<,>));
+            services.AddScoped<IScheduleGeneratorService, ScheduleGeneratorService>();
 
             return services;
         }

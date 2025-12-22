@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Departments;
 using Domain.Events;
+using Domain.Events.RegisterEvents;
 using Domain.SeedWork;
 
 namespace Domain.Entities.Company

@@ -4,7 +4,7 @@ using Domain.SeedWork;
 
 namespace Domain.Entities.Departments
 {
-    public class Worker : Entity, IAggregateRoot
+    public class Worker : FullAuditedEntity, IAggregateRoot
     {
         public Guid CompanyId { get; private set; }
         public Guid DepartmentId { get; private set; }

@@ -19,8 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Company\Commands\" />
-    <Folder Include="Features\Customer\Commands\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

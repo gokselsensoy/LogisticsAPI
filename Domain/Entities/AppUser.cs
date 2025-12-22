@@ -1,4 +1,4 @@
-﻿using Domain.Events;
+﻿using Domain.Events.RegisterEvents;
 using Domain.SeedWork;
 
 namespace Domain.Entities

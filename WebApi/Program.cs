@@ -1,15 +1,16 @@
-﻿using Application.DependencyInjection;
-using Infrastructure.DependencyInjection;
-using Integration.DependencyInjection;
+﻿using Application.Abstractions.Services;
+using Application.DependencyInjection;
 using Hangfire;
 using Hangfire.PostgreSql;
+using Infrastructure.DependencyInjection;
+using Integration.DependencyInjection;
+using OpenIddict.Validation.AspNetCore;
 using Serilog;
 using System.Reflection;
+using WebApi.Extensions;
 using WebApi.Hubs;
 using WebApi.Middleware;
 using WebApi.Services;
-using Application.Abstractions.Services;
-using OpenIddict.Validation.AspNetCore;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -58,6 +59,7 @@ try
         .UseSimpleAssemblyNameTypeSerializer()
         .UseRecommendedSerializerSettings()
         .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(builder.Configuration.GetConnectionString("HangfireConnection")))
+        .UseFilter(new AutomaticRetryAttribute { Attempts = 3 })
     );
     builder.Services.AddHangfireServer();
 
@@ -169,6 +171,7 @@ try
     app.UseAuthentication();
     app.UseAuthorization();
     app.UseSerilogRequestLogging();
+    app.RegisterRecurringJobs();
     app.MapControllers();
     app.MapHub<NotificationHub>("/notification-hub");
     // Hangfire Dashboard'u /hangfire adresinde aktif et

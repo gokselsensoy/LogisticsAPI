@@ -35,6 +35,10 @@ namespace Infrastructure.DependencyInjection
 
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<IWorkerRepository, WorkerRepository>();
+            services.AddScoped<IVehicleRepository, VehicleRepository>();
+
+            services.AddScoped<IWeeklyShiftPatternRepository, WeeklyShiftPatternRepository>();
+            services.AddScoped<IDailyWorkScheduleRepository, DailyWorkScheduleRepository>();
 
             services.AddScoped<ITerminalRepository, TerminalRepository>();
             services.AddScoped<IInventoryRepository, InventoryRepository>();

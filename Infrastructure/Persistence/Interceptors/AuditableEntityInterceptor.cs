@@ -30,7 +30,7 @@ namespace Infrastructure.Persistence.Interceptors
         {
             if (context == null) return;
 
-            var userId = _currentUserService.UserId;
+            var userId = _currentUserService.AppUserId;
             var utcNow = DateTime.UtcNow;
 
             foreach (var entry in context.ChangeTracker.Entries<Entity>())

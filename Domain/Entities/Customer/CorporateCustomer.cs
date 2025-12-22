@@ -1,5 +1,6 @@
 ﻿using Domain.Enums;
 using Domain.Events;
+using Domain.Events.RegisterEvents;
 
 namespace Domain.Entities.Customer
 {

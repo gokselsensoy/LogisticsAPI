@@ -1,11 +1,12 @@
 ﻿using Domain.Enums;
+using Domain.Events.VehicleEvents;
 using Domain.Exceptions;
 using Domain.SeedWork;
 using NetTopologySuite.Geometries;
 
 namespace Domain.Entities.Departments
 {
-    public class Vehicle : Entity, IAggregateRoot
+    public class Vehicle : FullAuditedEntity, IAggregateRoot
     {
         // --- Ortak Araç Özellikleri ---
         public string PlateNumber { get; private set; }
@@ -22,32 +23,36 @@ namespace Domain.Entities.Departments
 
         private Vehicle() { }
 
-        // Factory 1: Şirket Aracı (Supplier veya Transporter)
         public static Vehicle CreateCompanyVehicle(
-            Guid companyId, // SupplierId veya TransporterId buraya gelir
-            Guid departmentId,
-            string plate,
-            VehicleType type,
-            double weight,
-            double volume)
+                    Guid companyId,
+                    Guid departmentId,
+                    string plate,
+                    VehicleType type,
+                    double weight,
+                    double volume)
         {
-            if (companyId == Guid.Empty) throw new DomainException("CompanyId boş olamaz.");
+            if (companyId == Guid.Empty) throw new ArgumentException("CompanyId boş olamaz.");
+            if (departmentId == Guid.Empty) throw new ArgumentException("DepartmentId boş olamaz.");
 
-            return new Vehicle
+            var vehicle = new Vehicle
             {
                 Id = Guid.NewGuid(),
-                CompanyId = companyId,      // DOLU
-                FreelancerId = null,        // BOŞ
-                DepartmentId = departmentId,// DOLU
+                CompanyId = companyId,
+                DepartmentId = departmentId,
+                FreelancerId = null,
                 PlateNumber = plate,
                 Type = type,
                 MaxWeightKg = weight,
                 MaxVolumeM3 = volume,
-                Status = VehicleStatus.Active
+                Status = VehicleStatus.Active,
+                IsDeleted = false
             };
+
+            vehicle.AddDomainEvent(new VehicleCreatedEvent(vehicle.Id, plate, companyId, null));
+            return vehicle;
         }
 
-        // Factory 2: Freelancer Aracı
+        // 2. Freelancer Aracı Oluşturma
         public static Vehicle CreateFreelancerVehicle(
             Guid freelancerId,
             string plate,
@@ -55,20 +60,52 @@ namespace Domain.Entities.Departments
             double weight,
             double volume)
         {
-            if (freelancerId == Guid.Empty) throw new DomainException("FreelancerId boş olamaz.");
+            if (freelancerId == Guid.Empty) throw new ArgumentException("FreelancerId boş olamaz.");
 
-            return new Vehicle
+            var vehicle = new Vehicle
             {
                 Id = Guid.NewGuid(),
-                CompanyId = null,           // BOŞ
-                FreelancerId = freelancerId,// DOLU
-                DepartmentId = null,        // BOŞ (Freelancer'ın departmanı olmaz)
+                CompanyId = null,
+                DepartmentId = null,
+                FreelancerId = freelancerId,
                 PlateNumber = plate,
                 Type = type,
                 MaxWeightKg = weight,
                 MaxVolumeM3 = volume,
-                Status = VehicleStatus.Active
+                Status = VehicleStatus.Active,
+                IsDeleted = false
             };
+
+            vehicle.AddDomainEvent(new VehicleCreatedEvent(vehicle.Id, plate, null, freelancerId));
+            return vehicle;
+        }
+
+        // --- UPDATE METHOD ---
+        public void UpdateDetails(string plate, VehicleType type, double weight, double volume, Guid? departmentId = null)
+        {
+            PlateNumber = plate;
+            Type = type;
+            MaxWeightKg = weight;
+            MaxVolumeM3 = volume;
+
+            // Eğer şirket aracıysa departman güncellenebilir
+            if (CompanyId.HasValue && departmentId.HasValue && departmentId != Guid.Empty)
+            {
+                DepartmentId = departmentId.Value;
+            }
+
+            AddDomainEvent(new VehicleUpdatedEvent(Id, PlateNumber));
+        }
+
+        public void UpdateLocation(Point location)
+        {
+            LastKnownLocation = location;
+            // Buraya event eklenmeyebilir, çok sık tetikleneceği için sistemi yorabilir.
+        }
+
+        public void ChangeStatus(VehicleStatus status)
+        {
+            Status = status;
         }
     }
 }

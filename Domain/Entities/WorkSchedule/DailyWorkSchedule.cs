@@ -5,7 +5,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities.WorkSchedule
 {
-    public class DailyWorkSchedule : Entity, IAggregateRoot
+    public class DailyWorkSchedule : FullAuditedEntity, IAggregateRoot
     {
         public Guid WorkerId { get; private set; }
         public DateOnly Date { get; private set; }
@@ -20,64 +20,54 @@ namespace Domain.Entities.WorkSchedule
 
         private DailyWorkSchedule() { }
 
-        public static DailyWorkSchedule CreateFromPattern(WeeklyShiftPattern pattern, DateTime targetDateTime)
+        public static DailyWorkSchedule CreateFromPattern(WeeklyShiftPattern pattern, DateOnly targetDate)
         {
-            // targetDateTime'dan sadece tarihi alıp DateOnly yapıyoruz
-            var targetDateOnly = DateOnly.FromDateTime(targetDateTime);
+            // 1. Ana Vardiya Saatlerini DateTime'a çevir
+            DateTime shiftStart = targetDate.ToDateTime(TimeOnly.FromTimeSpan(pattern.ShiftStart));
+            DateTime shiftEnd = targetDate.ToDateTime(TimeOnly.FromTimeSpan(pattern.ShiftEnd));
 
-            // Tarih ile Şablon Saatini birleştirip DateTime oluşturuyoruz
-            // pattern.ShiftStart bir TimeSpan'dır (Örn: 09:00)
-
-            var start = targetDateOnly.ToDateTime(TimeOnly.FromTimeSpan(pattern.ShiftStart));
-
-            // Bitiş saati hesaplama (Gece vardiyası kontrolü)
-            var end = targetDateOnly.ToDateTime(TimeOnly.FromTimeSpan(pattern.ShiftEnd));
-
-            // Eğer Bitiş saati Başlangıçtan küçükse (Örn: 22:00 - 06:00),
-            // Bitiş saati ERTESİ GÜN demektir.
-            if (end < start)
+            // Gece vardiyası kontrolü (Örn: 22:00 - 06:00)
+            if (shiftEnd < shiftStart)
             {
-                end = end.AddDays(1);
+                shiftEnd = shiftEnd.AddDays(1);
             }
 
             var schedule = new DailyWorkSchedule
             {
                 Id = Guid.NewGuid(),
                 WorkerId = pattern.WorkerId,
-                Date = targetDateOnly, // DateOnly ataması
-                ShiftStart = start,
-                ShiftEnd = end
+                Date = targetDate,
+                ShiftStart = shiftStart,
+                ShiftEnd = shiftEnd
             };
 
-            // --- Detaylar ve Fallback Mantığı (Aynı kalıyor) ---
+            // 2. Pattern Item'larını Allocation'a çevir
             if (pattern.Items != null && pattern.Items.Any())
             {
                 foreach (var item in pattern.Items)
                 {
-                    // Item saatlerini de aynı mantıkla DateTime'a çevir
-                    var itemStart = targetDateOnly.ToDateTime(TimeOnly.FromTimeSpan(item.StartTime));
-                    var itemEnd = targetDateOnly.ToDateTime(TimeOnly.FromTimeSpan(item.EndTime));
+                    DateTime itemStart = targetDate.ToDateTime(TimeOnly.FromTimeSpan(item.StartTime));
+                    DateTime itemEnd = targetDate.ToDateTime(TimeOnly.FromTimeSpan(item.EndTime));
 
-                    // Gece vardiyası içindeki item kontrolü
-                    // (Basit mantık: Eğer item saati vardiya başından küçükse ertesi gündür)
-                    if (itemStart < start) itemStart = itemStart.AddDays(1);
-                    if (itemEnd < start) itemEnd = itemEnd.AddDays(1);
-                    // Not: Bu hesaplama karmaşık vardiyalarda daha detaylı kontrol gerektirebilir.
+                    // Item saatleri gece yarısını geçiyorsa düzelt
+                    // (Basit mantık: Item başlangıcı vardiya başlangıcından küçükse ertesi gündür)
+                    if (itemStart < shiftStart)
+                    {
+                        itemStart = itemStart.AddDays(1);
+                        itemEnd = itemEnd.AddDays(1); // Bitiş de mecburen ertesi gün
+                    }
+                    else if (itemEnd < itemStart) // Sadece bitiş sarktıysa
+                    {
+                        itemEnd = itemEnd.AddDays(1);
+                    }
 
-                    schedule.AddAllocation(
-                        new TimeRange(itemStart, itemEnd),
-                        item.Type,
-                        item.DefaultVehicleId
-                    );
+                    schedule.AddAllocation(new TimeRange(itemStart, itemEnd), item.Type, item.DefaultVehicleId);
                 }
             }
+            // 3. Eğer hiç item yoksa ama DefaultVehicle varsa, tüm günü o araca ata (İsteğe bağlı)
             else if (pattern.DefaultVehicleId.HasValue)
             {
-                schedule.AddAllocation(
-                    new TimeRange(start, end),
-                    AssignmentType.Driving,
-                    pattern.DefaultVehicleId
-                );
+                schedule.AddAllocation(new TimeRange(shiftStart, shiftEnd), AssignmentType.Driving, pattern.DefaultVehicleId);
             }
 
             return schedule;
@@ -93,19 +83,14 @@ namespace Domain.Entities.WorkSchedule
             ShiftEnd = end;
         }
 
-        // --- İŞ KURALLARI (Metotlar) ---
-
         public void AddAllocation(TimeRange range, AssignmentType type, Guid? vehicleId)
         {
-            // 1. Kural: Atama, vardiya saatleri dışında olamaz
             if (range.Start < ShiftStart || range.End > ShiftEnd)
                 throw new DomainException("Atama, personelin vardiya saatleri dışında olamaz.");
 
-            // 2. Kural: Aynı anda iki iş yapılamaz (Çakışma Kontrolü)
             if (_allocations.Any(a => a.TimeRange.Overlaps(range)))
                 throw new DomainException("Bu saat aralığında zaten bir görev atanmış.");
 
-            // 3. Kural: Sürüş görevi ise VehicleId zorunludur
             if (type == AssignmentType.Driving && !vehicleId.HasValue)
                 throw new DomainException("Sürüş görevi için araç seçilmelidir.");
 
@@ -118,10 +103,8 @@ namespace Domain.Entities.WorkSchedule
             if (item != null) _allocations.Remove(item);
         }
 
-        // Vardiya saatlerini güncelleme (Manuel Müdahale)
         public void UpdateShiftTimes(DateTime newStart, DateTime newEnd)
         {
-            // Eğer mevcut atamalar yeni saatlerin dışındaysa hata ver
             if (_allocations.Any(a => a.TimeRange.Start < newStart || a.TimeRange.End > newEnd))
                 throw new DomainException("Vardiya saatleri, mevcut görevleri dışarıda bırakacak şekilde küçültülemez.");
 

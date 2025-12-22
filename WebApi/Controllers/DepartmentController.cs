@@ -9,7 +9,7 @@ namespace WebApi.Controllers
 {
     [Route("api/departments")]
     [ApiController]
-    [Authorize] // Sadece giriş yapmış kullanıcılar erişebilir
+    [Authorize]
     public class DepartmentController : ControllerBase
     {
         private readonly ISender _sender;

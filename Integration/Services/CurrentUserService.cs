@@ -33,21 +33,21 @@ namespace Integration.Services
             }
         }
 
-        public Guid? CompanyId
-        {
-            get
-            {
-                var companyClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("company_id")?.Value;
-                return Guid.TryParse(companyClaim, out var guid) ? guid : null;
-            }
-        }
-
         public Guid? ProfileId
         {
             get
             {
                 var val = _httpContextAccessor.HttpContext?.User?.FindFirst("profile_id")?.Value;
                 return Guid.TryParse(val, out var guid) ? guid : null;
+            }
+        }
+
+        public Guid? CompanyId
+        {
+            get
+            {
+                var companyClaim = _httpContextAccessor.HttpContext?.User?.FindFirst("company_id")?.Value;
+                return Guid.TryParse(companyClaim, out var guid) ? guid : null;
             }
         }
 

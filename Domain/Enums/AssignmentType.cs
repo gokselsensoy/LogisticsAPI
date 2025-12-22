@@ -4,7 +4,7 @@
     {
         Driving,        // Araç Kullanımı
         TerminalWork,   // Depo İçi Çalışma
-        AdminWork,      // Ofis İşi
+        OfficeWork,      // Ofis İşi
         Break,          // Mola
         OnCall          // Hazır Bekleme
     }

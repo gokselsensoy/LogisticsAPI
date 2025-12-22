@@ -4,7 +4,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities.WorkSchedule
 {
-    public class ScheduleAllocation : Entity
+    public class ScheduleAllocation : FullAuditedEntity
     {
         public Guid DailyWorkScheduleId { get; private set; }
 

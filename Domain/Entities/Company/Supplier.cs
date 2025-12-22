@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Inventory;
 using Domain.Events;
+using Domain.Events.RegisterEvents;
 
 namespace Domain.Entities.Company
 {

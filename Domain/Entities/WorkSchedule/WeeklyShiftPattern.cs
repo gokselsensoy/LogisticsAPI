@@ -4,15 +4,13 @@ using Domain.SeedWork;
 
 namespace Domain.Entities.WorkSchedule
 {
-    public class WeeklyShiftPattern : Entity
+    public class WeeklyShiftPattern : FullAuditedEntity, IAggregateRoot
     {
         public Guid WorkerId { get; private set; }
         public DayOfWeek DayOfWeek { get; private set; }
         public TimeSpan ShiftStart { get; private set; }
         public TimeSpan ShiftEnd { get; private set; }
 
-        // GERİ EKLENDİ: "Tüm gün boyunca kullanılacak varsayılan araç"
-        // Eğer detaylı itemlar (ShiftPatternItems) girilmezse bu kullanılır.
         public Guid? DefaultVehicleId { get; private set; }
 
         // Detaylar (Örn: 10:00-12:00 arası özel görev)
@@ -37,18 +35,78 @@ namespace Domain.Entities.WorkSchedule
             DefaultVehicleId = defaultVehicleId;
         }
 
-        public void AddPatternItem(TimeSpan start, TimeSpan end, AssignmentType type, Guid? vehicleId)
+        #region Add Pattern Item
+        public void AddPatternItem(TimeSpan itemStart, TimeSpan itemEnd, AssignmentType type, Guid? vehicleId)
         {
-            if (start < ShiftStart || end > ShiftEnd)
-                throw new DomainException("Şablon görevi, vardiya saatleri dışında olamaz.");
+            // 1. Ana Vardiya Sınırlarını Hesapla
+            var patternRange = NormalizeTimeRange(ShiftStart, ShiftEnd);
 
-            _items.Add(new ShiftPatternItem(Id, start, end, type, vehicleId));
+            // 2. Yeni Item Sınırlarını Hesapla
+            var newItemRange = NormalizeTimeRange(itemStart, itemEnd);
+
+            // KURAL 1: Vardiya Sınırları Dışına Çıkamaz (Boundary Check)
+            if (newItemRange.Start < patternRange.Start || newItemRange.End > patternRange.End)
+            {
+                throw new DomainException($"Görev ({itemStart}-{itemEnd}), vardiya saatleri ({ShiftStart}-{ShiftEnd}) dışında olamaz.");
+            }
+
+            // KURAL 2: Çakışma Kontrolü (Overlap Check) - ARTIK DOĞRU ÇALIŞIR
+            foreach (var existingItem in _items)
+            {
+                // Mevcut item'ı da aynı mantıkla DateTime'a çeviriyoruz
+                var existingRange = NormalizeTimeRange(existingItem.StartTime, existingItem.EndTime);
+
+                // DateTime üzerinden çakışma kontrolü (Kesin sonuç verir)
+                bool overlaps = newItemRange.Start < existingRange.End && newItemRange.End > existingRange.Start;
+
+                if (overlaps)
+                {
+                    throw new DomainException($"Bu saat aralığı ({itemStart}-{itemEnd}), mevcut bir görevle çakışıyor.");
+                }
+            }
+
+            _items.Add(new ShiftPatternItem(Id, itemStart, itemEnd, type, vehicleId));
         }
 
-        public void UpdateTimes(TimeSpan start, TimeSpan end)
+        private (DateTime Start, DateTime End) NormalizeTimeRange(TimeSpan tStart, TimeSpan tEnd)
         {
+            var baseDate = DateTime.Today;
+
+            // 1. Basit Dönüşüm
+            var dtStart = baseDate.Add(tStart);
+            var dtEnd = baseDate.Add(tEnd);
+
+            // 2. Vardiya Gece Yarısını Geçiyor mu? (Örn: 18:00 - 09:00)
+            bool isNightShift = ShiftEnd < ShiftStart;
+
+            // 3. Bitiş saati başlangıçtan küçükse (Örn: 09:00 < 18:00) -> Ertesi gün
+            if (tEnd < tStart)
+            {
+                dtEnd = dtEnd.AddDays(1);
+            }
+            else if (isNightShift)
+            {
+                // Vardiya gece yarısını geçiyor AMA bu item geçmiyor (Örn: 01:00 - 03:00)
+                // Eğer bu saatler vardiya başlangıcından (18:00) küçükse, bunlar ertesi sabaha aittir.
+                if (tStart < ShiftStart)
+                {
+                    dtStart = dtStart.AddDays(1);
+                    dtEnd = dtEnd.AddDays(1);
+                }
+            }
+
+            return (dtStart, dtEnd);
+        }
+        #endregion
+
+        public void UpdateShiftDetails(TimeSpan start, TimeSpan end, Guid? defaultVehicleId)
+        {
+            if (_items.Any(x => x.StartTime < start || x.EndTime > end))
+                throw new DomainException("Yeni vardiya saatleri mevcut görevleri dışarıda bırakıyor. Önce görevleri düzenleyin.");
+
             ShiftStart = start;
             ShiftEnd = end;
+            DefaultVehicleId = defaultVehicleId;
         }
     }
 }
