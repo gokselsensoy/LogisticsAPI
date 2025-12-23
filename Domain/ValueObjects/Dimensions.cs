@@ -1,21 +1,40 @@
-﻿using Domain.SeedWork;
+﻿using Domain.Exceptions;
+using Domain.SeedWork;
 
 namespace Domain.ValueObjects
 {
-    // Value Object: Boyutlar
     public class Dimensions : ValueObject
     {
-        public double Width { get; private set; }
-        public double Height { get; private set; }
-        public double Depth { get; private set; }
-        public double VolumeM3 => Width * Height * Depth;
+        public double Width { get; private set; }  // cm
+        public double Height { get; private set; } // cm
+        public double Length { get; private set; } // cm
+        public double Weight { get; private set; } // kg (Desi hesabı ve lojistik için kritik)
+
         private Dimensions() { }
 
-        public Dimensions(double width, double height, double depth)
+        public Dimensions(double width, double height, double length, double weight)
         {
-            Width = width; Height = height; Depth = depth;
+            if (width < 0 || height < 0 || length < 0 || weight < 0)
+                throw new DomainException("Boyutlar ve ağırlık negatif olamaz.");
+
+            Width = width;
+            Height = height;
+            Length = length;
+            Weight = weight;
         }
 
-        protected override IEnumerable<object> GetEqualityComponents() { yield return VolumeM3; }
+        // Opsiyonel: Desi hesaplama
+        public double CalculateVolumetricWeight()
+        {
+            return (Width * Height * Length) / 3000; // Standart Desi formülü (değişebilir)
+        }
+
+        protected override IEnumerable<object> GetEqualityComponents()
+        {
+            yield return Width;
+            yield return Height;
+            yield return Length;
+            yield return Weight;
+        }
     }
 }

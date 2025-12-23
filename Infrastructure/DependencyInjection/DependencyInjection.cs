@@ -32,6 +32,12 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<ITransporterRepository, TransporterRepository>();
             services.AddScoped<ISupplierRepository, SupplierRepository>();
+            services.AddScoped<IFreelancerRepository, FreelancerRepository>();
+
+            services.AddScoped<ICustomerRepository, CustomerRepository>();
+            services.AddScoped<ICorporateCustomerRepository, CorporateCustomerRepository>();
+            services.AddScoped<ICorporateResponsibleRepository, CorporateResponsibleRepository>();
+            services.AddScoped<IIndividualCustomerRepository, IndividualCustomerRepository>();
 
             services.AddScoped<IDepartmentRepository, DepartmentRepository>();
             services.AddScoped<IWorkerRepository, WorkerRepository>();
@@ -42,13 +48,7 @@ namespace Infrastructure.DependencyInjection
 
             services.AddScoped<ITerminalRepository, TerminalRepository>();
             services.AddScoped<IInventoryRepository, InventoryRepository>();
-
-            services.AddScoped<IFreelancerRepository, FreelancerRepository>();
-
-            services.AddScoped<ICustomerRepository, CustomerRepository>();
-            services.AddScoped<ICorporateCustomerRepository, CorporateCustomerRepository>();
-            services.AddScoped<ICorporateResponsibleRepository, CorporateResponsibleRepository>();
-            services.AddScoped<IIndividualCustomerRepository, IndividualCustomerRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
 
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderQueryRepository, OrderQueryRepository>();

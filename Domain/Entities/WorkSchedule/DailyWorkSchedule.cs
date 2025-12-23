@@ -20,11 +20,29 @@ namespace Domain.Entities.WorkSchedule
 
         private DailyWorkSchedule() { }
 
+        // Manuel oluşturma (Şablon dışı mesai)
+        public DailyWorkSchedule(Guid workerId, DateOnly date, DateTime start, DateTime end)
+        {
+            Id = Guid.NewGuid();
+            WorkerId = workerId;
+            Date = date;
+            ShiftStart = DateTime.SpecifyKind(start, DateTimeKind.Utc);
+            ShiftEnd = DateTime.SpecifyKind(end, DateTimeKind.Utc);
+        }
+
+        private static DateTime CreateUtcDateTime(DateOnly date, TimeSpan time)
+        {
+            // Önce Unspecified bir tarih oluşturur
+            var dt = date.ToDateTime(TimeOnly.FromTimeSpan(time));
+            // Sonra bunu UTC olarak işaretler (Zamanı değiştirmez, sadece etiketi değiştirir)
+            return DateTime.SpecifyKind(dt, DateTimeKind.Utc);
+        }
+
         public static DailyWorkSchedule CreateFromPattern(WeeklyShiftPattern pattern, DateOnly targetDate)
         {
             // 1. Ana Vardiya Saatlerini DateTime'a çevir
-            DateTime shiftStart = targetDate.ToDateTime(TimeOnly.FromTimeSpan(pattern.ShiftStart));
-            DateTime shiftEnd = targetDate.ToDateTime(TimeOnly.FromTimeSpan(pattern.ShiftEnd));
+            DateTime shiftStart = CreateUtcDateTime(targetDate, pattern.ShiftStart);
+            DateTime shiftEnd = CreateUtcDateTime(targetDate, pattern.ShiftEnd);
 
             // Gece vardiyası kontrolü (Örn: 22:00 - 06:00)
             if (shiftEnd < shiftStart)
@@ -46,8 +64,8 @@ namespace Domain.Entities.WorkSchedule
             {
                 foreach (var item in pattern.Items)
                 {
-                    DateTime itemStart = targetDate.ToDateTime(TimeOnly.FromTimeSpan(item.StartTime));
-                    DateTime itemEnd = targetDate.ToDateTime(TimeOnly.FromTimeSpan(item.EndTime));
+                    DateTime itemStart = CreateUtcDateTime(targetDate, item.StartTime);
+                    DateTime itemEnd = CreateUtcDateTime(targetDate, item.EndTime);
 
                     // Item saatleri gece yarısını geçiyorsa düzelt
                     // (Basit mantık: Item başlangıcı vardiya başlangıcından küçükse ertesi gündür)
@@ -73,28 +91,24 @@ namespace Domain.Entities.WorkSchedule
             return schedule;
         }
 
-        // Manuel oluşturma (Şablon dışı mesai)
-        public DailyWorkSchedule(Guid workerId, DateOnly date, DateTime start, DateTime end)
-        {
-            Id = Guid.NewGuid();
-            WorkerId = workerId;
-            Date = date;
-            ShiftStart = start;
-            ShiftEnd = end;
-        }
-
         public void AddAllocation(TimeRange range, AssignmentType type, Guid? vehicleId)
         {
-            if (range.Start < ShiftStart || range.End > ShiftEnd)
-                throw new DomainException("Atama, personelin vardiya saatleri dışında olamaz.");
+            // Gelen range içindeki DateTime'ların Kind'ı Unspecified ise UTC yap
+            var utcRange = new TimeRange(
+                DateTime.SpecifyKind(range.Start, DateTimeKind.Utc),
+                DateTime.SpecifyKind(range.End, DateTimeKind.Utc)
+            );
 
-            if (_allocations.Any(a => a.TimeRange.Overlaps(range)))
+            if (utcRange.Start < ShiftStart || utcRange.End > ShiftEnd)
+                throw new DomainException($"Atama ({utcRange.Start}-{utcRange.End}), personelin vardiya saatleri ({ShiftStart}-{ShiftEnd}) dışında olamaz.");
+
+            if (_allocations.Any(a => a.TimeRange.Overlaps(utcRange)))
                 throw new DomainException("Bu saat aralığında zaten bir görev atanmış.");
 
             if (type == AssignmentType.Driving && !vehicleId.HasValue)
                 throw new DomainException("Sürüş görevi için araç seçilmelidir.");
 
-            _allocations.Add(new ScheduleAllocation(Id, range, type, vehicleId));
+            _allocations.Add(new ScheduleAllocation(Id, utcRange, type, vehicleId));
         }
 
         public void RemoveAllocation(Guid allocationId)
@@ -105,11 +119,14 @@ namespace Domain.Entities.WorkSchedule
 
         public void UpdateShiftTimes(DateTime newStart, DateTime newEnd)
         {
-            if (_allocations.Any(a => a.TimeRange.Start < newStart || a.TimeRange.End > newEnd))
+            var utcStart = DateTime.SpecifyKind(newStart, DateTimeKind.Utc);
+            var utcEnd = DateTime.SpecifyKind(newEnd, DateTimeKind.Utc);
+
+            if (_allocations.Any(a => a.TimeRange.Start < utcStart || a.TimeRange.End > utcEnd))
                 throw new DomainException("Vardiya saatleri, mevcut görevleri dışarıda bırakacak şekilde küçültülemez.");
 
-            ShiftStart = newStart;
-            ShiftEnd = newEnd;
+            ShiftStart = utcStart;
+            ShiftEnd = utcEnd;
         }
     }
 }
