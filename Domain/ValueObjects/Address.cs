@@ -15,10 +15,8 @@ namespace Domain.ValueObjects
         public string City { get; private set; }        // By (Örn: København)
         public string Country { get; private set; }     // Land (Default: DK)
 
-        public int? FloorNumber { get; private set; }
-
-        // (st, kl, 1, 2)
-        public string? FloorLabel { get; private set; }
+        public int? FloorNumber { get; private set; }        // (st, kl, 1, 2)
+        public string? FloorLabel { get; private set; }         // (st, kl, 1, 2)
 
         public string? Door { get; private set; }       // Dør (Örn: th, tv, 3)
 

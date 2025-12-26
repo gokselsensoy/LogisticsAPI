@@ -3,7 +3,7 @@ using Domain.SeedWork;
 
 namespace Domain.Entities.Inventory
 {
-    public class InventoryTransaction : Entity
+    public class InventoryTransaction : Entity, IAggregateRoot
     {
         public Guid InventoryId { get; private set; } // İşlem nerede oldu?
         public Guid PackageId { get; private set; }   // Hangi ürün?

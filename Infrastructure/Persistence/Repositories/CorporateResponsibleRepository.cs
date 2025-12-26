@@ -29,5 +29,20 @@ namespace Infrastructure.Persistence.Repositories
 
             return result.Select(x => (x.r, x.c)).ToList();
         }
+
+        public async Task<List<CorporateResponsible>> GetByCorporateIdAsync(Guid corporateId, CancellationToken token)
+        {
+            return await _context.Set<CorporateResponsible>()
+                .Where(r => r.CorporateCustomerId == corporateId && !r.IsDeleted)
+                .ToListAsync(token);
+        }
+
+        // ID ile getirir ama AssignedAddresses (Atanmış Şubeler) ilişkisini de yükler
+        public async Task<CorporateResponsible?> GetByIdWithAssignmentsAsync(Guid id, CancellationToken token)
+        {
+            return await _context.Set<CorporateResponsible>()
+                .Include(r => r.AssignedAddresses) // Yetki kontrolü için şart
+                .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted, token);
+        }
     }
 }

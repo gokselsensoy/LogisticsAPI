@@ -1,4 +1,7 @@
-﻿using Application.Features.Terminals.Commands.CreateTerminal;
+﻿using Application.Features.Inventories.Commands.AddStock;
+using Application.Features.Inventories.Commands.CreateInventory;
+using Application.Features.Inventories.Commands.RemoveStock;
+using Application.Features.Terminals.Commands.CreateTerminal;
 using Application.Features.Terminals.Commands.DeleteTerminal;
 using Application.Features.Terminals.Commands.UpdateTerminal;
 using MediatR;
@@ -36,5 +39,51 @@ namespace WebApi.Controllers
             await _sender.Send(new DeleteTerminalCommand { TerminalId = id });
             return Ok(new { Message = "Terminal silindi." });
         }
+    }
+
+    //[Authorize(Roles = "Worker")]
+    [Route("api/[controller]")]
+    [ApiController]
+    public class InventoryController : ControllerBase
+    {
+        private readonly ISender _sender;
+
+        public InventoryController(ISender sender) => _sender = sender;
+
+        /// <summary>
+        /// Depoya yeni bir raf/lokasyon ekler.
+        /// </summary>
+        [HttpPost("location")]
+        public async Task<IActionResult> CreateLocation([FromBody] CreateInventoryCommand command)
+        {
+            var id = await _sender.Send(command);
+            return Ok(new { InventoryId = id });
+        }
+
+        // ==========================================
+        // STOK HAREKETLERİ (GİRİŞ / ÇIKIŞ)
+        // ==========================================
+
+        /// <summary>
+        /// Bir rafa stok girişi yapar (Mal Kabul).
+        /// </summary>
+        [HttpPost("stock/in")]
+        public async Task<IActionResult> AddStock([FromBody] AddStockCommand command)
+        {
+            await _sender.Send(command);
+            return Ok(new { Message = "Stok girişi başarılı." });
+        }
+
+        /// <summary>
+        /// Bir raftan stok düşer (Sevkiyat, Fire).
+        /// </summary>
+        [HttpPost("stock/out")]
+        public async Task<IActionResult> RemoveStock([FromBody] RemoveStockCommand command)
+        {
+            await _sender.Send(command);
+            return Ok(new { Message = "Stok çıkışı başarılı." });
+        }
+
+        // Query Endpointleri (GetInventoryStock, GetHistory vs.) daha sonra eklenebilir.
     }
 }

@@ -18,7 +18,6 @@ namespace Application.Features.Workers.Commands.CreateWorker
         private readonly IWorkerRepository _workerRepo;
         private readonly IUserRepository _userRepo;
         private readonly IIdentityService _identityService;
-        private readonly IDepartmentRepository _departmentRepo;
         private readonly IUnitOfWork _unitOfWork;
 
         public CreateWorkerCommandHandler(
@@ -35,7 +34,6 @@ namespace Application.Features.Workers.Commands.CreateWorker
             _workerRepo = workerRepo;
             _userRepo = userRepo;
             _identityService = identityService;
-            _departmentRepo = departmentRepo;
             _unitOfWork = unitOfWork;
         }
 

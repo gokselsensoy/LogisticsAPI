@@ -1,4 +1,4 @@
 ﻿namespace Domain.Enums
 {
-    public enum InventoryState { Available, Reserved, Quarantine, CrossDock }
+    public enum InventoryState { Available, Reserved, Damaged, Blocked, CrossDock }
 }   

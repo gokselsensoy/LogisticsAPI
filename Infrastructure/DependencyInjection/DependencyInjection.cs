@@ -48,6 +48,7 @@ namespace Infrastructure.DependencyInjection
 
             services.AddScoped<ITerminalRepository, TerminalRepository>();
             services.AddScoped<IInventoryRepository, InventoryRepository>();
+            services.AddScoped<IInventoryTransactionRepository, InventoryTransactionRepository>();
             services.AddScoped<IProductRepository, ProductRepository>();
 
             services.AddScoped<IOrderRepository, OrderRepository>();

@@ -1,4 +1,5 @@
 ﻿using Domain.Enums;
+using Domain.Exceptions;
 using Domain.SeedWork;
 
 namespace Domain.Entities.Inventory
@@ -120,6 +121,85 @@ namespace Domain.Entities.Inventory
             );
         }
 
+        // 1. REZERVASYON İŞLEMİ (Sipariş Gelince)
+        // Bu metod fiziksel bir hareket yaratmaz, sadece statü değiştirir.
+        public void ReserveStock(Guid packageId, int quantity, Guid ownerId)
+        {
+            // A. Available (Kullanılabilir) stoğu bul
+            var availableStock = _stocks.FirstOrDefault(s => s.PackageId == packageId && s.OwnerId == ownerId && s.State == InventoryState.Available);
+
+            if (availableStock == null || availableStock.Quantity < quantity)
+            {
+                throw new DomainException("Rezervasyon için yeterli 'Kullanılabilir' (Available) stok yok.");
+            }
+
+            // B. Available'dan düş
+            availableStock.Decrease(quantity);
+            if (availableStock.Quantity == 0) _stocks.Remove(availableStock); // Opsiyonel: 0 ise sil
+
+            // C. Reserved (Rezerve) stoğu bul veya oluştur
+            var reservedStock = _stocks.FirstOrDefault(s => s.PackageId == packageId && s.OwnerId == ownerId && s.State == InventoryState.Reserved);
+
+            if (reservedStock != null)
+            {
+                reservedStock.Increase(quantity);
+            }
+            else
+            {
+                // Aynı raf içinde yeni bir Reserved kaydı oluşturuyoruz
+                _stocks.Add(new Stock(Id, packageId, quantity, ownerId, InventoryState.Reserved));
+            }
+        }
+
+        // 2. TOPLAMA / ÇIKIŞ İŞLEMİ (Worker Rafa Gidince)
+        // Bu işlem Reserved stoktan düşer ve Transaction (Çıkış) oluşturur.
+        public InventoryTransaction PickStock(Guid packageId, int quantity, Guid ownerId, Guid workerId, string? note = null)
+        {
+            // A. Reserved stoğu bul
+            var reservedStock = _stocks.FirstOrDefault(s => s.PackageId == packageId && s.OwnerId == ownerId && s.State == InventoryState.Reserved);
+
+            // Hata Kontrolü: Eğer rezerve edilmemişse, worker bunu toplayamaz!
+            if (reservedStock == null || reservedStock.Quantity < quantity)
+            {
+                throw new DomainException("Toplanmak istenen miktar kadar rezervasyon bulunamadı. Önce rezervasyon yapılmalı.");
+            }
+
+            // B. Reserved stoktan düş
+            reservedStock.Decrease(quantity);
+
+            if (reservedStock.Quantity == 0)
+            {
+                _stocks.Remove(reservedStock);
+            }
+
+            // C. Transaction Oluştur (Çıkış Hareketi)
+            return new InventoryTransaction(
+                inventoryId: Id,
+                packageId: packageId,
+                ownerId: ownerId,
+                quantityChange: -quantity, // Azaldı
+                quantityAfter: reservedStock.Quantity,
+                type: TransactionType.Outbound, // veya 'Picking' diye yeni bir type eklenebilir
+                workerId: workerId,
+                note: note ?? "Sipariş Toplama"
+            );
+        }
+
+        // 3. REZERVASYON İPTALİ (Opsiyonel)
+        public void CancelReservation(Guid packageId, int quantity, Guid ownerId)
+        {
+            var reservedStock = _stocks.FirstOrDefault(s => s.PackageId == packageId && s.OwnerId == ownerId && s.State == InventoryState.Reserved);
+            if (reservedStock == null || reservedStock.Quantity < quantity) throw new DomainException("İptal edilecek rezervasyon bulunamadı.");
+
+            reservedStock.Decrease(quantity);
+            if (reservedStock.Quantity == 0) _stocks.Remove(reservedStock);
+
+            // Tekrar Available'a ekle
+            var availableStock = _stocks.FirstOrDefault(s => s.PackageId == packageId && s.OwnerId == ownerId && s.State == InventoryState.Available);
+            if (availableStock != null) availableStock.Increase(quantity);
+            else _stocks.Add(new Stock(Id, packageId, quantity, ownerId, InventoryState.Available));
+        }
+
         private string GenerateLocationCode()
         {
             // Kod üretme mantığın buraya...
@@ -127,22 +207,3 @@ namespace Domain.Entities.Inventory
         }
     }
 }
-
-//public async Task<List<InventorySummaryDto>> GetTerminalSummaryAsync(Guid terminalId)
-//{
-//    // SQL Karşılığı: 
-//    // SELECT PackageId, SUM(Quantity) FROM Stocks 
-//    // WHERE LocationId IN (Select Id From Locations Where TerminalId = ...)
-//    // GROUP BY PackageId
-
-//    return await _context.Stocks
-//        .Where(s => s.Location.TerminalId == terminalId) // Navigation Property ile erişim
-//        .GroupBy(s => new { s.PackageId, s.State }) // Ürün ve Duruma göre grupla
-//        .Select(g => new InventorySummaryDto
-//        {
-//            PackageId = g.Key.PackageId,
-//            State = g.Key.State.ToString(),
-//            TotalQuantity = g.Sum(x => x.Quantity) // ANLIK HESAPLAMA
-//        })
-//        .ToListAsync();
-//}

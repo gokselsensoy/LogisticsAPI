@@ -37,12 +37,14 @@ namespace Domain.Entities.Customer
             }
         }
 
-        public void UpdatePersonalDetails(string fullName, string phone)
+        public void UpdateDetails(string fullName, string phone, List<CorporateRole> roles)
         {
-            if (string.IsNullOrWhiteSpace(fullName)) throw new DomainException("İsim boş olamaz.");
-
             FullName = fullName;
             Phone = phone;
+
+            // Rolleri güncelle
+            _roles.Clear();
+            _roles.AddRange(roles);
         }
 
         public void AssignAddress(Guid addressId)
@@ -50,6 +52,15 @@ namespace Domain.Entities.Customer
             if (!_assignedAddresses.Any(x => x.AddressId == addressId))
             {
                 _assignedAddresses.Add(new CorporateAddressResponsibleMap(Id, addressId));
+            }
+        }
+
+        public void UnassignAddress(Guid addressId)
+        {
+            var map = _assignedAddresses.FirstOrDefault(x => x.AddressId == addressId);
+            if (map != null)
+            {
+                _assignedAddresses.Remove(map);
             }
         }
 
@@ -100,5 +111,7 @@ namespace Domain.Entities.Customer
         }
 
         public bool HasRole(CorporateRole role) => _roles.Contains(role);
+
+        public bool IsAdmin() => _roles.Contains(CorporateRole.Admin);
     }
 }

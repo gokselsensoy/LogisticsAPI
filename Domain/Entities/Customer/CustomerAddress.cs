@@ -4,7 +4,7 @@ using Domain.ValueObjects;
 
 namespace Domain.Entities.Customer
 {
-    public class CustomerAddress : Entity
+    public class CustomerAddress : FullAuditedEntity
     {
         public Guid CustomerId { get; private set; }
         public string Title { get; private set; } // "Kadıköy Şubesi"
@@ -13,11 +13,19 @@ namespace Domain.Entities.Customer
 
         private CustomerAddress() { }
 
-        public CustomerAddress(Guid customerId, string title, Address address)
+        public CustomerAddress(Guid customerId, string title, Address address, AddressType type)
         {
             CustomerId = customerId;
             Title = title;
             Address = address;
+            AddressType = type;
+        }
+
+        public void UpdateDetails(string title, Address address, AddressType type)
+        {
+            Title = title;
+            Address = address;
+            AddressType = type;
         }
     }
 }
