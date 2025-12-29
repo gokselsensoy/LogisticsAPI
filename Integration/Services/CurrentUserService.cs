@@ -33,6 +33,15 @@ namespace Integration.Services
             }
         }
 
+        public string? ClientId
+        {
+            get
+            {
+                return _httpContextAccessor.HttpContext?.User?.FindFirst("client_id")?.Value
+                       ?? _httpContextAccessor.HttpContext?.User?.FindFirst("azp")?.Value;
+            }
+        }
+
         public Guid? ProfileId
         {
             get

@@ -41,6 +41,15 @@ namespace Application.Features.Auth.Commands.Login
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken token)
         {
             Guid identityId = _currentUser.UserId;
+            string clientId = _currentUser.ClientId;
+
+            if (string.IsNullOrEmpty(clientId))
+            {
+                // Eğer token içinde client_id yoksa, IdentityServer ayarlarından
+                // "IncludeJwtId" veya AccessToken içinde client_id gönder seçeneği açılmalı.
+                // Ama genelde default gelir.
+                clientId = "multillo_web"; // Fallback (veya hata fırlat)
+            }
 
             var appUser = await _userRepo.GetByIdentityIdAsync(identityId, token);
 
@@ -141,7 +150,7 @@ namespace Application.Features.Auth.Commands.Login
                     p.ProfileType,
                     p.ProfileId,
                     p.Roles,
-                    "multillo_web",
+                    clientId,
                     token
                 );
                 isContextSelected = true;

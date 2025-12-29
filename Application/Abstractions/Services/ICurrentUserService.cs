@@ -4,6 +4,7 @@
     {
         Guid UserId { get; }
         Guid AppUserId { get; }
+        string? ClientId { get; }
         Guid? ProfileId { get; }
         Guid? CompanyId { get; }
         string? ProfileType { get; }
