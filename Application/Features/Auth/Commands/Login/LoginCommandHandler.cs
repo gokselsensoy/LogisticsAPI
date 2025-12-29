@@ -15,51 +15,51 @@ namespace Application.Features.Auth.Commands.Login
 
         // Tüm Olası Giriş Tipleri İçin Repolar
         private readonly IWorkerRepository _workerRepo;
-        private readonly ICompanyRepository _companyRepo;
         private readonly IFreelancerRepository _freelancerRepo;
         private readonly IIndividualCustomerRepository _individualCustomerRepo;
-        private readonly ICorporateCustomerRepository _corporateCustomerRepo;
         private readonly ICorporateResponsibleRepository _corporateResponsibleRepo;
+        private readonly ICurrentUserService _currentUser;
 
         public LoginCommandHandler(
             IIdentityService identityService,
             IUserRepository userRepo,
             IWorkerRepository workerRepo,
-            ICompanyRepository companyRepo,
             IFreelancerRepository freelancerRepo,
             IIndividualCustomerRepository individualCustomerRepo,
-            ICorporateCustomerRepository corporateCustomerRepo,
-            ICorporateResponsibleRepository corporateResponsibleRepo)
+            ICorporateResponsibleRepository corporateResponsibleRepo,
+            ICurrentUserService currentUser)
         {
             _identityService = identityService;
             _userRepo = userRepo;
             _workerRepo = workerRepo;
-            _companyRepo = companyRepo;
             _freelancerRepo = freelancerRepo;
             _individualCustomerRepo = individualCustomerRepo;
-            _corporateCustomerRepo = corporateCustomerRepo;
             _corporateResponsibleRepo = corporateResponsibleRepo;
+            _currentUser = currentUser;
         }
 
         public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken token)
         {
-            // 1. ADIM: LoginAsync ile Doğrulama Yap (ValidateUserAsync yerine)
-            // Bu metod token dönerse şifre doğrudur.
-            var baseTokenResponse = await _identityService.LoginAsync(request.Email, request.Password, request.ClientType, token);
+            Guid identityId = _currentUser.UserId;
 
-            if (baseTokenResponse == null)
-                throw new Exception("Giriş başarısız. Kullanıcı adı veya şifre hatalı.");
+            var appUser = await _userRepo.GetByIdentityIdAsync(identityId, token);
 
-            // 2. Yerel Kullanıcıyı (AppUser) Bul
-            var localUser = await _userRepo.GetByEmailAsync(request.Email, token);
-            if (localUser == null)
-                throw new Exception("Kullanıcı sistemde bulunamadı (Senkronizasyon hatası).");
+            // 3. NULL CHECK (Hata alınan yer burasıydı)
+            // Eğer Identity'de user var ama senin AppUser tablosunda yoksa bu hatayı fırlatmalıyız.
+            if (appUser == null)
+            {
+                // Burası kritik: Eğer buraya düşüyorsa veri tutarsızlığı vardır 
+                // veya kullanıcı register olmadan token almıştır.
+                throw new Exception("Kullanıcı sistemde (AppUser) bulunamadı.");
+            }
 
+            // Artık appUser'ın null olmadığından eminiz, Id'sini alabiliriz.
+            Guid localUserId = appUser.Id;
             // 3. TÜM PROFİLLERİ TOPLA (Worker, Freelancer, Customer...)
             var profiles = new List<UserProfileDto>();
 
             // A. WORKER
-            var workerDataList = await _workerRepo.GetAllByAppUserIdWithCompanyAsync(localUser.Id, token);
+            var workerDataList = await _workerRepo.GetAllByAppUserIdWithCompanyAsync(localUserId, token);
             foreach (var item in workerDataList)
             {
                 profiles.Add(new UserProfileDto
@@ -73,7 +73,7 @@ namespace Application.Features.Auth.Commands.Login
             }
 
             // B. FREELANCER
-            var freelancer = await _freelancerRepo.GetByAppUserIdAsync(localUser.Id, token);
+            var freelancer = await _freelancerRepo.GetByAppUserIdAsync(localUserId, token);
             if (freelancer != null)
             {
                 profiles.Add(new UserProfileDto
@@ -87,7 +87,7 @@ namespace Application.Features.Auth.Commands.Login
             }
 
             // C. INDIVIDUAL CUSTOMER
-            var indCustomer = await _individualCustomerRepo.GetByAppUserIdAsync(localUser.Id, token);
+            var indCustomer = await _individualCustomerRepo.GetByAppUserIdAsync(localUserId, token);
             if (indCustomer != null)
             {
                 profiles.Add(new UserProfileDto
@@ -101,7 +101,7 @@ namespace Application.Features.Auth.Commands.Login
             }
 
             // D. CORPORATE RESPONSIBLE
-            var corporateDataList = await _corporateResponsibleRepo.GetResponsiblesWithCustomerAsync(localUser.Id, token);
+            var corporateDataList = await _corporateResponsibleRepo.GetResponsiblesWithCustomerAsync(localUserId, token);
 
             foreach (var item in corporateDataList)
             {
@@ -135,23 +135,20 @@ namespace Application.Features.Auth.Commands.Login
 
                 // Base token'ı bırak, "Dolu Token" (CompanyId'li) iste
                 finalTokenResponse = await _identityService.CreateTokenForProfileAsync(
-                    localUser.IdentityId,
-                    localUser.Id,
+                    _currentUser.UserId,
+                    localUserId,
                     p.CompanyId,
                     p.ProfileType,
                     p.ProfileId,
                     p.Roles,
-                    request.ClientType,
+                    "multillo_web",
                     token
                 );
                 isContextSelected = true;
             }
             else
             {
-                // SENARYO 2: ÇOKLU PROFİL (MANUEL SEÇİM GEREKİYOR)
-                // İlk başta aldığımız Base Token'ı kullanıyoruz.
-                // Bu token ile henüz şirket işlemleri yapamaz ama SelectProfile endpoint'ine istek atabilir.
-                finalTokenResponse = baseTokenResponse;
+                finalTokenResponse = null;
                 isContextSelected = false;
             }
 
