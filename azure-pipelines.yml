@@ -73,10 +73,8 @@ steps:
       $scriptLines += "`$projectPath = '$(projectFolder)'"
       $scriptLines += "`$newProjectPath = '$(newProjectFolder)'"
       $scriptLines += ""
-      $scriptLines += "# Sadece appsettings dosyalarını silmeden temizle"
-      $scriptLines += "Get-ChildItem -Path `$projectPath -Recurse -Force | Where-Object {"
-      $scriptLines += "    `$_.FullName -notmatch 'appsettings(\.(Development|Production))?\.json$'"
-      $scriptLines += "} | ForEach-Object {"
+      $scriptLines += "# HEDEF KLASÖRÜ TEMİZLE (Appsettings dahil her şeyi siler)"
+      $scriptLines += "Get-ChildItem -Path `$projectPath -Recurse -Force | ForEach-Object {"
       $scriptLines += "    try {"
       $scriptLines += "        Remove-Item -Path `$_.FullName -Recurse -Force -ErrorAction Stop"
       $scriptLines += "    } catch {"
@@ -92,7 +90,7 @@ steps:
 
       $scriptPath = "$(scriptFolder)\\Deploy.ps1"
       $scriptLines | Set-Content -Path $scriptPath -Force
-  displayName: 'Create Deploy Script (Protect appsettings.json)'
+  displayName: 'Create Deploy Script (Overwrite All)'
 
 # Backup çalıştır
 - task: PowerShell@2
