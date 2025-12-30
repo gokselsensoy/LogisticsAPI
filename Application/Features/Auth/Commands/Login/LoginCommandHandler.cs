@@ -164,9 +164,9 @@ namespace Application.Features.Auth.Commands.Login
             // 5. CEVAP
             return new LoginResponse
             {
-                AccessToken = finalTokenResponse.AccessToken,
-                RefreshToken = finalTokenResponse.RefreshToken,
-                ExpiresIn = finalTokenResponse.ExpiresIn,
+                AccessToken = finalTokenResponse?.AccessToken,
+                RefreshToken = finalTokenResponse?.RefreshToken,
+                ExpiresIn = finalTokenResponse?.ExpiresIn ?? 0,
                 AvailableProfiles = profiles,
                 IsContextSelected = isContextSelected
             };
