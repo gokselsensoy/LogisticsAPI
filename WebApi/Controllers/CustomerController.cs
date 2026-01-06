@@ -45,14 +45,14 @@ namespace WebApi.Controllers
 
         // --- KURUMSAL YÖNETİM (Sadece Corporate Admin) ---
 
-        [Authorize(Roles = "Admin")] // CorporateRole Enum'ına göre Policy yazılabilir
+        //[Authorize(Roles = "Admin")] // CorporateRole Enum'ına göre Policy yazılabilir
         [HttpPost("responsible")]
         public async Task<IActionResult> CreateResponsible(CreateResponsibleCommand command)
         {
             return Ok(await _sender.Send(command));
         }
 
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPut("responsible")]
         public async Task<IActionResult> UpdateResponsible(UpdateResponsibleCommand command)
         {
@@ -61,7 +61,7 @@ namespace WebApi.Controllers
         }
 
         // --- ATAMA ---
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         [HttpPost("responsible/assign-address")]
         public async Task<IActionResult> AssignAddress(AssignAddressToResponsibleCommand command)
         {

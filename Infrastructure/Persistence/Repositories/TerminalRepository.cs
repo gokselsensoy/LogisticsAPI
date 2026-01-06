@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Departments;
+using Domain.Entities.Inventory;
 using Domain.Repositories;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +20,17 @@ namespace Infrastructure.Persistence.Repositories
                         select t;
 
             return await query.ToListAsync(token);
+        }
+
+        public async Task<Terminal?> GetByInventoryIdAsync(Guid inventoryId, CancellationToken token)
+        {
+            // Inventory -> Terminal ilişkisi üzerinden gidiyoruz
+            // Varsayım: Inventory entity'sinde TerminalId var.
+            return await _context.Set<Inventory>()
+                .Where(i => i.Id == inventoryId)
+                .Select(i => i.Terminal) // Navigation Property: Inventory.Terminal
+                .Include(t => t.Address) // Terminalin adresi (Varsayım: Terminal'de Address ValueObject veya ilişkisi var)
+                .FirstOrDefaultAsync(token);
         }
     }
 }

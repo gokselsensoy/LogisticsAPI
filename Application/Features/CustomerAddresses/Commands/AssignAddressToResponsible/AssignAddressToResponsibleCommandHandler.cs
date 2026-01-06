@@ -23,7 +23,7 @@ namespace Application.Features.CustomerAddresses.Commands.AssignAddressToRespons
         public async Task<Unit> Handle(AssignAddressToResponsibleCommand request, CancellationToken token)
         {
             // 1. İşlemi Yapan (Admin) Kontrolü
-            var admin = await _responsibleRepo.GetByAppUserIdAsync(_currentUser.UserId, token);
+            var admin = await _responsibleRepo.GetByAppUserIdAsync(_currentUser.AppUserId, token);
             if (admin == null || !admin.IsAdmin())
                 throw new UnauthorizedAccessException("Atama yapma yetkiniz yok.");
 

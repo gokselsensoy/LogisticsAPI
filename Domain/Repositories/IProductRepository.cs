@@ -7,5 +7,6 @@ namespace Domain.Repositories
     {
         Task<Product?> GetByIdWithPackagesAsync(Guid id, CancellationToken token);
         Task<bool> IsBarcodeExistAsync(string barcode, CancellationToken token);
+        Task<Package?> GetPackageByIdAsync(Guid packageId, CancellationToken token);
     }
 }

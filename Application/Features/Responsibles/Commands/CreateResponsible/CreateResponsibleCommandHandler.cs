@@ -49,7 +49,7 @@ namespace Application.Features.Responsibles.Commands.CreateResponsible
             // Email ile IdentityUser var mı?
             var existingIdentityUser = await _identityService.GetByEmailAsync(request.Email, token);
 
-            string roleToAssign = "CorporateUser"; // Veya "CorporateResponsible" (Sabit bir rol adı)
+            string roleToAssign = "CorporateCustomer"; // Veya "CorporateResponsible" (Sabit bir rol adı)
 
             if (existingIdentityUser != null)
             {

@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Inventory;
+using Domain.Enums;
 using Domain.Repositories;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,21 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Set<Inventory>()
                 .Include(i => i.Stocks) // Stokları da çekiyoruz
                 .FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, token);
+        }
+
+        public async Task<Inventory?> GetFirstWithStockAsync(Guid packageId, Guid ownerId, int quantity, InventoryState state, CancellationToken token)
+        {
+            // Stocks listesinin içinde aradığımız kriterde stok var mı?
+            // Inventory -> Stocks (Include)
+            return await _context.Set<Inventory>()
+                .Include(i => i.Stocks)
+                .Where(i => !i.IsDeleted) // Depo silinmemiş
+                .Where(i => i.Stocks.Any(s =>
+                    s.PackageId == packageId &&
+                    s.OwnerId == ownerId &&
+                    s.State == state &&
+                    s.Quantity >= quantity)) // Yeterli stok var mı?
+                .FirstOrDefaultAsync(token);
         }
     }
 }
