@@ -55,9 +55,22 @@ namespace Domain.Entities.Order
 
         public void AddItem(Guid packageId, string name, CargoSpec spec, int quantity, Money unitPrice)
         {
-            // Validation
+            // --- DÜZELTME BURADA ---
+
+            // 1. Eğer sipariş listesi boşsa (yani bu ilk ürünse),
+            // Siparişin TotalPrice'ını, gelen ürünün para birimine göre güncelle (resetle).
+            if (!_items.Any())
+            {
+                // Miktar henüz 0 ama para birimi artık ürünün para birimi (örn: USD)
+                TotalPrice = new Money(0, unitPrice.Currency);
+            }
+
+            // 2. Validation: Artık para birimleri eşitlenmiş olmalı.
+            // Eğer 2. ürünü ekliyorsak ve farklı para birimindeyse o zaman hata vermeli.
             if (unitPrice.Currency != TotalPrice.Currency)
-                throw new DomainException("Sipariş para birimi ile ürün para birimi uyuşmuyor.");
+                throw new DomainException($"Sipariş para birimi ({TotalPrice.Currency}) ile ürün para birimi ({unitPrice.Currency}) uyuşmuyor.");
+
+            // -----------------------
 
             var item = new OrderItem(Id, packageId, name, spec, quantity, unitPrice);
             _items.Add(item);
@@ -75,7 +88,7 @@ namespace Domain.Entities.Order
         public void MarkAsPaid()
         {
             Status = OrderStatus.Processing; // İşleniyor (Depoya düştü)
-            AddDomainEvent(new OrderPaidEvent(Id));
+            AddDomainEvent(new OrderPaidEvent(this));
         }
 
         private void RecalculateTotal()

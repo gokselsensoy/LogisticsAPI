@@ -53,6 +53,10 @@ namespace Infrastructure.DependencyInjection
 
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderQueryRepository, OrderQueryRepository>();
+            services.AddScoped<IShipmentRepository, ShipmentRepository>();
+
+            services.AddScoped<IBasketRepository, BasketRepository>();
+            services.AddScoped<IBasketQueryRepository, BasketQueryRepository>();
 
 
             // 5. Diğer servisler (Email vb.)

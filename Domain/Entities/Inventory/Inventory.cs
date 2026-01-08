@@ -21,7 +21,7 @@ namespace Domain.Entities.Inventory
         private readonly List<Stock> _stocks = new();
         public IReadOnlyCollection<Stock> Stocks => _stocks.AsReadOnly();
 
-        public virtual Terminal Terminal { get; private set; }
+        public Terminal Terminal { get; private set; }
         private Inventory() { }
 
         public Inventory(Guid terminalId, string area, string? corridor, string? place, string? shelf, bool isVirtual)

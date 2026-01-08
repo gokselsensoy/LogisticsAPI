@@ -33,8 +33,7 @@ namespace Application.Features.Baskets.EventHandlers
 
         public async Task Handle(OrderPaidEvent notification, CancellationToken token)
         {
-            var order = await _orderRepo.GetByIdWithItemsAsync(notification.OrderId, token);
-            if (order == null) return;
+            var order = notification.Order;
 
             // 1. Pickup Adresini (Terminal Adresi) Bul
             // Senaryo: Sipariş tek bir yerden çıkacak varsayıyoruz (Split shipment yok).
@@ -86,11 +85,6 @@ namespace Application.Features.Baskets.EventHandlers
             }
 
             _shipmentRepo.Add(shipment);
-
-            // UnitOfWork save işlemi genelde Event Dispatcher'ın üst katmanında yapılır
-            // ama burada domain event handler içinde olduğumuz için safe side kalıp save diyebiliriz
-            // veya Mediator pipeline hallediyorsa gerek yoktur.
-            await _unitOfWork.SaveChangesAsync(token);
         }
     }
 }

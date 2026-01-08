@@ -11,6 +11,13 @@ namespace Infrastructure.Persistence.Repositories
         {
         }
 
+        public async Task<Basket?> GetByCustomerIdAsync(Guid customerId, CancellationToken token)
+        {
+            return await _context.Set<Basket>()
+                .Include(b => b.Items)
+                .FirstOrDefaultAsync(b => b.CustomerId == customerId, token);
+        }
+
         public async Task<Basket?> GetByIdWithItemsAsync(Guid id, CancellationToken token)
         {
             return await _context.Set<Basket>()

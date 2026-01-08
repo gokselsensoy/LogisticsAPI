@@ -114,6 +114,8 @@ namespace Infrastructure.Persistence.Context
         public DbSet<ReturnItem> ReturnItems { get; set; }
         public DbSet<Shipment> Shipments { get; set; }
         public DbSet<ShipmentItem> ShipmentItems { get; set; }
+        public DbSet<Basket> Baskets { get; set; }
+        public DbSet<BasketItem> BasketItems { get; set; }
 
         public DbSet<WeeklyShiftPattern> WeeklyShiftPatterns { get; set; }
         public DbSet<ShiftPatternItem> ShiftPatternItems { get; set; }
