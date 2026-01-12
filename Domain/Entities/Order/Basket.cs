@@ -1,6 +1,6 @@
 ﻿using Domain.SeedWork;
 
-namespace Domain.Entities.Order
+namespace Domain.Entities.Orders
 {
     public class Basket : Entity, IAggregateRoot
     {

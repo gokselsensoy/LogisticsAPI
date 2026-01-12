@@ -1,9 +1,9 @@
 ﻿using Domain.Entities;
-using Domain.Entities.Company;
-using Domain.Entities.Customer;
+using Domain.Entities.Companies;
+using Domain.Entities.Customers;
 using Domain.Entities.Departments;
-using Domain.Entities.Inventory;
-using Domain.Entities.Order;
+using Domain.Entities.Inventories;
+using Domain.Entities.Orders;
 using Domain.Entities.Task;
 using Domain.Entities.WorkSchedule;
 using Domain.SeedWork;

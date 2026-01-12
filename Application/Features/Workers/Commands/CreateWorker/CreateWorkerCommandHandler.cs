@@ -1,7 +1,7 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Domain.Entities;
-using Domain.Entities.Company;
+using Domain.Entities.Companies;
 using Domain.Entities.Departments;
 using Domain.Enums;
 using Domain.Events.WorkerEvents;

@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Inventory;
+﻿using Domain.Entities.Inventories;
 using Domain.Enums;
 using Domain.SeedWork;
 

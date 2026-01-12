@@ -1,7 +1,7 @@
 ﻿using Domain.SeedWork;
 using Domain.ValueObjects;
 
-namespace Domain.Entities.Order
+namespace Domain.Entities.Orders
 {
     public class OrderItem : Entity
     {

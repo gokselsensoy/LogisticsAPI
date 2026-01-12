@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Customer;
+﻿using Domain.Entities.Customers;
 using Domain.SeedWork;
 
 namespace Domain.Repositories

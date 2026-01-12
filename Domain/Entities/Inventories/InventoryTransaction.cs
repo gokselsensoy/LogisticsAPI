@@ -1,7 +1,7 @@
 ﻿using Domain.Enums;
 using Domain.SeedWork;
 
-namespace Domain.Entities.Inventory
+namespace Domain.Entities.Inventories
 {
     public class InventoryTransaction : Entity, IAggregateRoot
     {

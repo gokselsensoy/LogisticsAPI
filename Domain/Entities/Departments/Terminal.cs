@@ -1,4 +1,5 @@
-﻿using Domain.Events.TerminalEvents.Domain.Events;
+﻿using Domain.Entities.Inventories;
+using Domain.Events.TerminalEvents.Domain.Events;
 using Domain.SeedWork;
 using Domain.ValueObjects;
 
@@ -11,11 +12,14 @@ namespace Domain.Entities.Departments
         public Address Address { get; private set; }
         public string? ContactPhone { get; private set; }
         public string? ContactEmail { get; private set; }
+        public double? ServiceRadiusKm { get; private set; }
         public Guid? ManagerId { get; private set; } // WorkerId
 
+        public Department Department { get; private set; }
+        public ICollection<Inventory> Inventories { get; private set; } = new List<Inventory>();
         private Terminal() { }
 
-        public Terminal(Guid departmentId, string name, Address address, string? phone, string? email, Guid? managerId)
+        public Terminal(Guid departmentId, string name, Address address, string? phone, string? email, double? radiusKm, Guid? managerId)
         {
             Id = Guid.NewGuid();
             DepartmentId = departmentId;
@@ -23,6 +27,7 @@ namespace Domain.Entities.Departments
             Address = address;
             ContactPhone = phone;
             ContactEmail = email;
+            ServiceRadiusKm = radiusKm;
             ManagerId = managerId;
 
             AddDomainEvent(new TerminalCreatedEvent(this.Id));

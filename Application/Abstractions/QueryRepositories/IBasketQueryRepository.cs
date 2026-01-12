@@ -6,4 +6,6 @@ namespace Application.Abstractions.EntityRepositories
     {
         Task<BasketDto?> GetBasketDetailsByCustomerIdAsync(Guid customerId, CancellationToken token);
     }
+
+
 }

@@ -3,7 +3,7 @@ using Domain.Enums;
 using Domain.Exceptions;
 using Domain.SeedWork;
 
-namespace Domain.Entities.Inventory
+namespace Domain.Entities.Inventories
 {
     // 2. DETAYLI LOKASYON (Depocu ürünü bulsun diye)
     public class Inventory : FullAuditedEntity, IAggregateRoot

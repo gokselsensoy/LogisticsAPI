@@ -1,4 +1,5 @@
-﻿using Domain.Events.DepartmentEvents;
+﻿using Domain.Entities.Companies;
+using Domain.Events.DepartmentEvents;
 using Domain.Exceptions;
 using Domain.SeedWork;
 using Domain.ValueObjects;
@@ -14,6 +15,7 @@ namespace Domain.Entities.Departments
         public string? ContactEmail { get; private set; }
         public Guid? ManagerId { get; private set; } // WorkerId
 
+        public Company Company { get; private set; }
         private Department() { }
 
         public Department(Guid companyId, string name, Address address, string? contactPhone, string? contactEmail, Guid? managerId)

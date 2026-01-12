@@ -1,5 +1,5 @@
 ﻿using Application.Abstractions.Services;
-using Domain.Entities.Customer;
+using Domain.Entities.Customers;
 using Domain.Repositories;
 using Domain.SeedWork;
 using Domain.ValueObjects;

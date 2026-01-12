@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Company;
+﻿using Domain.Entities.Companies;
 using Domain.Entities.Departments;
 using Domain.Repositories;
 using Infrastructure.Persistence.Context;

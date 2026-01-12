@@ -3,9 +3,8 @@ using Domain.Enums;
 using Domain.Events.DepartmentEvents;
 using Domain.SeedWork;
 using Domain.ValueObjects;
-using NetTopologySuite.Geometries;
 
-namespace Domain.Entities.Company
+namespace Domain.Entities.Companies
 {
     public abstract class Company : Entity, IAggregateRoot
     {

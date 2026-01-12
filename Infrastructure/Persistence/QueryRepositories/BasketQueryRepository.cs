@@ -1,9 +1,9 @@
 ﻿using Application.Abstractions.EntityRepositories;
 using Application.Features.Baskets.DTOs;
+using Domain.Entities.Inventories;
+using Domain.Entities.Orders;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
-using Domain.Entities.Inventory;
-using Domain.Entities.Order;
 
 namespace Infrastructure.Persistence.QueryRepositories
 {

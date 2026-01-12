@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Inventory;
+﻿using Domain.Entities.Inventories;
 using Domain.Repositories;
 using Infrastructure.Persistence.Context;
 

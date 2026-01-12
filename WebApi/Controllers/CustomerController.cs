@@ -2,6 +2,8 @@
 using Application.Features.CustomerAddresses.Commands.AssignAddressToResponsible;
 using Application.Features.CustomerAddresses.Commands.DeleteCustomerAddress;
 using Application.Features.CustomerAddresses.Commands.UpdateCustomerAddress;
+using Application.Features.CustomerAddresses.DTOs;
+using Application.Features.CustomerAddresses.Queries.GetMyAddresses;
 using Application.Features.Responsibles.Commands.CreateResponsible;
 using Application.Features.Responsibles.Commands.UpdateResponsible;
 using MediatR;
@@ -67,6 +69,20 @@ namespace WebApi.Controllers
         {
             await _sender.Send(command);
             return NoContent();
+        }
+
+        /// <summary>
+        /// Kullanıcının sipariş verebileceği adresleri listeler.
+        /// Bireysel kullanıcı için kendi adresleri, Kurumsal Sorumlu için atandığı adresler döner.
+        /// </summary>
+        [HttpGet("addresses")]
+        [ProducesResponseType(typeof(List<AddressSelectionDto>), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetMyAddresses()
+        {
+            // Query'nin içinde property olmadığı için parametre almaz, 
+            // kullanıcı bilgisini Token'dan handler içinde çözer.
+            var result = await _sender.Send(new GetMyAddressesQuery());
+            return Ok(result);
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace Domain.Entities.Customer
+namespace Domain.Entities.Customers
 {
     public class CorporateResponsible : FullAuditedEntity, IAggregateRoot
     {

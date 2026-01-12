@@ -1,8 +1,6 @@
-﻿using Domain.Entities.Inventory;
-using Domain.Events;
-using Domain.Events.RegisterEvents;
+﻿using Domain.Events.RegisterEvents;
 
-namespace Domain.Entities.Company
+namespace Domain.Entities.Companies
 {
     public class Supplier : Company
     {

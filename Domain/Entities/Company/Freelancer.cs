@@ -3,7 +3,7 @@ using Domain.Events;
 using Domain.Events.RegisterEvents;
 using Domain.SeedWork;
 
-namespace Domain.Entities.Company
+namespace Domain.Entities.Companies
 {
     public class Freelancer : Entity, IAggregateRoot
     {

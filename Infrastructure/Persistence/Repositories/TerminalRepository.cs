@@ -1,5 +1,5 @@
 ﻿using Domain.Entities.Departments;
-using Domain.Entities.Inventory;
+using Domain.Entities.Inventories;
 using Domain.Repositories;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;

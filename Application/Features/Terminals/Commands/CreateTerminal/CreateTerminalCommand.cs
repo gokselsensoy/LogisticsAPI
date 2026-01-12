@@ -10,6 +10,7 @@ namespace Application.Features.Terminals.Commands.CreateTerminal
         public string? Phone { get; set; }
         public string? Email { get; set; }
         public Guid? ManagerId { get; set; }
+        public double? ServiceRadiusKm { get; set; }
 
         // Adres Bilgileri (Department ile aynı yapı)
         public string Street { get; set; }

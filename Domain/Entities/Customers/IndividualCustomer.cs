@@ -1,7 +1,7 @@
 ﻿using Domain.Events;
 using Domain.Events.RegisterEvents;
 
-namespace Domain.Entities.Customer
+namespace Domain.Entities.Customers
 {
     public class IndividualCustomer : Customer
     {

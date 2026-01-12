@@ -1,7 +1,7 @@
 ﻿using Domain.Events;
 using Domain.Events.RegisterEvents;
 
-namespace Domain.Entities.Company
+namespace Domain.Entities.Companies
 {
     public class Transporter : Company
     {

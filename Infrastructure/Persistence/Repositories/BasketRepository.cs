@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Order;
+﻿using Domain.Entities.Orders;
 using Domain.Repositories;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;

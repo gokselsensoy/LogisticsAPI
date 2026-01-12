@@ -1,7 +1,7 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Domain.Entities;
-using Domain.Entities.Customer;
+using Domain.Entities.Customers;
 using Domain.Repositories;
 using Domain.SeedWork;
 using MediatR;

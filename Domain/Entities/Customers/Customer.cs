@@ -3,7 +3,7 @@ using Domain.Exceptions;
 using Domain.SeedWork;
 using Domain.ValueObjects;
 
-namespace Domain.Entities.Customer
+namespace Domain.Entities.Customers
 {
     public abstract class Customer : FullAuditedEntity, IAggregateRoot
     {

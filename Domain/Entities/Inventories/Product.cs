@@ -1,16 +1,18 @@
-﻿using Domain.Enums;
+﻿using Domain.Entities.Companies;
+using Domain.Enums;
 using Domain.Events.ProductEvents;
 using Domain.Exceptions;
 using Domain.SeedWork;
 using Domain.ValueObjects;
 
-namespace Domain.Entities.Inventory
+namespace Domain.Entities.Inventories
 {
     public class Product : FullAuditedEntity, IAggregateRoot
     {
         public Guid SupplierId { get; private set; }
         public string Name { get; private set; } // Örn: "Coca Cola Zero"
         public string Description { get; private set; }
+        public ProductCategory Category { get; private set; }
 
         // Bu ürünün dünyadaki en küçük takip birimi nedir?
         // Kola için -> Litre? Hayır, genelde "Şişe" (Piece) veya dökme ise "Litre".
@@ -19,6 +21,7 @@ namespace Domain.Entities.Inventory
         private readonly List<Package> _packages = new();
         public IReadOnlyCollection<Package> Packages => _packages.AsReadOnly();
 
+        public Supplier Supplier { get; private set; }
         private Product() { }
 
         public static Product Create(Guid supplierId, string name, string description, UnitType unitType)
@@ -82,6 +85,11 @@ namespace Domain.Entities.Inventory
 
             // Audit veya Event
             AddDomainEvent(new PackageUpdatedEvent(Id, packageId, name));
+        }
+
+        public void SetCategory(ProductCategory category)
+        {
+            Category = category;
         }
 
         public void RemovePackage(Guid packageId)

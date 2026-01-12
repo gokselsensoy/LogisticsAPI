@@ -1,7 +1,7 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Domain.Entities;
-using Domain.Entities.Company;
+using Domain.Entities.Companies;
 using Domain.Repositories;
 using Domain.SeedWork;
 using MediatR;

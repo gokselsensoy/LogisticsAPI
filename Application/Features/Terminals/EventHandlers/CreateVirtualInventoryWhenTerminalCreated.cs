@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Inventory;
+﻿using Domain.Entities.Inventories;
 using Domain.Events.TerminalEvents.Domain.Events;
 using Domain.Repositories;
 using Domain.SeedWork;

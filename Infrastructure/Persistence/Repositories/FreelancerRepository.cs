@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Company;
+﻿using Domain.Entities.Companies;
 using Domain.Repositories;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;

@@ -1,6 +1,6 @@
 ﻿using Application.Abstractions.Services;
 using Application.Shared.Extensions;
-using Domain.Entities.Order;
+using Domain.Entities.Orders;
 using Domain.Enums;
 using Domain.Exceptions;
 using Domain.Repositories;

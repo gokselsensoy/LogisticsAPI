@@ -52,10 +52,14 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IProductRepository, ProductRepository>();
 
             services.AddScoped<IOrderRepository, OrderRepository>();
-            services.AddScoped<IOrderQueryRepository, OrderQueryRepository>();
             services.AddScoped<IShipmentRepository, ShipmentRepository>();
 
             services.AddScoped<IBasketRepository, BasketRepository>();
+
+            services.AddScoped<IOrderQueryRepository, OrderQueryRepository>();
+            services.AddScoped<ICustomerQueryRepository, CustomerQueryRepository>();
+            services.AddScoped<IProductQueryRepository, ProductQueryRepository>();
+            services.AddScoped<ISupplierQueryRepository, SupplierQueryRepository>();
             services.AddScoped<IBasketQueryRepository, BasketQueryRepository>();
 
 

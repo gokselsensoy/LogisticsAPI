@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Customer;
+﻿using Domain.Entities.Customers;
 using Domain.Repositories;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;

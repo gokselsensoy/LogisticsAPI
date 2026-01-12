@@ -2,8 +2,8 @@
 using Application.Abstractions.Services;
 using Application.Features.Auth.Commands.RegisterSupplier;
 using Domain.Entities;
-using Domain.Entities.Company;
-using Domain.Entities.Customer;
+using Domain.Entities.Companies;
+using Domain.Entities.Customers;
 using Domain.Enums;
 using Domain.Repositories;
 using Domain.SeedWork;

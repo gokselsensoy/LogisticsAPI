@@ -1,5 +1,5 @@
 ﻿using Application.Abstractions.Services;
-using Domain.Entities.Order;
+using Domain.Entities.Orders;
 using Domain.Repositories;
 using Domain.SeedWork;
 using MediatR;

@@ -3,7 +3,7 @@ using Domain.Exceptions;
 using Domain.SeedWork;
 using Domain.ValueObjects;
 
-namespace Domain.Entities.Inventory
+namespace Domain.Entities.Inventories
 {
     public class Package : FullAuditedEntity // Fiyatlar vs değişeceği için Audit şart
     {
@@ -33,8 +33,9 @@ namespace Domain.Entities.Inventory
         public Money? DepositPrice { get; private set; } // Depozito Bedeli (Örn: Palet için 500 TL)
 
         public Product Product { get; private set; }
-
+        public ICollection<Stock> Stocks { get; private set; } = new List<Stock>();
         private Package() { }
+
 
         public Package(Guid productId, string name, PackageType type, decimal conversionFactor, Money price, Dimensions dimensions, string barcode, bool isReturnable, Money? depositPrice)
         {

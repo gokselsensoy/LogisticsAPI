@@ -58,7 +58,8 @@ namespace Application.Features.Terminals.Commands.CreateTerminal
                 address,
                 request.Phone,
                 request.Email,
-                request.ManagerId
+                request.ServiceRadiusKm,
+                request.ManagerId     
             );
 
             // 5. Kaydet
