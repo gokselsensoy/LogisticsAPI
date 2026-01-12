@@ -2,9 +2,11 @@
 using Application.Abstractions.Services;
 using Application.Features.Auth.DTOs;
 using Application.Shared.Models;
+using Domain.Entities;
 using Domain.Entities.Subscriptions;
 using Domain.Repositories;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace Application.Features.Auth.Commands.Login;
 
@@ -23,6 +25,8 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
     private readonly IAppUserSubscription _appUserSubscription;
     private readonly IPlanFeatureCacheRepository _planFeatureCacheRepository;
 
+    private readonly ILogger<LoginCommandHandler> _logger;
+
     public LoginCommandHandler(
         IIdentityService identityService,
         IUserRepository userRepo,
@@ -32,7 +36,8 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
         ICorporateResponsibleRepository corporateResponsibleRepo,
         ICurrentUserService currentUser,
         IAppUserSubscription appUserSubscription,
-        IPlanFeatureCacheRepository planFeatureCacheRepository)
+        IPlanFeatureCacheRepository planFeatureCacheRepository,
+        ILogger<LoginCommandHandler> logger)
     {
         _identityService = identityService;
         _userRepo = userRepo;
@@ -43,13 +48,15 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
         _currentUser = currentUser;
         _appUserSubscription = appUserSubscription;
         _planFeatureCacheRepository = planFeatureCacheRepository;
+        _logger = logger;
     }
 
     public async Task<LoginResponse> Handle(LoginCommand request, CancellationToken token)
     {
         Guid identityId = _currentUser.UserId;
         string clientId = _currentUser.ClientId;
-
+        _logger.LogInformation(identityId.ToString(), "identityId");
+        _logger.LogInformation(clientId, "ClientId");
         if (string.IsNullOrEmpty(clientId))
         {
             // Eğer token içinde client_id yoksa, IdentityServer ayarlarından
@@ -57,8 +64,17 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
             // Ama genelde default gelir.
             clientId = "multillo_web"; // Fallback (veya hata fırlat)
         }
-
-        var appUser = await _userRepo.GetByIdentityIdAsync(identityId, token);
+        AppUser appUser;
+        try
+        {
+            appUser = await _userRepo.GetByIdentityIdAsync(identityId, token);
+            _logger.LogInformation(appUser.ToString(), "appUser");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation(ex, "appUser ERROR");
+            throw;
+        }
 
         // 3. NULL CHECK (Hata alınan yer burasıydı)
         // Eğer Identity'de user var ama senin AppUser tablosunda yoksa bu hatayı fırlatmalıyız.

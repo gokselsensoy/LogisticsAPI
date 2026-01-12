@@ -101,9 +101,9 @@ namespace Application.Features.Auth.Commands.RegisterTransporter
             _workerRepository.Add(worker);
 
             // 5. Hepsini Tek Seferde Kaydet
-            await _unitOfWork.SaveChangesAsync(token);
             request.initiateSubscriptionDto.PayerExternalId = appUserId.ToString();
             var res = await _subOrbitService.InitiateCheckoutAsync(request.initiateSubscriptionDto);
+            await _unitOfWork.SaveChangesAsync(token);
             return res;
         }
     }
