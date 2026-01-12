@@ -7,10 +7,11 @@ using Domain.Enums;
 using Domain.Repositories;
 using Domain.SeedWork;
 using MediatR;
+using NewMultilloApi.Application.DTOs.SubOrbit;
 
 namespace Application.Features.Auth.Commands.RegisterSupplier
 {
-    public class RegisterSupplierCommandHandler : IRequestHandler<RegisterSupplierCommand, Guid>
+    public class RegisterSupplierCommandHandler : IRequestHandler<RegisterSupplierCommand, InitiateSubscriptionResponse>
     {
         private readonly IIdentityService _identityService;
         private readonly ISupplierRepository _supplierRepository;
@@ -18,6 +19,7 @@ namespace Application.Features.Auth.Commands.RegisterSupplier
         private readonly IWorkerRepository _workerRepository;
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ISubOrbitService _subOrbitService;
 
         public RegisterSupplierCommandHandler(
             IIdentityService identityService,
@@ -25,7 +27,8 @@ namespace Application.Features.Auth.Commands.RegisterSupplier
             IDepartmentRepository departmentRepository,
             IWorkerRepository workerRepository,
             IUserRepository userRepository,
-            IUnitOfWork unitOfWork)
+            IUnitOfWork unitOfWork,
+            ISubOrbitService subOrbitService)
         {
             _identityService = identityService;
             _supplierRepository = supplierRepository;
@@ -33,9 +36,10 @@ namespace Application.Features.Auth.Commands.RegisterSupplier
             _workerRepository = workerRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
+            _subOrbitService = subOrbitService;
         }
 
-        public async Task<Guid> Handle(RegisterSupplierCommand request, CancellationToken token)
+        public async Task<InitiateSubscriptionResponse> Handle(RegisterSupplierCommand request, CancellationToken token)
         {
             Guid appUserId;
             Guid identityId;
@@ -97,8 +101,9 @@ namespace Application.Features.Auth.Commands.RegisterSupplier
 
             // 5. Hepsini Tek Seferde Kaydet
             await _unitOfWork.SaveChangesAsync(token);
-
-            return supplier.Id;
+            request.initiateSubscriptionDto.PayerExternalId = appUserId.ToString();
+            var res = await _subOrbitService.InitiateCheckoutAsync(request.initiateSubscriptionDto);
+            return res;
         }
     }
 }

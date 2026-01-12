@@ -4,6 +4,7 @@ using Domain.Entities.Customer;
 using Domain.Entities.Departments;
 using Domain.Entities.Inventory;
 using Domain.Entities.Order;
+using Domain.Entities.Subscriptions;
 using Domain.Entities.Task;
 using Domain.Entities.WorkSchedule;
 using Domain.SeedWork;
@@ -123,6 +124,9 @@ namespace Infrastructure.Persistence.Context
         public DbSet<DeliveryPlan> DeliveryPlans { get; set; }
         public DbSet<Route> Routes { get; set; }
         public DbSet<RouteTask> RouteTasks{ get; set; }
+
+        public DbSet<AppUserSubscription> AppUserSubscriptions { get; set; }
+        public DbSet<PlanFeatureCache> PlanFeatureCache { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

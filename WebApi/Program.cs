@@ -4,6 +4,7 @@ using Hangfire;
 using Hangfire.PostgreSql;
 using Infrastructure.DependencyInjection;
 using Integration.DependencyInjection;
+using NewMultilloApi.Application.Settings;
 using OpenIddict.Validation.AspNetCore;
 using Serilog;
 using System.Reflection;
@@ -22,6 +23,7 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    builder.Services.Configure<SubOrbitSettings>(builder.Configuration.GetSection("SubOrbitSettings"));
     var corsSettings = builder.Configuration.GetSection("CorsSettings");
     var allowedOrigins = corsSettings.GetSection("AllowedOrigins").Get<string[]>() ?? new string[0]; // Null kontrolü
 

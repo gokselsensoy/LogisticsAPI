@@ -20,6 +20,16 @@ namespace Infrastructure.Persistence.Repositories
             _dbSet.Add(entity);
         }
 
+        public async Task AddRangeAsync(IEnumerable<T> entities)
+        {
+            await _dbSet.AddRangeAsync(entities);
+        }
+
+        public void AddRange(IEnumerable<T> entities)
+        {
+            _dbSet.AddRange(entities);
+        }
+
         public void Update(T entity)
         {
             _dbSet.Update(entity);

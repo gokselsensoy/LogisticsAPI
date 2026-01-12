@@ -54,6 +54,9 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IOrderRepository, OrderRepository>();
             services.AddScoped<IOrderQueryRepository, OrderQueryRepository>();
 
+            services.AddScoped<IAppUserSubscription, AppUserSubscriptionRepository>();
+            services.AddScoped<IPlanFeatureCacheRepository,PlanFeatureCacheRepository>();
+
 
             // 5. Diğer servisler (Email vb.)
             // services.AddTransient<IEmailService, EmailService>();

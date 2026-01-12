@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.Features.SubOrbit.Commands.PlanFeatureCache;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
@@ -14,11 +15,11 @@ namespace WebApi.Controllers
             _sender = sender;
         }
 
-        //[HttpPost("register")]
-        //public async Task<IActionResult> SyncUser([FromBody] RegisterUserCommand command)
-        //{
-        //    await _sender.Send(command);
-        //    return Ok();
-        //}
+        [HttpPost("registerFeatures")]
+        public async Task<IActionResult> RegisterFeatures([FromBody] PlanFeatureCacheCommand command)
+        {
+            await _sender.Send(command);
+            return Ok();
+        }
     }
 }
