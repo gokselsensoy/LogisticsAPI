@@ -72,7 +72,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("AppUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Company.Company", b =>
+            modelBuilder.Entity("Domain.Entities.Companies.Company", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -93,7 +93,7 @@ namespace Infrastructure.Migrations
                     b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Company.Freelancer", b =>
+            modelBuilder.Entity("Domain.Entities.Companies.Freelancer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1292,16 +1292,16 @@ namespace Infrastructure.Migrations
                     b.ToTable("WeeklyShiftPatterns", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Company.Supplier", b =>
+            modelBuilder.Entity("Domain.Entities.Companies.Supplier", b =>
                 {
-                    b.HasBaseType("Domain.Entities.Company.Company");
+                    b.HasBaseType("Domain.Entities.Companies.Company");
 
                     b.ToTable("Suppliers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Company.Transporter", b =>
+            modelBuilder.Entity("Domain.Entities.Companies.Transporter", b =>
                 {
-                    b.HasBaseType("Domain.Entities.Company.Company");
+                    b.HasBaseType("Domain.Entities.Companies.Company");
 
                     b.ToTable("Transporters", (string)null);
                 });
@@ -1407,7 +1407,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Departments.Department", b =>
                 {
-                    b.HasOne("Domain.Entities.Company.Company", null)
+                    b.HasOne("Domain.Entities.Companies.Company", null)
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1545,7 +1545,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Departments.Vehicle", b =>
                 {
-                    b.HasOne("Domain.Entities.Company.Company", null)
+                    b.HasOne("Domain.Entities.Companies.Company", null)
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1555,7 +1555,7 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Domain.Entities.Company.Freelancer", null)
+                    b.HasOne("Domain.Entities.Companies.Freelancer", null)
                         .WithMany()
                         .HasForeignKey("FreelancerId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1563,7 +1563,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Departments.Worker", b =>
                 {
-                    b.HasOne("Domain.Entities.Company.Company", null)
+                    b.HasOne("Domain.Entities.Companies.Company", null)
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -2303,20 +2303,20 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Company.Supplier", b =>
+            modelBuilder.Entity("Domain.Entities.Companies.Supplier", b =>
                 {
-                    b.HasOne("Domain.Entities.Company.Company", null)
+                    b.HasOne("Domain.Entities.Companies.Company", null)
                         .WithOne()
-                        .HasForeignKey("Domain.Entities.Company.Supplier", "Id")
+                        .HasForeignKey("Domain.Entities.Companies.Supplier", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Company.Transporter", b =>
+            modelBuilder.Entity("Domain.Entities.Companies.Transporter", b =>
                 {
-                    b.HasOne("Domain.Entities.Company.Company", null)
+                    b.HasOne("Domain.Entities.Companies.Company", null)
                         .WithOne()
-                        .HasForeignKey("Domain.Entities.Company.Transporter", "Id")
+                        .HasForeignKey("Domain.Entities.Companies.Transporter", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

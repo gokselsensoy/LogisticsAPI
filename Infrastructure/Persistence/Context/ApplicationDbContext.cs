@@ -2,14 +2,9 @@
 using Domain.Entities.Companies;
 using Domain.Entities.Customers;
 using Domain.Entities.Departments;
-<<<<<<< HEAD
 using Domain.Entities.Inventories;
 using Domain.Entities.Orders;
-=======
-using Domain.Entities.Inventory;
-using Domain.Entities.Order;
 using Domain.Entities.Subscriptions;
->>>>>>> 4952e842f75477b0a804ce86a86615304aac01d9
 using Domain.Entities.Task;
 using Domain.Entities.WorkSchedule;
 using Domain.SeedWork;

@@ -2472,16 +2472,12 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Domain.Entities.Customers.CorporateResponsible", b =>
-=======
             modelBuilder.Entity("Domain.Entities.AppUser", b =>
                 {
                     b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("Domain.Entities.Customer.CorporateResponsible", b =>
->>>>>>> 4952e842f75477b0a804ce86a86615304aac01d9
                 {
                     b.Navigation("AssignedAddresses");
                 });

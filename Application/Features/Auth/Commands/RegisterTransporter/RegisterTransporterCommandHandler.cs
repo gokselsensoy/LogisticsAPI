@@ -1,12 +1,7 @@
 ﻿using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Domain.Entities;
-<<<<<<< HEAD
 using Domain.Entities.Companies;
-using Domain.Entities.Departments;
-=======
-using Domain.Entities.Company;
->>>>>>> 4952e842f75477b0a804ce86a86615304aac01d9
 using Domain.Enums;
 using Domain.Repositories;
 using Domain.SeedWork;
