@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260107092029_subscriptionsystem")]
+    partial class subscriptionsystem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -69,7 +72,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("AppUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Companies.Company", b =>
+            modelBuilder.Entity("Domain.Entities.Company.Company", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -90,7 +93,7 @@ namespace Infrastructure.Migrations
                     b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Companies.Freelancer", b =>
+            modelBuilder.Entity("Domain.Entities.Company.Freelancer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -115,9 +118,10 @@ namespace Infrastructure.Migrations
                     b.ToTable("Freelancers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.CorporateAddressResponsibleMap", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.CorporateAddressResponsibleMap", b =>
                 {
-                    b.Property<Guid>("ResponsibleId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
                     b.Property<Guid>("AddressId")
@@ -126,19 +130,17 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("CorporateResponsibleId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("Id")
+                    b.Property<Guid>("ResponsibleId")
                         .HasColumnType("uuid");
 
-                    b.HasKey("ResponsibleId", "AddressId");
-
-                    b.HasIndex("AddressId");
+                    b.HasKey("Id");
 
                     b.HasIndex("CorporateResponsibleId");
 
                     b.ToTable("CorporateAddressResponsibleMap");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.CorporateResponsible", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.CorporateResponsible", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -191,7 +193,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("CorporateResponsibles", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.Customer", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.Customer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -240,7 +242,7 @@ namespace Infrastructure.Migrations
                     b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.CustomerAddress", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.CustomerAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -386,12 +388,7 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<double?>("ServiceRadiusKm")
-                        .HasColumnType("double precision");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Terminals");
                 });
@@ -525,7 +522,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Workers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Inventories.Inventory", b =>
+            modelBuilder.Entity("Domain.Entities.Inventory.Inventory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -586,7 +583,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Inventories", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Inventories.InventoryTransaction", b =>
+            modelBuilder.Entity("Domain.Entities.Inventory.InventoryTransaction", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -624,7 +621,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("InventoryTransactions");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Inventories.Package", b =>
+            modelBuilder.Entity("Domain.Entities.Inventory.Package", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
@@ -682,14 +679,11 @@ namespace Infrastructure.Migrations
                     b.ToTable("Packages", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Inventories.Product", b =>
+            modelBuilder.Entity("Domain.Entities.Inventory.Product", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
-
-                    b.Property<int>("Category")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -733,12 +727,10 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SupplierId");
-
                     b.ToTable("Products", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Inventories.Stock", b =>
+            modelBuilder.Entity("Domain.Entities.Inventory.Stock", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -763,60 +755,13 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("InventoryId");
 
-                    b.HasIndex("PackageId");
-
                     b.ToTable("Stocks");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.Basket", b =>
+            modelBuilder.Entity("Domain.Entities.Order.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("CustomerId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Baskets");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Orders.BasketItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("BasketId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("PackageId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("integer");
-
-                    b.Property<Guid>("SupplierId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BasketId");
-
-                    b.ToTable("BasketItems");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Orders.Order", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("CustomerAddressId")
@@ -825,26 +770,8 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
-
                     b.Property<string>("ExternalReferenceCode")
                         .HasColumnType("text");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean");
-
-                    b.Property<DateTime?>("LastModifiedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid");
 
                     b.Property<int>("Origin")
                         .HasColumnType("integer");
@@ -860,7 +787,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Orders", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.OrderItem", b =>
+            modelBuilder.Entity("Domain.Entities.Order.OrderItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -886,7 +813,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("OrderItems", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.ReturnItem", b =>
+            modelBuilder.Entity("Domain.Entities.Order.ReturnItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -915,7 +842,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("ReturnItems", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.ReturnRequest", b =>
+            modelBuilder.Entity("Domain.Entities.Order.ReturnRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -944,7 +871,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("ReturnRequests", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.Shipment", b =>
+            modelBuilder.Entity("Domain.Entities.Order.Shipment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -976,7 +903,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Shipments", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.ShipmentItem", b =>
+            modelBuilder.Entity("Domain.Entities.Order.ShipmentItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -987,9 +914,6 @@ namespace Infrastructure.Migrations
 
                     b.Property<int>("LoadedQuantity")
                         .HasColumnType("integer");
-
-                    b.Property<Guid?>("OrderItemId")
-                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("PackageId")
                         .HasColumnType("uuid");
@@ -1368,23 +1292,23 @@ namespace Infrastructure.Migrations
                     b.ToTable("WeeklyShiftPatterns", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Companies.Supplier", b =>
+            modelBuilder.Entity("Domain.Entities.Company.Supplier", b =>
                 {
-                    b.HasBaseType("Domain.Entities.Companies.Company");
+                    b.HasBaseType("Domain.Entities.Company.Company");
 
                     b.ToTable("Suppliers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Companies.Transporter", b =>
+            modelBuilder.Entity("Domain.Entities.Company.Transporter", b =>
                 {
-                    b.HasBaseType("Domain.Entities.Companies.Company");
+                    b.HasBaseType("Domain.Entities.Company.Company");
 
                     b.ToTable("Transporters", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.CorporateCustomer", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.CorporateCustomer", b =>
                 {
-                    b.HasBaseType("Domain.Entities.Customers.Customer");
+                    b.HasBaseType("Domain.Entities.Customer.Customer");
 
                     b.Property<string>("CvrNumber")
                         .IsRequired()
@@ -1393,9 +1317,9 @@ namespace Infrastructure.Migrations
                     b.ToTable("CorporateCustomers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.IndividualCustomer", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.IndividualCustomer", b =>
                 {
-                    b.HasBaseType("Domain.Entities.Customers.Customer");
+                    b.HasBaseType("Domain.Entities.Customer.Customer");
 
                     b.Property<Guid>("AppUserId")
                         .HasColumnType("uuid");
@@ -1403,24 +1327,16 @@ namespace Infrastructure.Migrations
                     b.ToTable("IndividualCustomers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.CorporateAddressResponsibleMap", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.CorporateAddressResponsibleMap", b =>
                 {
-                    b.HasOne("Domain.Entities.Customers.CustomerAddress", "CustomerAddress")
-                        .WithMany()
-                        .HasForeignKey("AddressId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Customers.CorporateResponsible", null)
+                    b.HasOne("Domain.Entities.Customer.CorporateResponsible", null)
                         .WithMany("AssignedAddresses")
                         .HasForeignKey("CorporateResponsibleId");
-
-                    b.Navigation("CustomerAddress");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.CustomerAddress", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.CustomerAddress", b =>
                 {
-                    b.HasOne("Domain.Entities.Customers.Customer", null)
+                    b.HasOne("Domain.Entities.Customer.Customer", null)
                         .WithMany("Addresses")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1491,7 +1407,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Departments.Department", b =>
                 {
-                    b.HasOne("Domain.Entities.Companies.Company", "Company")
+                    b.HasOne("Domain.Entities.Company.Company", null)
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1559,18 +1475,10 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Address")
                         .IsRequired();
-
-                    b.Navigation("Company");
                 });
 
             modelBuilder.Entity("Domain.Entities.Departments.Terminal", b =>
                 {
-                    b.HasOne("Domain.Entities.Departments.Department", "Department")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.OwnsOne("Domain.ValueObjects.Address", "Address", b1 =>
                         {
                             b1.Property<Guid>("TerminalId")
@@ -1633,13 +1541,11 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Address")
                         .IsRequired();
-
-                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("Domain.Entities.Departments.Vehicle", b =>
                 {
-                    b.HasOne("Domain.Entities.Companies.Company", null)
+                    b.HasOne("Domain.Entities.Company.Company", null)
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1649,7 +1555,7 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("Domain.Entities.Companies.Freelancer", null)
+                    b.HasOne("Domain.Entities.Company.Freelancer", null)
                         .WithMany()
                         .HasForeignKey("FreelancerId")
                         .OnDelete(DeleteBehavior.Restrict);
@@ -1657,7 +1563,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.Departments.Worker", b =>
                 {
-                    b.HasOne("Domain.Entities.Companies.Company", null)
+                    b.HasOne("Domain.Entities.Company.Company", null)
                         .WithMany()
                         .HasForeignKey("CompanyId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -1670,20 +1576,9 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Inventories.Inventory", b =>
+            modelBuilder.Entity("Domain.Entities.Inventory.Package", b =>
                 {
-                    b.HasOne("Domain.Entities.Departments.Terminal", "Terminal")
-                        .WithMany("Inventories")
-                        .HasForeignKey("TerminalId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Terminal");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Inventories.Package", b =>
-                {
-                    b.HasOne("Domain.Entities.Inventories.Product", "Product")
+                    b.HasOne("Domain.Entities.Inventory.Product", null)
                         .WithMany("Packages")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1771,46 +1666,18 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Price")
                         .IsRequired();
-
-                    b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Inventories.Product", b =>
+            modelBuilder.Entity("Domain.Entities.Inventory.Stock", b =>
                 {
-                    b.HasOne("Domain.Entities.Companies.Supplier", "Supplier")
-                        .WithMany()
-                        .HasForeignKey("SupplierId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Supplier");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Inventories.Stock", b =>
-                {
-                    b.HasOne("Domain.Entities.Inventories.Inventory", null)
+                    b.HasOne("Domain.Entities.Inventory.Inventory", null)
                         .WithMany("Stocks")
                         .HasForeignKey("InventoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Domain.Entities.Inventories.Package", null)
-                        .WithMany("Stocks")
-                        .HasForeignKey("PackageId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.BasketItem", b =>
-                {
-                    b.HasOne("Domain.Entities.Orders.Basket", null)
-                        .WithMany("Items")
-                        .HasForeignKey("BasketId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("Domain.Entities.Orders.Order", b =>
+            modelBuilder.Entity("Domain.Entities.Order.Order", b =>
                 {
                     b.OwnsOne("Domain.ValueObjects.ContactInfo", "Contact", b1 =>
                         {
@@ -1964,9 +1831,9 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.OrderItem", b =>
+            modelBuilder.Entity("Domain.Entities.Order.OrderItem", b =>
                 {
-                    b.HasOne("Domain.Entities.Orders.Order", null)
+                    b.HasOne("Domain.Entities.Order.Order", null)
                         .WithMany("Items")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2028,15 +1895,15 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.ReturnItem", b =>
+            modelBuilder.Entity("Domain.Entities.Order.ReturnItem", b =>
                 {
-                    b.HasOne("Domain.Entities.Orders.ReturnRequest", null)
+                    b.HasOne("Domain.Entities.Order.ReturnRequest", null)
                         .WithMany("Items")
                         .HasForeignKey("ReturnRequestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.ReturnRequest", b =>
+            modelBuilder.Entity("Domain.Entities.Order.ReturnRequest", b =>
                 {
                     b.OwnsOne("Domain.ValueObjects.ContactInfo", "Contact", b1 =>
                         {
@@ -2136,7 +2003,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.Shipment", b =>
+            modelBuilder.Entity("Domain.Entities.Order.Shipment", b =>
                 {
                     b.OwnsOne("Domain.ValueObjects.Address", "DeliveryAddress", b1 =>
                         {
@@ -2265,9 +2132,9 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.ShipmentItem", b =>
+            modelBuilder.Entity("Domain.Entities.Order.ShipmentItem", b =>
                 {
-                    b.HasOne("Domain.Entities.Orders.Shipment", null)
+                    b.HasOne("Domain.Entities.Order.Shipment", null)
                         .WithMany("Items")
                         .HasForeignKey("ShipmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2436,97 +2303,78 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Companies.Supplier", b =>
+            modelBuilder.Entity("Domain.Entities.Company.Supplier", b =>
                 {
-                    b.HasOne("Domain.Entities.Companies.Company", null)
+                    b.HasOne("Domain.Entities.Company.Company", null)
                         .WithOne()
-                        .HasForeignKey("Domain.Entities.Companies.Supplier", "Id")
+                        .HasForeignKey("Domain.Entities.Company.Supplier", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Companies.Transporter", b =>
+            modelBuilder.Entity("Domain.Entities.Company.Transporter", b =>
                 {
-                    b.HasOne("Domain.Entities.Companies.Company", null)
+                    b.HasOne("Domain.Entities.Company.Company", null)
                         .WithOne()
-                        .HasForeignKey("Domain.Entities.Companies.Transporter", "Id")
+                        .HasForeignKey("Domain.Entities.Company.Transporter", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.CorporateCustomer", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.CorporateCustomer", b =>
                 {
-                    b.HasOne("Domain.Entities.Customers.Customer", null)
+                    b.HasOne("Domain.Entities.Customer.Customer", null)
                         .WithOne()
-                        .HasForeignKey("Domain.Entities.Customers.CorporateCustomer", "Id")
+                        .HasForeignKey("Domain.Entities.Customer.CorporateCustomer", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.IndividualCustomer", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.IndividualCustomer", b =>
                 {
-                    b.HasOne("Domain.Entities.Customers.Customer", null)
+                    b.HasOne("Domain.Entities.Customer.Customer", null)
                         .WithOne()
-                        .HasForeignKey("Domain.Entities.Customers.IndividualCustomer", "Id")
+                        .HasForeignKey("Domain.Entities.Customer.IndividualCustomer", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-<<<<<<< HEAD
-            modelBuilder.Entity("Domain.Entities.Customers.CorporateResponsible", b =>
-=======
             modelBuilder.Entity("Domain.Entities.AppUser", b =>
                 {
                     b.Navigation("Subscription");
                 });
 
             modelBuilder.Entity("Domain.Entities.Customer.CorporateResponsible", b =>
->>>>>>> 4952e842f75477b0a804ce86a86615304aac01d9
                 {
                     b.Navigation("AssignedAddresses");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customers.Customer", b =>
+            modelBuilder.Entity("Domain.Entities.Customer.Customer", b =>
                 {
                     b.Navigation("Addresses");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Departments.Terminal", b =>
-                {
-                    b.Navigation("Inventories");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Inventories.Inventory", b =>
+            modelBuilder.Entity("Domain.Entities.Inventory.Inventory", b =>
                 {
                     b.Navigation("Stocks");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Inventories.Package", b =>
-                {
-                    b.Navigation("Stocks");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Inventories.Product", b =>
+            modelBuilder.Entity("Domain.Entities.Inventory.Product", b =>
                 {
                     b.Navigation("Packages");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.Basket", b =>
+            modelBuilder.Entity("Domain.Entities.Order.Order", b =>
                 {
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.Order", b =>
+            modelBuilder.Entity("Domain.Entities.Order.ReturnRequest", b =>
                 {
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Orders.ReturnRequest", b =>
-                {
-                    b.Navigation("Items");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Orders.Shipment", b =>
+            modelBuilder.Entity("Domain.Entities.Order.Shipment", b =>
                 {
                     b.Navigation("Items");
                 });

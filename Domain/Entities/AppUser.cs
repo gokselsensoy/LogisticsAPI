@@ -1,4 +1,5 @@
-﻿using Domain.Events.RegisterEvents;
+﻿using Domain.Entities.Subscriptions;
+using Domain.Events.RegisterEvents;
 using Domain.SeedWork;
 
 namespace Domain.Entities
@@ -7,6 +8,7 @@ namespace Domain.Entities
     {
         public Guid IdentityId { get; private set; }
         public string Email { get; private set; }
+        public virtual AppUserSubscription? Subscription { get; set; }
 
         private AppUser() { }
 
@@ -17,7 +19,7 @@ namespace Domain.Entities
                 Id = Guid.NewGuid(),
                 IdentityId = identityId,
                 Email = email,
-                IsActive = true
+                IsActive = false
             };
 
             user.AddDomainEvent(new AppUserCreatedEvent(user.Id, email));

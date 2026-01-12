@@ -14,6 +14,7 @@ namespace WebApi.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly ISender _sender;
@@ -43,8 +44,8 @@ namespace WebApi.Controllers
         [HttpPost("register-transporter")]
         public async Task<IActionResult> RegisterTransporter([FromBody] RegisterTransporterCommand command)
         {
-            var id = await _sender.Send(command);
-            return Ok(new { CompanyId = id });
+            var res = await _sender.Send(command);
+            return Ok(res);
         }
 
         // 2. Supplier Kayıt

@@ -1,8 +1,9 @@
 ﻿using Application.Abstractions.Messaging;
+using NewMultilloApi.Application.DTOs.SubOrbit;
 
 namespace Application.Features.Auth.Commands.RegisterTransporter
 {
-    public class RegisterTransporterCommand : ICommand<Guid>
+    public class RegisterTransporterCommand : ICommand<InitiateSubscriptionResponse>
     {
         public string Email { get; set; }
         public string Password { get; set; }
@@ -11,5 +12,6 @@ namespace Application.Features.Auth.Commands.RegisterTransporter
 
         public string CompanyName { get; set; }
         public string CvrNumber { get; set; }
+        public InitiateSubscriptionDto initiateSubscriptionDto { get; set; }
     }
 }

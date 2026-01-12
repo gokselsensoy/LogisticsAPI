@@ -22,7 +22,7 @@ namespace Integration.DependencyInjection
                 // client.BaseAddress = new Uri(configuration["GoogleApiSettings:BaseUrl"]);
             });
 
-
+            services.AddHttpClient<ISubOrbitService, SubOrbitService>();
             services.AddTransient<S2STokenHandler>();
 
             services.AddHttpClient<IIdentityService, HttpIdentityService>(client =>
