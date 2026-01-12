@@ -1,4 +1,5 @@
-﻿using Domain.Enums;
+﻿using Domain.Entities.Departments;
+using Domain.Enums;
 using Domain.Exceptions;
 using Domain.SeedWork;
 
@@ -20,6 +21,7 @@ namespace Domain.Entities.Inventory
         private readonly List<Stock> _stocks = new();
         public IReadOnlyCollection<Stock> Stocks => _stocks.AsReadOnly();
 
+        public Terminal Terminal { get; private set; }
         private Inventory() { }
 
         public Inventory(Guid terminalId, string area, string? corridor, string? place, string? shelf, bool isVirtual)

@@ -1,10 +1,13 @@
 ﻿using Domain.Enums;
+using Domain.Events.OrderEvents;
+using Domain.Events.WorkerEvents;
+using Domain.Exceptions;
 using Domain.SeedWork;
 using Domain.ValueObjects;
 
 namespace Domain.Entities.Order
 {
-    public class Order : Entity, IAggregateRoot
+    public class Order : FullAuditedEntity, IAggregateRoot
     {
         // --- Kaynak ---
         public OrderOrigin Origin { get; private set; }
@@ -50,10 +53,48 @@ namespace Domain.Entities.Order
             Status = OrderStatus.Draft;
         }
 
-        public void AddItem(OrderItem item)
+        public void AddItem(Guid packageId, string name, CargoSpec spec, int quantity, Money unitPrice)
         {
+            // --- DÜZELTME BURADA ---
+
+            // 1. Eğer sipariş listesi boşsa (yani bu ilk ürünse),
+            // Siparişin TotalPrice'ını, gelen ürünün para birimine göre güncelle (resetle).
+            if (!_items.Any())
+            {
+                // Miktar henüz 0 ama para birimi artık ürünün para birimi (örn: USD)
+                TotalPrice = new Money(0, unitPrice.Currency);
+            }
+
+            // 2. Validation: Artık para birimleri eşitlenmiş olmalı.
+            // Eğer 2. ürünü ekliyorsak ve farklı para birimindeyse o zaman hata vermeli.
+            if (unitPrice.Currency != TotalPrice.Currency)
+                throw new DomainException($"Sipariş para birimi ({TotalPrice.Currency}) ile ürün para birimi ({unitPrice.Currency}) uyuşmuyor.");
+
+            // -----------------------
+
+            var item = new OrderItem(Id, packageId, name, spec, quantity, unitPrice);
             _items.Add(item);
-            // Toplam fiyatı güncelleme mantığı buraya...
+
+            RecalculateTotal();
+        }
+
+        public void ConfirmOrder()
+        {
+            if (!_items.Any()) throw new DomainException("Boş sipariş onaylanamaz.");
+            Status = OrderStatus.Confirmed; // Veya direkt Confirmed
+            AddDomainEvent(new OrderCreatedEvent(Id, SupplierId, CustomerId));
+        }
+
+        public void MarkAsPaid()
+        {
+            Status = OrderStatus.Processing; // İşleniyor (Depoya düştü)
+            AddDomainEvent(new OrderPaidEvent(this));
+        }
+
+        private void RecalculateTotal()
+        {
+            decimal totalAmount = _items.Sum(i => i.Quantity * i.UnitPriceSnapshot.Amount);
+            TotalPrice = new Money(totalAmount, TotalPrice.Currency);
         }
     }
 }

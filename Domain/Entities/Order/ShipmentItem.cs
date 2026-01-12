@@ -6,6 +6,7 @@ namespace Domain.Entities.Order
     public class ShipmentItem : Entity
     {
         public Guid ShipmentId { get; private set; }
+        public Guid? OrderItemId { get; private set; }
 
         public Guid? PackageId { get; private set; }
         public CargoSpec Spec { get; private set; }
@@ -16,6 +17,15 @@ namespace Domain.Entities.Order
         public int DeliveredQuantity { get; private set; } // Teslim edilen
         public int RejectedQuantity { get; private set; } // İade/Kabul edilmeyen
         public string? RejectionReason { get; private set; }
+
+        public ShipmentItem(Guid shipmentId, Guid? orderItemId, Guid? packageId, CargoSpec spec, int plannedQuantity)
+        {
+            ShipmentId = shipmentId;
+            OrderItemId = orderItemId; // <-- Yeni
+            PackageId = packageId;
+            Spec = spec;
+            PlannedQuantity = plannedQuantity;
+        }
 
         private ShipmentItem() { }
 

@@ -21,5 +21,12 @@ namespace Infrastructure.Persistence.Repositories
             return await _context.Set<Package>()
                .AnyAsync(p => p.Barcode == barcode && !p.IsDeleted, token);
         }
+
+        public async Task<Package?> GetPackageByIdAsync(Guid packageId, CancellationToken token)
+        {
+            return await _context.Set<Package>()
+                .Include(p => p.Product)
+                .FirstOrDefaultAsync(p => p.Id == packageId && !p.IsDeleted, token);
+        }
     }
 }

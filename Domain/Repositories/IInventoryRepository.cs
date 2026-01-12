@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Inventory;
+using Domain.Enums;
 using Domain.SeedWork;
 
 namespace Domain.Repositories
@@ -10,5 +11,7 @@ namespace Domain.Repositories
 
         // ID ile getir ama Stokları da dahil et (Include Stocks)
         Task<Inventory?> GetByIdWithStocksAsync(Guid id, CancellationToken token);
+
+        Task<Inventory?> GetFirstWithStockAsync(Guid packageId, Guid ownerId, int quantity, InventoryState state, CancellationToken token);
     }
 }

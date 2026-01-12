@@ -13,10 +13,10 @@ using WebApi.Hubs;
 using WebApi.Middleware;
 using WebApi.Services;
 
+// Bootstrap Logger: Uygulama ayağa kalkarken hata olursa yakalamak için
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
-    // .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day) // Günlük dosyalara loglama
-    // Daha gelişmiş yapılandırma için appsettings.json kullanılabilir (aşağıda)
+     .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day) // Günlük dosyalara loglama
     .CreateBootstrapLogger();
 
 try
@@ -36,13 +36,15 @@ try
                 {
                     policyBuilder.WithOrigins(allowedOrigins)
                                  .AllowAnyHeader()
-                                 .AllowAnyMethod();
+                                 .AllowAnyMethod()
+                                 .AllowCredentials();
                 }
                 else if (builder.Environment.IsDevelopment())
                 {
                     policyBuilder.AllowAnyOrigin()
                                  .AllowAnyHeader()
-                                 .AllowAnyMethod();
+                                 .AllowAnyMethod()
+                                 .AllowCredentials();
                 }
             });
     });
@@ -53,7 +55,6 @@ try
         .ReadFrom.Services(services) // DI servislerini kullan (örn: IHttpContextAccessor)
         .Enrich.FromLogContext() // Log Context'ten gelen bilgileri ekle
         .WriteTo.Console()); // Konsola yaz (appsettings'de de olabilir)
-                             // .WriteTo.File(...) // Dosyaya yaz (appsettings'de de olabilir)
 
     // --- HANGFIRE KAYITLARI ---
     builder.Services.AddHangfire(config => config
@@ -71,6 +72,7 @@ try
     builder.Services.AddDistributedMemoryCache();
     builder.Services.AddIntegrationServices(builder.Configuration);
     builder.Services.AddDistributedMemoryCache();
+
     // 1. Varsayılan Kimlik Doğrulama Şemasını Belirle
     builder.Services.AddAuthentication(options =>
     {
@@ -83,14 +85,14 @@ try
     builder.Services.AddOpenIddict()
         .AddValidation(options =>
         {
-            // IdentityAPI adresi (SetIssuer). IdentityAPI'deki adresle BİREBİR AYNI olmalı.
-            // Port numarasını (7001) kendi IdentityAPI portuna göre kontrol et.
-            options.SetIssuer("https://localhost:7296");
+            var authority = builder.Configuration["Auth:Authority"];
 
-            // IdentityAPI ile iletişim için HTTP client kullan
+            if (string.IsNullOrEmpty(authority))
+            {
+                throw new InvalidOperationException("Auth:Authority değeri appsettings.json dosyasında bulunamadı!");
+            }
+            options.SetIssuer(authority);
             options.UseSystemNetHttp();
-
-            // ASP.NET Core entegrasyonu
             options.UseAspNetCore();
         });
     #region Redis Info
@@ -160,11 +162,14 @@ try
 
     var app = builder.Build();
 
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
+    //if (app.Environment.IsDevelopment())
+    //{
+    //    app.UseSwagger();
+    //    app.UseSwaggerUI();
+    //}
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
 
     app.UseHttpsRedirection();
     app.UseRouting();

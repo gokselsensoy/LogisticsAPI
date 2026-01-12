@@ -47,6 +47,19 @@ namespace Domain.Entities.Order
             Status = ShipmentStatus.Pending;
         }
 
+        public void AddShipmentItem(Guid orderItemId, Guid? packageId, CargoSpec spec, int plannedQuantity)
+        {
+            // Validasyon (Opsiyonel): Aynı orderItem daha önce eklendi mi?
+            if (_items.Any(x => x.OrderItemId == orderItemId))
+            {
+                // Aynı sipariş kalemi parça parça da eklenebilir, o yüzden hata fırlatmak yerine
+                // lojistik mantığına göre karar verilmeli. Şimdilik direkt ekleyelim.
+            }
+
+            var item = new ShipmentItem(Id, orderItemId, packageId, spec, plannedQuantity);
+            _items.Add(item);
+        }
+
         // Proaktif (Şoförün başlattığı) boş shipment için
         public static Shipment CreateProactive(Address targetAddress)
         {

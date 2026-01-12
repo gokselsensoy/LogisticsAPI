@@ -189,9 +189,9 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
 
         return new LoginResponse
         {
-            AccessToken = finalTokenResponse.AccessToken,
-            RefreshToken = finalTokenResponse.RefreshToken,
-            ExpiresIn = finalTokenResponse.ExpiresIn,
+            AccessToken = finalTokenResponse?.AccessToken,
+            RefreshToken = finalTokenResponse?.RefreshToken,
+            ExpiresIn = finalTokenResponse?.ExpiresIn ?? 0,
             AvailableProfiles = profiles,
             IsContextSelected = isContextSelected,
             Features = planFeatures,

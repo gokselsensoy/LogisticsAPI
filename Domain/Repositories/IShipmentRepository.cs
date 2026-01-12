@@ -1,0 +1,10 @@
+﻿using Domain.Entities.Order;
+using Domain.SeedWork;
+
+namespace Domain.Repositories
+{
+    public interface IShipmentRepository : IRepository<Shipment>
+    {
+    }
+
+}

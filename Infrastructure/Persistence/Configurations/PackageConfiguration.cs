@@ -66,7 +66,7 @@ namespace Infrastructure.Persistence.Configurations
             // --- 5. İlişkiler ---
             // Package, Product'a bağlıdır.
             // Product silinirse Package de silinsin (Cascade)
-            builder.HasOne<Product>()
+            builder.HasOne(p => p.Product)
                    .WithMany(product => product.Packages)
                    .HasForeignKey(package => package.ProductId)
                    .OnDelete(DeleteBehavior.Cascade);

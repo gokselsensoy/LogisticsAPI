@@ -755,10 +755,55 @@ namespace Infrastructure.Migrations
                     b.ToTable("Stocks");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Order.Basket", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Baskets");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Order.BasketItem", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("BasketId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("PackageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("SupplierId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BasketId");
+
+                    b.ToTable("BasketItems");
+                });
+
             modelBuilder.Entity("Domain.Entities.Order.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("CreatedBy")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("CustomerAddressId")
@@ -767,8 +812,26 @@ namespace Infrastructure.Migrations
                     b.Property<Guid?>("CustomerId")
                         .HasColumnType("uuid");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("ExternalReferenceCode")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime?>("LastModifiedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Origin")
                         .HasColumnType("integer");
@@ -911,6 +974,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<int>("LoadedQuantity")
                         .HasColumnType("integer");
+
+                    b.Property<Guid?>("OrderItemId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid?>("PackageId")
                         .HasColumnType("uuid");
@@ -1573,9 +1639,20 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Domain.Entities.Inventory.Inventory", b =>
+                {
+                    b.HasOne("Domain.Entities.Departments.Terminal", "Terminal")
+                        .WithMany()
+                        .HasForeignKey("TerminalId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Terminal");
+                });
+
             modelBuilder.Entity("Domain.Entities.Inventory.Package", b =>
                 {
-                    b.HasOne("Domain.Entities.Inventory.Product", null)
+                    b.HasOne("Domain.Entities.Inventory.Product", "Product")
                         .WithMany("Packages")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1663,6 +1740,8 @@ namespace Infrastructure.Migrations
 
                     b.Navigation("Price")
                         .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Domain.Entities.Inventory.Stock", b =>
@@ -1670,6 +1749,15 @@ namespace Infrastructure.Migrations
                     b.HasOne("Domain.Entities.Inventory.Inventory", null)
                         .WithMany("Stocks")
                         .HasForeignKey("InventoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Domain.Entities.Order.BasketItem", b =>
+                {
+                    b.HasOne("Domain.Entities.Order.Basket", null)
+                        .WithMany("Items")
+                        .HasForeignKey("BasketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -2359,6 +2447,11 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.Inventory.Product", b =>
                 {
                     b.Navigation("Packages");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Order.Basket", b =>
+                {
+                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("Domain.Entities.Order.Order", b =>

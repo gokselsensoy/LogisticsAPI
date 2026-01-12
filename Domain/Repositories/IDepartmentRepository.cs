@@ -6,5 +6,4 @@ namespace Domain.Repositories
     public interface IDepartmentRepository : IRepository<Department>
     {
     }
-    
 }

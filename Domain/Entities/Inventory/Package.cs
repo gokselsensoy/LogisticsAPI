@@ -32,6 +32,8 @@ namespace Domain.Entities.Inventory
         public bool IsReturnable { get; private set; } // İade edilebilir mi? (Palet, Cam Şişe)
         public Money? DepositPrice { get; private set; } // Depozito Bedeli (Örn: Palet için 500 TL)
 
+        public Product Product { get; private set; }
+
         private Package() { }
 
         public Package(Guid productId, string name, PackageType type, decimal conversionFactor, Money price, Dimensions dimensions, string barcode, bool isReturnable, Money? depositPrice)
