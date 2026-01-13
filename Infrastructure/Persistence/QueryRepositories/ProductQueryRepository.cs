@@ -3,6 +3,7 @@ using Application.Features.Products.DTOs;
 using Application.Shared.Pagination;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Domain.Entities.Customers;
 using Domain.Entities.Departments;
 using Domain.Entities.Inventories;
 using Domain.Enums;
@@ -24,32 +25,39 @@ namespace Infrastructure.Persistence.QueryRepositories
             _mapper = mapper;
         }
 
-        public async Task<PaginatedResponse<ProductListingDto>> SearchProductsAsync(
-            double lat, double lon, string? searchText, ProductCategory? category, Guid? supplierId, int page, int size, CancellationToken token)
+        public async Task<PaginatedResponse<ProductListingDto>> SearchProductsByAddressAsync(
+    Guid addressId, string? searchText, ProductCategory? category, Guid? supplierId, int page, int size, CancellationToken token)
         {
-            var geometryFactory = NtsGeometryServices.Instance.CreateGeometryFactory(srid: 4326);
-            var userLocation = geometryFactory.CreatePoint(new Coordinate(lon, lat));
+            // 1. ADIM: AddressId'den Kullanıcının Koordinatını (Point) Bul
+            var userLocation = await _context.Set<CustomerAddress>()
+                .AsNoTracking()
+                .Where(a => a.Id == addressId)
+                .Select(a => a.Address.Location) // Direkt Point nesnesi
+                .FirstOrDefaultAsync(token);
 
-            // 1. Kapsama Alanındaki Inventory ID'lerini bul (Subquery olarak kullanılacak)
+            // Adres bulunamazsa boş dön
+            if (userLocation == null)
+            {
+                return new PaginatedResponse<ProductListingDto>(new List<ProductListingDto>(), 0, page, size);
+            }
+
+            // 2. ADIM: Yakındaki Stokların Olduğu Inventory ID'lerini Bul
+            // (Veritabanındaki Point ile UserLocation Point karşılaştırılıyor)
             var nearbyInventoryIds = _context.Set<Terminal>()
                 .AsNoTracking()
-                .Where(t => !t.IsDeleted && t.Address.Location.Distance(userLocation) <= (t.ServiceRadiusKm * 1000))
+                .Where(t => !t.IsDeleted && t.ServiceRadiusKm.HasValue)
+                .Where(t => t.Address.Location.Distance(userLocation) <= (t.ServiceRadiusKm * 1000))
                 .SelectMany(t => t.Inventories)
                 .Select(i => i.Id);
 
-            // 2. Ürün Sorgusu
-            // Stock -> Package -> Product -> Supplier zinciri
-            // Burada ProjectTo kullanabilmek için Query'yi "Product" tablosu üzerinden kurmak
-            // ve filtreleri "Any" ile alt tablolara uygulamak en temizidir.
-
+            // 3. ADIM: Ürün Sorgusunu Oluştur
             var query = _context.Set<Product>()
                 .AsNoTracking()
                 .Where(p => !p.IsDeleted);
 
             // -- Filtreler --
 
-            // A. Konum Filtresi (En karmaşığı):
-            // "Ürünün paketlerinden herhangi birinin stoğu, yakındaki inventory'lerde var mı?"
+            // A. Stok/Konum Filtresi
             query = query.Where(p => p.Packages.Any(pkg =>
                 pkg.Stocks.Any(s =>
                     nearbyInventoryIds.Contains(s.InventoryId) &&
@@ -63,7 +71,7 @@ namespace Infrastructure.Persistence.QueryRepositories
                 query = query.Where(p => p.Name.Contains(searchText) || p.Supplier.Name.Contains(searchText));
             }
 
-            // C. Kategori
+            // C. Kategori (Enum)
             if (category.HasValue)
             {
                 query = query.Where(p => p.Category == category.Value);
@@ -77,18 +85,12 @@ namespace Infrastructure.Persistence.QueryRepositories
 
             var totalCount = await query.CountAsync(token);
 
-            // 3. ProjectTo ile DTO Dönüşümü
+            // 4. ADIM: Sonuçları Getir ve Map'le
             var products = await query
                 .Skip((page - 1) * size)
                 .Take(size)
-                .ProjectTo<ProductListingDto>(_mapper.ConfigurationProvider) // <-- AUTOMAPPER
+                .ProjectTo<ProductListingDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(token);
-
-            // Not: Stok var mı yok mu bilgisi için ProductListingDto içine bir boolean eklemiştik.
-            // Bunu AutoMapper profilinde .ForMember ile karmaşık bir LINQ ifadesi yazarak mapleyebilirsin
-            // veya burada products geldikten sonra doldurabilirsin.
-            // Ancak ProjectTo ile SQL'e gömmek en iyisidir. 
-            // Profilde: .ForMember(d => d.IsInStock, o => o.MapFrom(s => s.Packages.Any(pk => pk.Stocks.Any(st => st.Quantity > 0))))
 
             return new PaginatedResponse<ProductListingDto>(products, totalCount, page, size);
         }

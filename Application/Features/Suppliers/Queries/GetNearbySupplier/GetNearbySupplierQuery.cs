@@ -8,8 +8,7 @@ namespace Application.Features.Suppliers.Queries.GetNearbySupplier
 {
     public class GetNearbySuppliersQuery : PaginatedRequest, IRequest<PaginatedResponse<SupplierDto>>
     {
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
+        public Guid AddressId { get; set; } // Lat/Lon yerine bu geldi
         public string? SearchText { get; set; }
     }
 }

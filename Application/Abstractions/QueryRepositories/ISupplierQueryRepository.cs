@@ -5,9 +5,11 @@ namespace Application.Abstractions.EntityRepositories
 {
     public interface ISupplierQueryRepository
     {
-        Task<PaginatedResponse<SupplierDto>> GetNearbySuppliersAsync(double lat, double lon, string? searchText, int page, int size, CancellationToken token);
-        
+        Task<PaginatedResponse<SupplierDto>> GetNearbySuppliersByAddressAsync(
+        Guid addressId,
+        string? searchText,
+        int page,
+        int size,
+        CancellationToken token);
     }
-
-
 }

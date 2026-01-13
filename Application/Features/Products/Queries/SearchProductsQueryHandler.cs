@@ -24,9 +24,8 @@ namespace Application.Features.Products.Queries
 
         public async Task<PaginatedResponse<ProductListingDto>> Handle(SearchProductsQuery request, CancellationToken token)
         {
-            return await _productQueryRepo.SearchProductsAsync(
-                request.Latitude,
-                request.Longitude,
+            return await _productQueryRepo.SearchProductsByAddressAsync(
+                request.AddressId,
                 request.SearchText,
                 request.Category,
                 request.SupplierId,

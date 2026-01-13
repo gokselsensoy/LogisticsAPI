@@ -22,9 +22,8 @@ namespace Application.Features.Suppliers.Queries.GetNearbySupplier
         public async Task<PaginatedResponse<SupplierDto>> Handle(GetNearbySuppliersQuery request, CancellationToken token)
         {
             // Tüm logic Repository'de
-            return await _supplierQueryRepo.GetNearbySuppliersAsync(
-                request.Latitude,
-                request.Longitude,
+            return await _supplierQueryRepo.GetNearbySuppliersByAddressAsync(
+                request.AddressId,
                 request.SearchText,
                 request.PageNumber,
                 request.PageSize,
