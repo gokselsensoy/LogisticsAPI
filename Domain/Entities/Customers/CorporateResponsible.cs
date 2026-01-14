@@ -18,8 +18,7 @@ namespace Domain.Entities.Customers
         public IReadOnlyCollection<CorporateRole> Roles => _roles.AsReadOnly();
 
         // Şube Haritası
-        private readonly List<CorporateAddressResponsibleMap> _assignedAddresses = new();
-        public IReadOnlyCollection<CorporateAddressResponsibleMap> AssignedAddresses => _assignedAddresses.AsReadOnly();
+        public virtual ICollection<CorporateAddressResponsibleMap> AssignedAddresses { get; private set; } = new List<CorporateAddressResponsibleMap>();
 
         private CorporateResponsible() { }
 
@@ -49,18 +48,21 @@ namespace Domain.Entities.Customers
 
         public void AssignAddress(Guid addressId)
         {
-            if (!_assignedAddresses.Any(x => x.AddressId == addressId))
+            // _assignedAddresses yerine AssignedAddresses kullanıyoruz
+            if (!AssignedAddresses.Any(x => x.AddressId == addressId))
             {
-                _assignedAddresses.Add(new CorporateAddressResponsibleMap(Id, addressId));
+                AssignedAddresses.Add(new CorporateAddressResponsibleMap(Id, addressId));
             }
         }
 
         public void UnassignAddress(Guid addressId)
         {
-            var map = _assignedAddresses.FirstOrDefault(x => x.AddressId == addressId);
+            // _assignedAddresses yerine AssignedAddresses kullanıyoruz
+            var map = AssignedAddresses.FirstOrDefault(x => x.AddressId == addressId);
+
             if (map != null)
             {
-                _assignedAddresses.Remove(map);
+                AssignedAddresses.Remove(map);
             }
         }
 

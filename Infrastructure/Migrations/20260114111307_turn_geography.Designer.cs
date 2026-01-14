@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260114111307_turn_geography")]
+    partial class turn_geography
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -123,12 +126,17 @@ namespace Infrastructure.Migrations
                     b.Property<Guid>("AddressId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("CorporateResponsibleId")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid>("Id")
                         .HasColumnType("uuid");
 
                     b.HasKey("ResponsibleId", "AddressId");
 
                     b.HasIndex("AddressId");
+
+                    b.HasIndex("CorporateResponsibleId");
 
                     b.ToTable("CorporateAddressResponsibleMap");
                 });
@@ -1406,15 +1414,11 @@ namespace Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Customers.CorporateResponsible", "Responsible")
+                    b.HasOne("Domain.Entities.Customers.CorporateResponsible", null)
                         .WithMany("AssignedAddresses")
-                        .HasForeignKey("ResponsibleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CorporateResponsibleId");
 
                     b.Navigation("CustomerAddress");
-
-                    b.Navigation("Responsible");
                 });
 
             modelBuilder.Entity("Domain.Entities.Customers.CustomerAddress", b =>

@@ -31,7 +31,7 @@ namespace Infrastructure.Persistence.Configurations
 
                 a.Property(p => p.Location)
                  .HasColumnName("Del_Location")
-                 .HasColumnType("geometry (point, 4326)");
+                 .HasColumnType("geography (point, 4326)");
             });
 
             builder.OwnsOne(o => o.PaymentInfo, pi =>

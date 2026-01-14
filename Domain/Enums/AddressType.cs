@@ -1,4 +1,4 @@
 ﻿namespace Domain.Enums
 {
-    public enum AddressType { Branch, Personal }
+    public enum AddressType { Branch, Home, Work, Other }
 }   

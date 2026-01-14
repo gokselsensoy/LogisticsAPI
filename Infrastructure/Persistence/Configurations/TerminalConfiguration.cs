@@ -30,7 +30,7 @@ namespace Infrastructure.Persistence.Configurations
                 // PostGIS Ayarı (Unutma!)
                 a.Property(p => p.Location)
                  .HasColumnName("Address_Location")
-                 .HasColumnType("geometry (point, 4326)");
+                 .HasColumnType("geography (point, 4326)");
             });
         }
     }

@@ -13,7 +13,7 @@ namespace Infrastructure.Persistence.Configurations
 
             // PostGIS Konum
             builder.Property(v => v.LastKnownLocation)
-                   .HasColumnType("geometry (point, 4326)");
+                   .HasColumnType("geography (point, 4326)");
 
             builder.HasOne<Company>()
                .WithMany() // Department içindeki listeyi de silmiştik (veya sileceksek)

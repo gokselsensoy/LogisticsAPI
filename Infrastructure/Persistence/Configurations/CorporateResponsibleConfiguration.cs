@@ -11,6 +11,11 @@ namespace Infrastructure.Persistence.Configurations
             builder.ToTable("CorporateResponsibles");
 
             builder.Property(w => w.Roles).HasColumnType("integer[]");
+
+            builder.HasMany(cr => cr.AssignedAddresses) // Responsible'dan
+               .WithOne(map => map.Responsible)     // Map'teki yeni property'ye
+               .HasForeignKey(map => map.ResponsibleId)
+               .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

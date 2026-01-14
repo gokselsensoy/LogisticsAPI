@@ -21,7 +21,7 @@ namespace Infrastructure.Persistence.Configurations
                 a.Property(p => p.FloorLabel).HasColumnName("Address_FloorLabel");
                 a.Property(p => p.Door).HasColumnName("Address_Door");
                 a.Property(p => p.FormattedAddress).HasColumnName("Address_Full");
-                a.Property(p => p.Location).HasColumnType("geometry (point, 4326)");
+                a.Property(p => p.Location).HasColumnType("geography (point, 4326)");
             });
         }
     }

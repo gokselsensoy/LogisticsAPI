@@ -24,7 +24,7 @@ namespace Infrastructure.Persistence.Configurations
                 a.Property(p => p.FormattedAddress).HasColumnName("Target_FormattedAddress");
                 a.Property(p => p.Location)
                  .HasColumnName("Target_Location")
-                 .HasColumnType("geometry (point, 4326)");
+                 .HasColumnType("geography (point, 4326)");
             });
         }
     }

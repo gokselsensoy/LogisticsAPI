@@ -24,7 +24,7 @@ namespace Infrastructure.Persistence.Configurations
                 a.Property(p => p.FormattedAddress).HasColumnName("Pic_FormattedAddress");
                 a.Property(p => p.Location)
                  .HasColumnName("Pic_Location")
-                 .HasColumnType("geometry (point, 4326)");
+                 .HasColumnType("geography (point, 4326)");
             });
 
             // Address VO: Delivery
@@ -41,7 +41,7 @@ namespace Infrastructure.Persistence.Configurations
                 a.Property(p => p.FormattedAddress).HasColumnName("Del_FormattedAddress");
                 a.Property(p => p.Location)
                  .HasColumnName("Del_Location")
-                 .HasColumnType("geometry (point, 4326)");
+                 .HasColumnType("geography (point, 4326)");
             });
 
             builder.HasMany(s => s.Items).WithOne().HasForeignKey(i => i.ShipmentId);

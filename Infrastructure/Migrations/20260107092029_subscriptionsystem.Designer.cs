@@ -118,7 +118,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Freelancers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.CorporateAddressResponsibleMap", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.CorporateAddressResponsibleMap", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -140,7 +140,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("CorporateAddressResponsibleMap");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.CorporateResponsible", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.CorporateResponsible", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -193,7 +193,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("CorporateResponsibles", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.Customer", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.Customer", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -242,7 +242,7 @@ namespace Infrastructure.Migrations
                     b.UseTptMappingStrategy();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.CustomerAddress", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.CustomerAddress", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1306,9 +1306,9 @@ namespace Infrastructure.Migrations
                     b.ToTable("Transporters", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.CorporateCustomer", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.CorporateCustomer", b =>
                 {
-                    b.HasBaseType("Domain.Entities.Customer.Customer");
+                    b.HasBaseType("Domain.Entities.Customers.Customer");
 
                     b.Property<string>("CvrNumber")
                         .IsRequired()
@@ -1317,9 +1317,9 @@ namespace Infrastructure.Migrations
                     b.ToTable("CorporateCustomers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.IndividualCustomer", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.IndividualCustomer", b =>
                 {
-                    b.HasBaseType("Domain.Entities.Customer.Customer");
+                    b.HasBaseType("Domain.Entities.Customers.Customer");
 
                     b.Property<Guid>("AppUserId")
                         .HasColumnType("uuid");
@@ -1327,16 +1327,16 @@ namespace Infrastructure.Migrations
                     b.ToTable("IndividualCustomers", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.CorporateAddressResponsibleMap", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.CorporateAddressResponsibleMap", b =>
                 {
-                    b.HasOne("Domain.Entities.Customer.CorporateResponsible", null)
+                    b.HasOne("Domain.Entities.Customers.CorporateResponsible", null)
                         .WithMany("AssignedAddresses")
                         .HasForeignKey("CorporateResponsibleId");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.CustomerAddress", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.CustomerAddress", b =>
                 {
-                    b.HasOne("Domain.Entities.Customer.Customer", null)
+                    b.HasOne("Domain.Entities.Customers.Customer", null)
                         .WithMany("Addresses")
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2321,20 +2321,20 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.CorporateCustomer", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.CorporateCustomer", b =>
                 {
-                    b.HasOne("Domain.Entities.Customer.Customer", null)
+                    b.HasOne("Domain.Entities.Customers.Customer", null)
                         .WithOne()
-                        .HasForeignKey("Domain.Entities.Customer.CorporateCustomer", "Id")
+                        .HasForeignKey("Domain.Entities.Customers.CorporateCustomer", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.IndividualCustomer", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.IndividualCustomer", b =>
                 {
-                    b.HasOne("Domain.Entities.Customer.Customer", null)
+                    b.HasOne("Domain.Entities.Customers.Customer", null)
                         .WithOne()
-                        .HasForeignKey("Domain.Entities.Customer.IndividualCustomer", "Id")
+                        .HasForeignKey("Domain.Entities.Customers.IndividualCustomer", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -2344,12 +2344,12 @@ namespace Infrastructure.Migrations
                     b.Navigation("Subscription");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.CorporateResponsible", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.CorporateResponsible", b =>
                 {
                     b.Navigation("AssignedAddresses");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Customer.Customer", b =>
+            modelBuilder.Entity("Domain.Entities.Customers.Customer", b =>
                 {
                     b.Navigation("Addresses");
                 });

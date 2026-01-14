@@ -25,49 +25,64 @@ namespace Infrastructure.Persistence.QueryRepositories
         }
 
         public async Task<PaginatedResponse<SupplierDto>> GetNearbySuppliersByAddressAsync(
-    Guid addressId, string? searchText, int page, int size, CancellationToken token)
+            Guid addressId, string? searchText, int page, int size, CancellationToken token)
         {
-            // 1. ADIM: Lokasyonu çek (Aynı kalıyor)
+            // 1. User Location (Point)
             var userLocation = await _context.Set<CustomerAddress>()
                 .AsNoTracking()
                 .Where(a => a.Id == addressId)
                 .Select(a => a.Address.Location)
                 .FirstOrDefaultAsync(token);
 
-            if (userLocation == null)
-            {
-                return new PaginatedResponse<SupplierDto>(new List<SupplierDto>(), 0, page, size);
-            }
+            if (userLocation == null) return new PaginatedResponse<SupplierDto>(new List<SupplierDto>(), 0, page, size);
 
-            // 2. ADIM: Query (OfType eklenmiş hali)
-            var query = _context.Set<Terminal>()
+            // 2. Query (PostGIS Optimizasyonu)
+            var sortedSuppliersQuery = _context.Set<Terminal>()
                 .AsNoTracking()
                 .Where(t => !t.IsDeleted && t.ServiceRadiusKm.HasValue)
-                .Where(t => t.Address.Location.Distance(userLocation) <= (t.ServiceRadiusKm * 1000))
-                // BURAYA KADAR AYNI
+                // DİKKAT:
+                // Eğer ColumnType "geography" ise IsWithinDistance METRE çalışır.
+                // Bu fonksiyon PostGIS'in ST_DWithin fonksiyonuna çevrilir ve INDEX kullanır (Çok hızlıdır).
+                .Where(t => t.Address.Location.IsWithinDistance(userLocation, t.ServiceRadiusKm.Value * 1000))
 
-                // ÖNEMLİ KISIM:
-                .Select(t => t.Department.Company) // Şu an elimizde IQueryable<Company> var
-                .OfType<Supplier>();               // ARTIK ELİMİZDE IQueryable<Supplier> VAR!
+                .Where(t => t.Department.Company is Supplier) // Sadece Supplierlar
+                .Select(t => new
+                {
+                    SupplierId = t.Department.Company.Id,
+                    SupplierName = t.Department.Company.Name,
+                    // Burada Distance hesabı yapıyoruz (Sıralama için)
+                    // ColumnType geography olduğu için sonuç METRE döner.
+                    Distance = t.Address.Location.Distance(userLocation)
+                })
+                .Where(x => string.IsNullOrEmpty(searchText) || x.SupplierName.Contains(searchText))
 
-            if (!string.IsNullOrEmpty(searchText))
-            {
-                // Artık 's' bir Supplier olduğu için hem Company hem Supplier alanlarına erişebilirsin
-                query = query.Where(s => s.Name.Contains(searchText));
-            }
+                // 3. GroupBy ve Sıralama (Aynı)
+                .GroupBy(x => new { x.SupplierId, x.SupplierName })
+                .Select(g => new
+                {
+                    g.Key.SupplierId,
+                    g.Key.SupplierName,
+                    MinDistance = g.Min(x => x.Distance)
+                })
+                .OrderBy(x => x.MinDistance); // En yakına göre sırala
 
-            // Distinct
-            var distinctQuery = query.Distinct();
+            // 4. Pagination (Aynı)
+            var totalCount = await sortedSuppliersQuery.CountAsync(token);
 
-            var totalCount = await distinctQuery.CountAsync(token);
-
-            var suppliers = await distinctQuery
+            var pagedResult = await sortedSuppliersQuery
                 .Skip((page - 1) * size)
                 .Take(size)
-                .ProjectTo<SupplierDto>(_mapper.ConfigurationProvider)
                 .ToListAsync(token);
 
-            return new PaginatedResponse<SupplierDto>(suppliers, totalCount, page, size);
+            // 5. Mapping
+            var dtos = pagedResult.Select(x => new SupplierDto
+            {
+                Id = x.SupplierId,
+                Name = x.SupplierName
+                // LogoUrl vs..
+            }).ToList();
+
+            return new PaginatedResponse<SupplierDto>(dtos, totalCount, page, size);
         }
     }
 }

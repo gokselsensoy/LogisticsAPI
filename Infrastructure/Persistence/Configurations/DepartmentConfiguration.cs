@@ -27,7 +27,7 @@ namespace Infrastructure.Persistence.Configurations
                 // PostGIS Ayarı
                 a.Property(p => p.Location)
                  .HasColumnName("Address_Location")
-                 .HasColumnType("geometry (point, 4326)");
+                 .HasColumnType("geography (point, 4326)");
             });
 
             builder.HasOne(d => d.Company)  // Departman bir Company'ye bağlıdır.
