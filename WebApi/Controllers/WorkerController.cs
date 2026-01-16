@@ -8,22 +8,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Controllers
 {
     [Route("api/workers")]
-    [ApiController]
     [Authorize] // Sadece giriş yapmış kullanıcılar
-    public class WorkerController : ControllerBase
+    public class WorkerController : ApiControllerBase
     {
-        private readonly ISender _sender;
-
-        public WorkerController(ISender sender)
-        {
-            _sender = sender;
-        }
-
         [HttpPost]
         // [Authorize(Policy = "AdminOrOwner")] // İstersen Policy ekleyebilirsin
         public async Task<IActionResult> Create([FromBody] CreateWorkerCommand command)
         {
-            var workerId = await _sender.Send(command);
+            var workerId = await Mediator.Send(command);
             return Ok(new { Id = workerId });
         }
 
@@ -33,14 +25,14 @@ namespace WebApi.Controllers
             if (id != command.WorkerId)
                 return BadRequest("URL ID ile Body ID uyuşmuyor.");
 
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return Ok(new { Message = "Çalışan bilgileri güncellendi." });
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await _sender.Send(new DeleteWorkerCommand { WorkerId = id });
+            await Mediator.Send(new DeleteWorkerCommand { WorkerId = id });
             return Ok(new { Message = "Çalışan silindi (Bağlantı koparıldı)." });
         }
     }

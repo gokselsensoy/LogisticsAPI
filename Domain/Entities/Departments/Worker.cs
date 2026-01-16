@@ -15,6 +15,7 @@ namespace Domain.Entities.Departments
         private readonly List<WorkerRole> _roles = new();
         public IReadOnlyCollection<WorkerRole> Roles => _roles.AsReadOnly();
 
+        public Department Department { get; private set; }
         private Worker() { }
 
         public Worker(Guid companyId, Guid departmentId, Guid appUserId, string fullName, string phone, List<WorkerRole>? roles = null)

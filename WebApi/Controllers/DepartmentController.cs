@@ -8,16 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi.Controllers
 {
     [Route("api/departments")]
-    [ApiController]
-    [Authorize]
-    public class DepartmentController : ControllerBase
+    public class DepartmentController : ApiControllerBase
     {
-        private readonly ISender _sender;
-
-        public DepartmentController(ISender sender)
-        {
-            _sender = sender;
-        }
 
         // POST api/departments
         [HttpPost]
@@ -25,7 +17,7 @@ namespace WebApi.Controllers
         // Ama Handler içinde zaten rol kontrolü yaptığımız için burada zorunlu değil (Çift dikiş güvenlik).
         public async Task<IActionResult> Create([FromBody] CreateDepartmentCommand command)
         {
-            var departmentId = await _sender.Send(command);
+            var departmentId = await Mediator.Send(command);
             return Ok(new { Id = departmentId });
         }
 
@@ -39,7 +31,7 @@ namespace WebApi.Controllers
                 return BadRequest("URL'deki ID ile Body'deki ID uyuşmuyor.");
             }
 
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return Ok(new { Message = "Departman başarıyla güncellendi." });
         }
 
@@ -47,7 +39,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(Guid id)
         {
-            await _sender.Send(new DeleteDepartmentCommand { DepartmentId = id });
+            await Mediator.Send(new DeleteDepartmentCommand { DepartmentId = id });
             return Ok(new { Message = "Departman silindi (Soft Delete)." });
         }
     }

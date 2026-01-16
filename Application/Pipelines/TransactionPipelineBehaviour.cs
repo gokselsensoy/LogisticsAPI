@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Messaging;
+using Application.Shared.ResultModels;
 using Domain.SeedWork;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -42,6 +43,13 @@ namespace Application.Pipelines
                 _logger.LogInformation("Transaction Başlatıldı: {RequestName}", requestName);
 
                 var response = await next();
+
+                if (response is IResult result && !result.Succeeded)
+                {
+                    _logger.LogWarning("İşlem mantıksal olarak başarısız oldu (Result.Failure). Transaction Geri Alınıyor: {RequestName}", requestName);
+                    await _unitOfWork.RollbackTransactionAsync(cancellationToken);
+                    return response;
+                }
 
                 await _unitOfWork.CommitTransactionAsync(cancellationToken);
                 _logger.LogInformation("Transaction Onaylandı (Commit): {RequestName}", requestName);

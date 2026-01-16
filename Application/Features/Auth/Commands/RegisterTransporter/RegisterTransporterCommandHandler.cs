@@ -78,7 +78,7 @@ namespace Application.Features.Auth.Commands.RegisterTransporter
             }
 
             // 2. Şirketi (Transporter) Oluştur
-            var transporter = new Transporter(request.CompanyName, request.CvrNumber, request.Email);
+            var transporter = new Transporter(request.CompanyName, request.CvrNumber, request.Email, request.Phone);
             _transporterRepository.Add(transporter);
 
             var defaultDept = transporter.CreateDefaultDepartment();

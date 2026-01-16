@@ -11,6 +11,14 @@ namespace Infrastructure.Persistence.Repositories
         {
         }
 
+        public async Task<CorporateResponsible?> GetByIdWithCustomerAsync(Guid id, CancellationToken token)
+        {
+            return await _context.Set<CorporateResponsible>()
+                .AsNoTracking() // Sadece okuma yapıp DTO dolduracaksak performans için
+                .Include(r => r.CorporateCustomer) // <--- JOIN İŞLEMİ
+                .FirstOrDefaultAsync(r => r.Id == id, token);
+        }
+
         public Task<CorporateResponsible?> GetByAppUserIdAsync(Guid appUserId, CancellationToken token)
         {
             return _context.Set<CorporateResponsible>()

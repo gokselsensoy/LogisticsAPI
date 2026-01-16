@@ -77,7 +77,7 @@ namespace Application.Features.Auth.Commands.RegisterSupplier
             }
 
             // 2. Şirketi (Supplier) Oluştur
-            var supplier = new Supplier(request.CompanyName, request.CvrNumber, request.Email);
+            var supplier = new Supplier(request.CompanyName, request.CvrNumber, request.Email, request.Phone);
             _supplierRepository.Add(supplier);
 
             var defaultDept = supplier.CreateDefaultDepartment();

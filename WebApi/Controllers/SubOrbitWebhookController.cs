@@ -8,19 +8,15 @@ using System.Text.Json;
 namespace WebApi.Controllers;
 
 [Route("api/webhooks/suborbit")]
-[ApiController]
-public class SubOrbitWebhookController : ControllerBase
+public class SubOrbitWebhookController : ApiControllerBase
 {
-    private readonly IMediator _mediator;
     private readonly ISubOrbitService _subOrbitService;
     private readonly ILogger<SubOrbitWebhookController> _logger;
 
     public SubOrbitWebhookController(
-        IMediator mediator,
         ISubOrbitService subOrbitService,
         ILogger<SubOrbitWebhookController> logger)
     {
-        _mediator = mediator;
         _subOrbitService = subOrbitService;
         _logger = logger;
     }
@@ -56,7 +52,7 @@ public class SubOrbitWebhookController : ControllerBase
                 return BadRequest("Payload boş veya hatalı format.");
 
             // MediatR ile Application katmanına gönder
-            await _mediator.Send(new ProcessWebhookCommand(payload));
+            await Mediator.Send(new ProcessWebhookCommand(payload));
 
             // SubOrbit'e "Tamam, aldım" mesajı
             return Ok();

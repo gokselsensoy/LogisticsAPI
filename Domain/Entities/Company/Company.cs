@@ -10,13 +10,14 @@ namespace Domain.Entities.Companies
     {
         public string Name { get; private set; }
         public string CvrNumber { get; private set; }
-
+        public string? PhoneNumber { get; private set; }
         protected Company() { }
-        protected Company(string name, string? cvrNumber)
+        protected Company(string name, string cvrNumber, string? phoneNumber)
         {
             Id = Guid.NewGuid();
             Name = name;
             CvrNumber = cvrNumber;
+            PhoneNumber = phoneNumber;
         }
 
 

@@ -5,22 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebApi.Controllers
 {
-    [ApiController]
     [Route("api/integration")]
     [Authorize(Policy = "InternalApiAccess")]
-    public class UserIntegrationController : ControllerBase
+    public class UserIntegrationController : ApiControllerBase
     {
-        private readonly ISender _sender; // MediatR
-
-        public UserIntegrationController(ISender sender)
-        {
-            _sender = sender;
-        }
-
         [HttpPost("user-sync")]
         public async Task<IActionResult> SyncUser([FromBody] SyncUserCommand command)
         {
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return Ok();
         }
     }

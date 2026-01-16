@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using Application.Shared.ResultModels;
+using MediatR;
 using Microsoft.Extensions.Logging;
 using System.Diagnostics;
 
@@ -28,16 +29,35 @@ namespace Application.Pipelines
                 var response = await next();
 
                 _stopwatch.Stop();
-                _logger.LogDebug("İşlem Tamamlandı: {RequestName}. Süre: {ElapsedMilliseconds} ms.",
-                    requestName,
-                    _stopwatch.ElapsedMilliseconds);
+                var elapsed = _stopwatch.ElapsedMilliseconds;
+
+                // --- DEĞİŞİKLİK: Result Başarısızsa Uyarı Logu Bas ---
+                if (response is IResult result && !result.Succeeded)
+                {
+                    // İşlem teknik olarak çalıştı ama mantıksal hata döndü (Örn: Stok yetersiz)
+                    // Errors listesini loga ekliyoruz ki Kibana/Seq üzerinde görelim.
+                    _logger.LogWarning("İşlem Mantıksal Hata ile Tamamlandı: {RequestName}. Süre: {Elapsed} ms. Hatalar: {@Errors}",
+                        requestName, elapsed, result.Errors);
+                }
+                else
+                {
+                    // Başarılı durum
+                    if (elapsed > 500) // Örnek: 500ms'den uzun sürenleri Warning olarak işaretle (Slow Request)
+                    {
+                        _logger.LogWarning("Uzun Süren İşlem Tespit Edildi: {RequestName}. Süre: {Elapsed} ms.", requestName, elapsed);
+                    }
+                    else
+                    {
+                        _logger.LogDebug("İşlem Başarıyla Tamamlandı: {RequestName}. Süre: {Elapsed} ms.", requestName, elapsed);
+                    }
+                }
 
                 return response;
             }
             catch (Exception ex)
             {
                 _stopwatch.Stop();
-                _logger.LogError(ex, "İşlem Sırasında Hata: {RequestName}. Süre: {ElapsedMilliseconds} ms. Hata: {ErrorMessage}",
+                _logger.LogError(ex, "İşlem Sırasında CRITICAL HATA (Exception): {RequestName}. Süre: {Elapsed} ms. Hata: {ErrorMessage}",
                     requestName,
                     _stopwatch.ElapsedMilliseconds,
                     ex.Message);

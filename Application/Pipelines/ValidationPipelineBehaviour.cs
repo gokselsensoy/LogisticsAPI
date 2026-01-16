@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using Application.Shared.ResultModels;
+using FluentValidation;
 using MediatR;
 
 namespace Application.Pipelines
@@ -31,12 +32,33 @@ namespace Application.Pipelines
                 var failures = validationResults
                     .SelectMany(r => r.Errors)
                     .Where(f => f != null)
+                    .Select(f => f.ErrorMessage) // Mesajları string listesi olarak al
+                    .Distinct()
                     .ToList();
 
                 if (failures.Count != 0)
                 {
-                    // Düzeltildi: Tam adını (Fully Qualified Name) kullanarak
-                    throw new FluentValidation.ValidationException(failures);
+                    // --- DEĞİŞİKLİK BURADA: Exception yerine Result Dönüyoruz ---
+
+                    // TResponse bir IResult mı? (Result veya Result<T>)
+                    if (typeof(IResult).IsAssignableFrom(typeof(TResponse)))
+                    {
+                        // Reflection ile "Failure" metodunu bul ve çalıştır.
+                        // Çünkü TResponse generic olduğu için direkt "new Result()" diyemeyiz.
+                        var responseType = typeof(TResponse);
+
+                        // Result.Failure(List<string> errors) metodunu bul
+                        var failureMethod = responseType.GetMethod("Failure", new[] { typeof(List<string>) });
+
+                        if (failureMethod != null)
+                        {
+                            var result = failureMethod.Invoke(null, new object[] { failures });
+                            return (TResponse)result!;
+                        }
+                    }
+
+                    // Eğer TResponse bir Result tipi değilse (eski kodlar vs.) fallback olarak Exception fırlat
+                    throw new ValidationException(failures.Select(f => new FluentValidation.Results.ValidationFailure("", f)));
                 }
 
                 return await next();

@@ -18,6 +18,7 @@ namespace Domain.Entities.Customers
         public IReadOnlyCollection<CorporateRole> Roles => _roles.AsReadOnly();
 
         // Şube Haritası
+        public CorporateCustomer CorporateCustomer { get; private set; }
         public virtual ICollection<CorporateAddressResponsibleMap> AssignedAddresses { get; private set; } = new List<CorporateAddressResponsibleMap>();
 
         private CorporateResponsible() { }

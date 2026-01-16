@@ -1,5 +1,6 @@
 ﻿using Application.Abstractions.Messaging;
 using Application.Features.Auth.DTOs;
+using Application.Shared.ResultModels;
 using System;
 using System.Collections.Generic;
 using System.Linq;

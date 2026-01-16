@@ -15,40 +15,32 @@ namespace WebApi.Controllers
 {
     [Authorize]
     [Route("api/[controller]")]
-    [ApiController]
-    public class ScheduleController : ControllerBase
+    public class ScheduleController : ApiControllerBase
     {
-        private readonly ISender _sender;
-
-        public ScheduleController(ISender sender)
-        {
-            _sender = sender;
-        }
-
         [HttpPost("weekly")]
         public async Task<IActionResult> CreateWeeklyPattern(CreateWeeklyPatternCommand command)
         {
-            return Ok(await _sender.Send(command));
+            return Ok(await Mediator.Send(command));
         }
 
         [HttpPut("weekly")]
         public async Task<IActionResult> UpdateWeeklyPattern(UpdateWeeklyPatternCommand command)
         {
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
         [HttpDelete("weekly/{id}")]
         public async Task<IActionResult> DeleteWeeklyPattern(Guid id)
         {
-            await _sender.Send(new DeleteWeeklyPatternCommand { Id = id });
+            await Mediator.Send(new DeleteWeeklyPatternCommand { Id = id });
             return NoContent();
         }
 
         [HttpPost("weekly/item")]
         public async Task<IActionResult> AddPatternItem(AddPatternItemCommand command)
         {
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -59,13 +51,13 @@ namespace WebApi.Controllers
         [HttpPost("daily")]
         public async Task<IActionResult> CreateDailySchedule(CreateDailyScheduleCommand command)
         {
-            return Ok(await _sender.Send(command));
+            return Ok(await Mediator.Send(command));
         }
 
         [HttpPut("daily/times")]
         public async Task<IActionResult> UpdateDailyTimes(UpdateDailyShiftTimesCommand command)
         {
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -73,7 +65,7 @@ namespace WebApi.Controllers
         public async Task<IActionResult> DeleteDailySchedule(Guid id)
         {
             // DeleteDailyScheduleCommand oluşturup çağırdığını varsayıyorum
-            await _sender.Send(new DeleteDailyScheduleCommand { Id = id });
+            await Mediator.Send(new DeleteDailyScheduleCommand { Id = id });
             return NoContent();
         }
 
@@ -84,14 +76,14 @@ namespace WebApi.Controllers
         [HttpPost("daily/allocation")]
         public async Task<IActionResult> AddAllocation(AddScheduleAllocationCommand command)
         {
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
         [HttpDelete("daily/allocation")]
         public async Task<IActionResult> RemoveAllocation(RemoveScheduleAllocationCommand command)
         {
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
     }

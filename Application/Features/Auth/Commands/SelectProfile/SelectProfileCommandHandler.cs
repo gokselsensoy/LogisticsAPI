@@ -2,6 +2,7 @@
 using Application.Abstractions.Repositories;
 using Application.Abstractions.Services;
 using Application.Features.Auth.DTOs;
+using Application.Shared.ResultModels;
 using Domain.Repositories;
 using MediatR;
 
@@ -131,7 +132,7 @@ namespace Application.Features.Auth.Commands.SelectProfile
             );
 
             // 4. Cevap Dön
-            return new LoginResponse
+            var result = new LoginResponse
             {
                 AccessToken = tokenResponse.AccessToken,
                 RefreshToken = tokenResponse.RefreshToken,
@@ -139,6 +140,8 @@ namespace Application.Features.Auth.Commands.SelectProfile
                 IsContextSelected = true,
                 AvailableProfiles = null // Artık listeye gerek yok, zaten seçti.
             };
+
+            return result;
         }
     }
 }

@@ -11,15 +11,8 @@ namespace WebApi.Controllers
 {
     [Authorize]
     [Route("api/marketplace")]
-    [ApiController]
-    public class MarketplaceController : ControllerBase
+    public class MarketplaceController : ApiControllerBase
     {
-        private readonly ISender _sender;
-
-        public MarketplaceController(ISender sender)
-        {
-            _sender = sender;
-        }
         /// <summary>
         /// Seçilen konuma hizmet veren Supplier'ları (Aslında Terminalleri) listeler.
         /// Örn: /api/marketplace/suppliers?latitude=39.9&longitude=32.8&searchText=Market
@@ -30,7 +23,7 @@ namespace WebApi.Controllers
         {
             // [FromQuery] sayesinde URL'deki ?lat=...&long=... parametreleri 
             // otomatik olarak query nesnesine maplenir.
-            var result = await _sender.Send(query);
+            var result = await Mediator.Send(query);
             return Ok(result);
         }
 
@@ -44,7 +37,7 @@ namespace WebApi.Controllers
         {
             // Category Enum olduğu için Swagger ve API bunu 
             // int (1,2) veya string ("Food") olarak otomatik çözümler.
-            var result = await _sender.Send(query);
+            var result = await Mediator.Send(query);
             return Ok(result);
         }
     }

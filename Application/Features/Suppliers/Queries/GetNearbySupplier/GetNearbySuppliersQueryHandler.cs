@@ -2,6 +2,7 @@
 using Application.Abstractions.Services;
 using Application.Features.Suppliers.DTOs;
 using Application.Shared.Pagination;
+using Application.Shared.ResultModels;
 using Domain.Entities.Departments;
 using Domain.Repositories;
 using MediatR;
@@ -21,14 +22,15 @@ namespace Application.Features.Suppliers.Queries.GetNearbySupplier
 
         public async Task<PaginatedResponse<SupplierDto>> Handle(GetNearbySuppliersQuery request, CancellationToken token)
         {
-            // Tüm logic Repository'de
-            return await _supplierQueryRepo.GetNearbySuppliersByAddressAsync(
+            var paginatedData = await _supplierQueryRepo.GetNearbySuppliersByAddressAsync(
                 request.AddressId,
                 request.SearchText,
                 request.PageNumber,
                 request.PageSize,
                 token
             );
+
+            return paginatedData;
         }
     }
 }

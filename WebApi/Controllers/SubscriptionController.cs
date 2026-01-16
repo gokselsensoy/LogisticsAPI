@@ -7,8 +7,7 @@ using NewMultilloApi.Application.DTOs.SubOrbit;
 namespace WebApi.Controllers;
 
 [Route("api/subscriptions")]
-[ApiController]
-public class SubscriptionController : ControllerBase
+public class SubscriptionController : ApiControllerBase
 {
     private readonly ISubOrbitService _subOrbitService;     
     public SubscriptionController(ISubOrbitService subOrbitService)

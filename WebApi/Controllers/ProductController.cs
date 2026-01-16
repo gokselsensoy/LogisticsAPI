@@ -11,23 +11,15 @@ namespace WebApi.Controllers
 {
     //[Authorize(Roles = "Supplier")] // Sadece Tedarikçiler erişebilir (Policy de olabilir)
     [Route("api/[controller]")]
-    [ApiController]
-    public class ProductController : ControllerBase
+    public class ProductController : ApiControllerBase
     {
-        private readonly ISender _sender;
-
-        public ProductController(ISender sender)
-        {
-            _sender = sender;
-        }
-
         /// <summary>
         /// Yeni bir ana ürün oluşturur (Örn: Coca Cola Zero).
         /// </summary>
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductCommand command)
         {
-            var productId = await _sender.Send(command);
+            var productId = await Mediator.Send(command);
             return Ok(new { ProductId = productId });
         }
 
@@ -37,7 +29,7 @@ namespace WebApi.Controllers
         [HttpPut]
         public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductCommand command)
         {
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -47,7 +39,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            await _sender.Send(new DeleteProductCommand { Id = id });
+            await Mediator.Send(new DeleteProductCommand { Id = id });
             return NoContent();
         }
 
@@ -57,7 +49,7 @@ namespace WebApi.Controllers
         [HttpPost("packages")]
         public async Task<IActionResult> AddPackage([FromBody] AddPackageCommand command)
         {
-            var packageId = await _sender.Send(command);
+            var packageId = await Mediator.Send(command);
             return Ok(new { PackageId = packageId });
         }
 
@@ -67,7 +59,7 @@ namespace WebApi.Controllers
         [HttpPut("packages")]
         public async Task<IActionResult> UpdatePackage([FromBody] UpdatePackageCommand command)
         {
-            await _sender.Send(command);
+            await Mediator.Send(command);
             return NoContent();
         }
 
@@ -77,7 +69,7 @@ namespace WebApi.Controllers
         [HttpDelete("{productId}/packages/{packageId}")]
         public async Task<IActionResult> DeletePackage(Guid productId, Guid packageId)
         {
-            await _sender.Send(new DeletePackageCommand { ProductId = productId, PackageId = packageId });
+            await Mediator.Send(new DeletePackageCommand { ProductId = productId, PackageId = packageId });
             return NoContent();
         }
     }

@@ -1,4 +1,5 @@
 ﻿using Application.Abstractions.Messaging;
+using Application.Shared.ResultModels;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
@@ -53,6 +54,12 @@ namespace Application.Pipelines
             // 2. Cache'de yoksa, asıl Handler'ı (DB'ye giden) çalıştır
             _logger.LogInformation("Cache'de Bulunamadı, Handler Çalıştırılıyor: {RequestName}. Key: {CacheKey}", requestName, cacheKey);
             var response = await next();
+
+            if (response is IResult result && !result.Succeeded)
+            {
+                _logger.LogWarning("İşlem başarısız olduğu için Cache'e yazılmadı: {RequestName}", requestName);
+                return response;
+            }
 
             try
             {

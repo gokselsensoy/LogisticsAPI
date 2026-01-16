@@ -2,6 +2,7 @@
 using Application.Abstractions.Services;
 using Application.Features.Auth.DTOs;
 using Application.Shared.Models;
+using Application.Shared.ResultModels;
 using Domain.Entities;
 using Domain.Entities.Subscriptions;
 using Domain.Repositories;
@@ -203,7 +204,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
             }).ToList() : new List<PlanFeatureDto>();
 
 
-        return new LoginResponse
+        var result = new LoginResponse
         {
             AccessToken = finalTokenResponse?.AccessToken,
             RefreshToken = finalTokenResponse?.RefreshToken,
@@ -214,7 +215,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponse>
             SubscriptionProfile = profile
         };
 
+        return result;
     }
-
 }
 

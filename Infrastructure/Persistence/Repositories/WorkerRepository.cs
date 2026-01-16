@@ -10,6 +10,15 @@ namespace Infrastructure.Persistence.Repositories
     {
         public WorkerRepository(ApplicationDbContext context) : base(context) { }
 
+        public async Task<Worker?> GetByIdWithCompanyAsync(Guid id, CancellationToken token)
+        {
+            return await _context.Set<Worker>()
+                .AsNoTracking()
+                .Include(w => w.Department)
+                    .ThenInclude(d => d.Company)
+                .FirstOrDefaultAsync(w => w.Id == id, token);
+        }
+
         public async Task<Worker?> GetByAppUserIdWithCompanyAsync(Guid appUserId, CancellationToken token)
         {
             return await _context.Set<Worker>()
