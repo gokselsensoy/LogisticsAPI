@@ -52,8 +52,8 @@ namespace WebApi.Controllers
         [HttpPost("register-supplier")]
         public async Task<IActionResult> RegisterSupplier([FromBody] RegisterSupplierCommand command)
         {
-            var id = await _sender.Send(command);
-            return Ok(new { CompanyId = id });
+            var res = await _sender.Send(command);
+            return Ok(res);
         }
 
         // 3. Freelancer Kayıt
