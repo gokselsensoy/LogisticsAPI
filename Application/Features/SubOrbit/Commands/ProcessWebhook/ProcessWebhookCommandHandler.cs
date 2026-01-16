@@ -5,7 +5,6 @@ using Domain.SeedWork;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NewMultilloApi.Application.DTOs.SubOrbit;
-using System.Threading;
 
 namespace Application.Features.SubOrbit.Commands.ProcessWebhook;
 

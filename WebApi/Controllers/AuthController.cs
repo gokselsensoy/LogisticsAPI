@@ -67,8 +67,8 @@ namespace WebApi.Controllers
         [HttpPost("register-supplier")]
         public async Task<IActionResult> RegisterSupplier([FromBody] RegisterSupplierCommand command)
         {
-            var id = await Mediator.Send(command);
-            return Ok(new { CompanyId = id });
+            var res = await Mediator.Send(command);
+            return Ok(res);
         }
 
         [HttpPost("register-freelancer")]
