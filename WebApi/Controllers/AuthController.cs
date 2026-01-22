@@ -1,4 +1,5 @@
-﻿using Application.Features.Auth.Commands.ForgotPassword;
+﻿using Application.Features.Auth.Commands.ChangePassword;
+using Application.Features.Auth.Commands.ForgotPassword;
 using Application.Features.Auth.Commands.Login;
 using Application.Features.Auth.Commands.RegisterCorporateCustomer;
 using Application.Features.Auth.Commands.RegisterFreelancer;
@@ -96,7 +97,7 @@ namespace WebApi.Controllers
             return Ok(new { CustomerId = id });
         }
 
-        #region Password Recovery (Clean CQRS)
+        #region Password Recovery
 
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
@@ -123,6 +124,22 @@ namespace WebApi.Controllers
 
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
+        {
+            var result = await Mediator.Send(command);
+
+            if (result.Succeeded)
+                return Ok(result);
+
+            return BadRequest(result);
+        }
+
+        #endregion
+        
+        #region Change Password
+
+        [HttpPost("change-password")]
+        [Authorize] 
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
         {
             var result = await Mediator.Send(command);
 

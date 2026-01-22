@@ -14,5 +14,7 @@ namespace Application.Abstractions.Services
         Task ForgotPasswordAsync(string email, CancellationToken cancellationToken);
         Task VerifyCodeAsync(string email, string code, CancellationToken cancellationToken);
         Task ResetPasswordAsync(string email, string code, string newPassword, CancellationToken cancellationToken);
+
+        Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken);
     }
 }

@@ -188,6 +188,33 @@ namespace Integration.Services
             await HandleResultAsync(response, cancellationToken);
         }
 
+        #endregion
+
+        #region Change Password
+        public async Task ChangePasswordAsync(Guid userId, string currentPassword, string newPassword, CancellationToken cancellationToken)
+        {
+            var payload = new
+            {
+                UserId = userId,
+                CurrentPassword = currentPassword,
+                NewPassword = newPassword
+            };
+
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync("/api/auth/change-password", payload, cancellationToken);
+                await HandleResultAsync(response, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+
+                throw ex; 
+            }
+        }
+        #endregion
+
+        #region UTILS
+
         private async Task HandleResultAsync(HttpResponseMessage response, CancellationToken cancellationToken)
         {
             Result? apiResult = null; // Void Result (Datası yok)
@@ -221,7 +248,6 @@ namespace Integration.Services
                 throw new Exception("Bilinmeyen bir iletişim hatası.");
             }
         }
-
         #endregion
     }
 }
