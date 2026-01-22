@@ -1,12 +1,16 @@
-﻿using Application.Features.Auth.Commands.Login;
+﻿using Application.Features.Auth.Commands.ForgotPassword;
+using Application.Features.Auth.Commands.Login;
 using Application.Features.Auth.Commands.RegisterCorporateCustomer;
 using Application.Features.Auth.Commands.RegisterFreelancer;
 using Application.Features.Auth.Commands.RegisterIndividualCustomer;
 using Application.Features.Auth.Commands.RegisterSupplier;
 using Application.Features.Auth.Commands.RegisterTransporter;
+using Application.Features.Auth.Commands.ResetPassword;
 using Application.Features.Auth.Commands.SelectProfile;
+using Application.Features.Auth.Commands.VerifyCode;
 using Application.Features.Auth.DTOs;
 using Application.Features.Auth.Queries.GetMyProfile;
+using Application.Shared.ResultModels;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -91,5 +95,44 @@ namespace WebApi.Controllers
             var id = await Mediator.Send(command);
             return Ok(new { CustomerId = id });
         }
+
+        #region Password Recovery (Clean CQRS)
+
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
+        {
+            // Handler artık Result dönüyor
+            var result = await Mediator.Send(command);
+
+            if (result.Succeeded)
+                return Ok(result);
+
+            return BadRequest(result);
+        }
+
+        [HttpPost("verify-code")]
+        public async Task<IActionResult> VerifyCode([FromBody] VerifyCodeCommand command)
+        {
+            var result = await Mediator.Send(command);
+
+            if (result.Succeeded)
+                return Ok(result);
+
+            return BadRequest(result);
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
+        {
+            var result = await Mediator.Send(command);
+
+            if (result.Succeeded)
+                return Ok(result);
+
+            return BadRequest(result);
+        }
+
+        #endregion
     }
 }
+

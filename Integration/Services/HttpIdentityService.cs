@@ -1,6 +1,7 @@
 ﻿using Application.Abstractions.Services;
 using Application.Features.Auth.DTOs;
 using Application.Shared.Models;
+using Application.Shared.ResultModels;
 using System.Net.Http.Json;
 
 namespace Integration.Services
@@ -163,6 +164,64 @@ namespace Integration.Services
 
             return result;
         }
+        #endregion
+
+        #region Password Reset Flow
+
+        public async Task ForgotPasswordAsync(string email, CancellationToken cancellationToken)
+        {
+            var response = await _httpClient.PostAsJsonAsync("/api/auth/forgot-password", new { Email = email }, cancellationToken);
+            await HandleResultAsync(response, cancellationToken);
+        }
+
+        public async Task VerifyCodeAsync(string email, string code, CancellationToken cancellationToken)
+        {
+            var payload = new { Email = email, Code = code };
+            var response = await _httpClient.PostAsJsonAsync("/api/auth/verify-code", payload, cancellationToken);
+            await HandleResultAsync(response, cancellationToken);
+        }
+
+        public async Task ResetPasswordAsync(string email, string code, string newPassword, CancellationToken cancellationToken)
+        {
+            var payload = new { Email = email, Code = code, NewPassword = newPassword, ConfirmPassword = newPassword };
+            var response = await _httpClient.PostAsJsonAsync("/api/auth/reset-password", payload, cancellationToken);
+            await HandleResultAsync(response, cancellationToken);
+        }
+
+        private async Task HandleResultAsync(HttpResponseMessage response, CancellationToken cancellationToken)
+        {
+            Result? apiResult = null; // Void Result (Datası yok)
+
+            try
+            {
+                // IdentityApi'den gelen { Succeeded: true, Message: "..." } yapısını oku
+                apiResult = await response.Content.ReadFromJsonAsync<Result>(cancellationToken: cancellationToken);
+            }
+            catch
+            {
+                var rawContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"IdentityApi Hatası: {rawContent}");
+            }
+
+            // Mantıksal kontrol (Succeeded false ise hata fırlat)
+            if (apiResult != null && !apiResult.Succeeded)
+            {
+                // Hata mesajını fırlat ki Controller yakalasın
+                // Birden fazla hata varsa ilkini veya birleşmiş halini alabiliriz
+                var msg = apiResult.Errors != null && apiResult.Errors.Any()
+                          ? string.Join(", ", apiResult.Errors)
+                          : apiResult.Message;
+
+                throw new Exception(msg);
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception("Bilinmeyen bir iletişim hatası.");
+            }
+        }
+
         #endregion
     }
 }
