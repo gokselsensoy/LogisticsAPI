@@ -13,7 +13,7 @@ namespace Application.Features.Baskets.Commands.Checkout
     public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, Guid>
     {
         private readonly IBasketRepository _basketRepo;
-        private readonly IOrderRepository _orderRepo;
+        private readonly IOrderGroupRepository _orderGroupRepo;
         private readonly IProductRepository _productRepo; // Paket detayları için
         private readonly ICustomerRepository _customerRepo;
         private readonly IInventoryRepository _inventoryRepo; // Domain Service (Stok kontrolü)
@@ -21,7 +21,7 @@ namespace Application.Features.Baskets.Commands.Checkout
         private readonly IUnitOfWork _unitOfWork;
 
         public CheckoutCommandHandler(IBasketRepository basketRepo,
-            IOrderRepository orderRepo,
+            IOrderGroupRepository orderGroupRepo,
             IProductRepository productRepo,
             ICustomerRepository customerRepo,
             IInventoryRepository inventoryRepo,
@@ -29,7 +29,7 @@ namespace Application.Features.Baskets.Commands.Checkout
             IUnitOfWork unitOfWork)
         {
             _basketRepo = basketRepo;
-            _orderRepo = orderRepo;
+            _orderGroupRepo = orderGroupRepo;
             _productRepo = productRepo;
             _customerRepo = customerRepo;
             _inventoryRepo = inventoryRepo;
@@ -40,15 +40,11 @@ namespace Application.Features.Baskets.Commands.Checkout
         public async Task<Guid> Handle(CheckoutCommand request, CancellationToken token)
         {
             // 1. Sepeti Getir
-            // HATA ÇÖZÜMÜ: GetByIdWithItemsAsync metodunu BasketRepository'de tanımlamıştık.
             var basket = await _basketRepo.GetByIdWithItemsAsync(request.BasketId, token);
             if (basket == null || !basket.Items.Any())
                 throw new DomainException("Sepet boş veya bulunamadı.");
 
-            // 2. Müşteri Bilgilerini Getir (ContactInfo için Email/Phone lazım)
-            // HATA ÇÖZÜMÜ: _currentUser.Email yoktu, DB'den Customer çekiyoruz.
-            // Not: Eğer CorporateResponsible ise bağlı olduğu Customer'ı çekmek gerekebilir. 
-            // Burada basitlik adına giriş yapan ID'nin Customer tablosunda karşılığı olduğunu varsayıyoruz (Individual veya Corporate).
+            // 2. Müşteri Bilgilerini Getir
             var customer = await _customerRepo.GetByIdWithAddressesAsync(_currentUser.ProfileId.Value, token);
             if (customer == null) throw new Exception("Müşteri profili bulunamadı.");
 
@@ -56,96 +52,96 @@ namespace Application.Features.Baskets.Commands.Checkout
             Address deliveryAddress;
             Guid? customerAddressId = null;
 
-            if (request.ManualAddress != null)
-            {
-                // HATA ÇÖZÜMÜ: Extension metodunu yukarıda yazdık.
-                deliveryAddress = request.ManualAddress.ToValueObject();
-            }
-            else
-            {
-                var addr = customer.Addresses.FirstOrDefault(a => a.Id == request.DeliveryAddressId);
-                if (addr == null) throw new DomainException("Seçilen teslimat adresi bulunamadı.");
+            var addr = customer.Addresses.FirstOrDefault(a => a.Id == request.DeliveryAddressId);
+            if (addr == null) throw new DomainException("Seçilen teslimat adresi bulunamadı.");
 
-                deliveryAddress = addr.Address; // Snapshot
-                customerAddressId = addr.Id;
-            }
+            deliveryAddress = addr.Address; // Snapshot
+            customerAddressId = addr.Id;
 
             // 4. Contact Info Oluştur
-            // Customer entity'sinden gelen verilerle oluşturuyoruz.
-            // ContactInfo constructor sırasına dikkat: (Name, Email, Phone) varsayıyorum.
             var contactInfo = new ContactInfo(customer.Name, customer.Email, customer.PhoneNumber);
 
             // 5. Payment Context Oluştur
-            // HATA ÇÖZÜMÜ: PaymentContext constructor'ı PaymentChannel alıyor.
-            var paymentContext = new PaymentContext(request.PaymentInfo);
+            var paymentContext = new PaymentContext(request.PaymentInfo, PaymentStatus.Pending);
 
-            // 6. Order Oluştur (Draft)
-            // Sepetteki ilk ürünün tedarikçisini siparişin tedarikçisi yapıyoruz (Multi-supplier sepet yok varsayımı)
-            var firstItem = basket.Items.First();
+            // 6. OrderGroup (Master) Oluştur
+            var orderNumber = GenerateOrderNumber(); // Helper
+            var orderGroup = new OrderGroup(customer.Id, orderNumber, paymentContext);
 
-            var order = new Order(
-                OrderOrigin.InternalSystem,
-                firstItem.SupplierId,
-                paymentContext,
-                deliveryAddress,
-                contactInfo,
-                customer.Id,
-                customerAddressId
-            );
+            // 7. Sepeti Tedarikçiye Göre Grupla
+            var supplierGroups = basket.Items.GroupBy(i => i.SupplierId);
 
-            // 7. Sepet Kalemlerini Siparişe Dönüştür ve STOK REZERVE ET
-            foreach (var item in basket.Items)
+            foreach (var group in supplierGroups)
             {
-                var package = await _productRepo.GetPackageByIdAsync(item.PackageId, token);
-                if (package == null) throw new DomainException($"Paket bulunamadı (ID: {item.PackageId})");
+                var supplierId = group.Key;
 
-                double volumeM3 = (package.Dimensions.Width * package.Dimensions.Height * package.Dimensions.Length) / 1_000_000;
-
-                // CargoSpec oluştur
-                var cargoSpec = new CargoSpec(
-                    desc: package.Name, // veya package.Description
-                    weight: package.Dimensions.Weight,
-                    volume: volumeM3
+                // 7a. Alt Sipariş (Order) Oluştur
+                var order = new Order(
+                    orderGroup.Id,
+                    OrderOrigin.InternalSystem,
+                    supplierId,
+                    customer.Id, // Denormalized
+                    deliveryAddress,
+                    contactInfo,
+                    customerAddressId
                 );
 
-                // A. Sipariş Kalemi Ekle
-                order.AddItem(
-                    package.Id,
-                    package.Name,
-                    cargoSpec, // <-- Artık hata vermez
-                    item.Quantity,
-                    package.Price
-                );
+                // 7b. Itemları Ekle
+                foreach (var item in group)
+                {
+                    var package = await _productRepo.GetPackageByIdAsync(item.PackageId, token);
+                    if (package == null) throw new DomainException($"Paket bulunamadı (ID: {item.PackageId})");
 
-                // B. Stok Rezerve Et
-                // HATA ÇÖZÜMÜ: IInventoryRepository'e eklediğimiz metodu kullanıyoruz
-                var supplierId = package.Product.SupplierId;
-                var inventory = await _inventoryRepo.GetFirstWithStockAsync(package.Id, supplierId, item.Quantity, InventoryState.Available, token);
+                    double volumeM3 = (package.Dimensions.Width * package.Dimensions.Height * package.Dimensions.Length) / 1_000_000;
 
-                if (inventory == null)
-                    throw new DomainException($"'{package.Name}' ürünü için depoda yeterli stok bulunamadı.");
+                    var cargoSpec = new CargoSpec(
+                        desc: package.Name,
+                        weight: package.Dimensions.Weight,
+                        volume: volumeM3
+                    );
 
-                // Domain Metodunu Çağır (Available -> Reserved)
-                inventory.ReserveStock(package.Id, item.Quantity, supplierId);
+                    // Item Ekle
+                    order.AddItem(
+                        package.Id,
+                        package.Name,
+                        cargoSpec,
+                        item.Quantity,
+                        package.Price
+                    );
 
-                _inventoryRepo.Update(inventory);
+                    // 7c. Stok Rezerve Et
+                    // REZERVE LOGIC (Aynı kalıyor)
+                    var inventory = await _inventoryRepo.GetFirstWithStockAsync(package.Id, supplierId, item.Quantity, InventoryState.Available, token);
+                    if (inventory == null)
+                        throw new DomainException($"'{package.Name}' ürünü için depoda yeterli stok bulunamadı.");
+
+                    inventory.ReserveStock(package.Id, item.Quantity, supplierId);
+                    _inventoryRepo.Update(inventory);
+                }
+
+                // 7d. Order'ı Gruba Ekle
+                order.SetCommission(0); // Şimdilik 0
+                orderGroup.AddOrder(order);
             }
 
-            // 8. Siparişi Tamamla
-            order.ConfirmOrder();
-
-            // Eğer kredi kartı ise hemen ödendi işaretle (Mock)
+            // 8. Ödeme Durumu ve Kayıt
             if (paymentContext.Channel == PaymentChannel.OnPlatform)
             {
-                order.MarkAsPaid();
+                orderGroup.MarkAsPaid(); // Event fırlatır -> Handler çalışır -> Shipments oluşur
             }
 
-            _orderRepo.Add(order);
+            // OrderGroup kaydedilince cascade ile Orders ve Items kaydedilir.
+            _orderGroupRepo.Add(orderGroup);
             _basketRepo.Delete(basket);
 
             await _unitOfWork.SaveChangesAsync(token);
 
-            return order.Id;
+            return orderGroup.Id;
+        }
+
+        private string GenerateOrderNumber()
+        {
+            return DateTime.UtcNow.ToString("yyyyMMddHHmmss") + "-" + new Random().Next(1000, 9999);
         }
     }
 }

@@ -10,6 +10,39 @@ namespace Infrastructure.Persistence.Configurations
         {
             builder.ToTable("Orders");
 
+            // Primary Key
+            builder.HasKey(o => o.Id);
+
+            // --- İNDEKSLER (Performans Denormalizasyonu İçin) ---
+            // Supplier kendi siparişlerini çekerken çok hızlı olsun
+            builder.HasIndex(o => o.SupplierId);
+            // Supplier müşteri bazlı arama yaparken hızlı olsun
+            builder.HasIndex(o => o.CustomerId);
+            // OrderGroup detayları yüklenirken hızlı olsun
+            builder.HasIndex(o => o.OrderGroupId);
+
+
+            // --- PROPERTİES ---
+
+            builder.Property(o => o.ExternalReferenceCode)
+                   .HasMaxLength(50);
+
+            builder.Property(o => o.Status)
+                   .HasConversion<string>() // Enum'ı string tutmak (Confirmed, Shipped vs.) daha okunaklıdır
+                   .HasMaxLength(20);
+
+            builder.Property(o => o.PaymentStatus) // Paid, Refunded
+                   .HasConversion<string>()
+                   .HasMaxLength(20);
+
+            // İade ve İptal Bilgileri
+            builder.Property(o => o.RefundReason).HasMaxLength(250);
+            builder.Property(o => o.IsRefunded).HasDefaultValue(false);
+
+
+            // --- VALUE OBJECTS (OwnsOne) ---
+
+            // 1. Contact (İletişim)
             builder.OwnsOne(o => o.Contact, c =>
             {
                 c.Property(p => p.Name).HasColumnName("Contact_Name").HasMaxLength(100);
@@ -17,41 +50,59 @@ namespace Infrastructure.Persistence.Configurations
                 c.Property(p => p.Email).HasColumnName("Contact_Email").HasMaxLength(100);
             });
 
+            // 2. Delivery Address Snapshot (Teslimat Adresi)
             builder.OwnsOne(o => o.DeliveryAddressSnapshot, a =>
             {
-                a.Property(p => p.Street).HasColumnName("Del_Street");
-                a.Property(p => p.BuildingNo).HasColumnName("Del_BuildingNo");
-                a.Property(p => p.ZipCode).HasColumnName("Del_ZipCode");
-                a.Property(p => p.City).HasColumnName("Del_City");
-                a.Property(p => p.Country).HasColumnName("Del_Country");
+                a.Property(p => p.Street).HasColumnName("Del_Street").HasMaxLength(200);
+                a.Property(p => p.BuildingNo).HasColumnName("Del_BuildingNo").HasMaxLength(20);
+                a.Property(p => p.ZipCode).HasColumnName("Del_ZipCode").HasMaxLength(10);
+                a.Property(p => p.City).HasColumnName("Del_City").HasMaxLength(50);
+                a.Property(p => p.Country).HasColumnName("Del_Country").HasMaxLength(50);
                 a.Property(p => p.FloorNumber).HasColumnName("Del_FloorNumber");
-                a.Property(p => p.FloorLabel).HasColumnName("Del_FloorLabel");
-                a.Property(p => p.Door).HasColumnName("Del_Door");
+                a.Property(p => p.FloorLabel).HasColumnName("Del_FloorLabel").HasMaxLength(20);
+                a.Property(p => p.Door).HasColumnName("Del_Door").HasMaxLength(20);
                 a.Property(p => p.FormattedAddress).HasColumnName("Del_FormattedAddress");
 
+                // Coğrafi Konum (PostGIS / SQL Spatial)
                 a.Property(p => p.Location)
                  .HasColumnName("Del_Location")
                  .HasColumnType("geography (point, 4326)");
             });
 
-            builder.OwnsOne(o => o.PaymentInfo, pi =>
-            {
-                pi.Property(p => p.Channel).HasColumnName("Payment_Channel");
-                pi.Property(p => p.IsProductSettlementRequired).HasColumnName("Payment_ProdSettlement");
-                pi.Property(p => p.IsLogisticsSettlementRequired).HasColumnName("Payment_LogSettlement");
-            });
-
-            // 4. TotalPrice (Value Object - Para)
+            // 3. TotalPrice (Tedarikçiye Ödenecek Tutar)
             builder.OwnsOne(o => o.TotalPrice, m =>
             {
                 m.Property(p => p.Amount).HasColumnName("TotalAmount").HasColumnType("decimal(18,2)");
                 m.Property(p => p.Currency).HasColumnName("Currency").HasMaxLength(3);
             });
 
-            // 5. OrderItems (İlişki)
+            // 4. CommissionAmount (Platform Komisyonu) - YENİ
+            builder.OwnsOne(o => o.CommissionAmount, m =>
+            {
+                m.Property(p => p.Amount).HasColumnName("Comm_Amount").HasColumnType("decimal(18,2)");
+                m.Property(p => p.Currency).HasColumnName("Comm_Currency").HasMaxLength(3);
+            });
+
+            // 5. RefundedAmount (İade Tutarı) - YENİ
+            builder.OwnsOne(o => o.RefundedAmount, m =>
+            {
+                m.Property(p => p.Amount).HasColumnName("Ref_Amount").HasColumnType("decimal(18,2)");
+                m.Property(p => p.Currency).HasColumnName("Ref_Currency").HasMaxLength(3);
+            });
+
+
+            // --- İLİŞKİLER (Relationships) ---
+
+            // Order -> OrderGroup (Zorunlu ilişki)
+            builder.HasOne<OrderGroup>()
+                   .WithMany(og => og.Orders)
+                   .HasForeignKey(o => o.OrderGroupId)
+                   .OnDelete(DeleteBehavior.Restrict); // OrderGroup silinirse Order'lar silinmesin (veya Cascade olabilir)
+
+            // Order -> OrderItems (Cascade Delete: Order silinirse itemlar çöp olur)
             builder.HasMany(o => o.Items)
                    .WithOne()
-                   .HasForeignKey("OrderId")
+                   .HasForeignKey("OrderId") // Shadow property veya OrderItem içindeki property
                    .OnDelete(DeleteBehavior.Cascade);
         }
     }

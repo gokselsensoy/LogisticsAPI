@@ -133,7 +133,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("AddressId");
 
-                    b.ToTable("CorporateAddressResponsibleMap");
+                    b.ToTable("CorporateAddressResponsibleMap", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Customers.CorporateResponsible", b =>
@@ -393,7 +393,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("DepartmentId");
 
-                    b.ToTable("Terminals");
+                    b.ToTable("Terminals", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Departments.Vehicle", b =>
@@ -621,7 +621,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("InventoryTransactions");
+                    b.ToTable("InventoryTransactions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Inventories.Package", b =>
@@ -765,7 +765,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("PackageId");
 
-                    b.ToTable("Stocks");
+                    b.ToTable("Stocks", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Orders.Basket", b =>
@@ -779,7 +779,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Baskets");
+                    b.ToTable("Baskets", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Orders.BasketItem", b =>
@@ -804,7 +804,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("BasketId");
 
-                    b.ToTable("BasketItems");
+                    b.ToTable("BasketItems", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Orders.Order", b =>
@@ -1065,7 +1065,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("AppUserId")
                         .IsUnique();
 
-                    b.ToTable("AppUserSubscriptions");
+                    b.ToTable("AppUserSubscriptions", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Subscriptions.PlanFeatureCache", b =>
@@ -1114,7 +1114,7 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PlanFeatureCache");
+                    b.ToTable("PlanFeatureCache", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Task.DeliveryPlan", b =>
@@ -1162,7 +1162,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("DeliveryPlanId");
 
-                    b.ToTable("Routes");
+                    b.ToTable("Routes", (string)null);
                 });
 
             modelBuilder.Entity("Domain.Entities.Task.RouteTask", b =>
@@ -1494,7 +1494,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("CustomerAddressId");
 
-                            b1.ToTable("CustomerAddresses");
+                            b1.ToTable("CustomerAddresses", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("CustomerAddressId");
@@ -1566,7 +1566,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("DepartmentId");
 
-                            b1.ToTable("Departments");
+                            b1.ToTable("Departments", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("DepartmentId");
@@ -1640,7 +1640,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("TerminalId");
 
-                            b1.ToTable("Terminals");
+                            b1.ToTable("Terminals", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("TerminalId");
@@ -1723,30 +1723,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("PackageId");
 
-                            b1.ToTable("Packages");
-
-                            b1.WithOwner()
-                                .HasForeignKey("PackageId");
-                        });
-
-                    b.OwnsOne("Domain.ValueObjects.Money", "Price", b1 =>
-                        {
-                            b1.Property<Guid>("PackageId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("Price_Amount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("Price_Currency");
-
-                            b1.HasKey("PackageId");
-
-                            b1.ToTable("Packages");
+                            b1.ToTable("Packages", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PackageId");
@@ -1775,7 +1752,30 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("PackageId");
 
-                            b1.ToTable("Packages");
+                            b1.ToTable("Packages", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("PackageId");
+                        });
+
+                    b.OwnsOne("Domain.ValueObjects.Money", "Price", b1 =>
+                        {
+                            b1.Property<Guid>("PackageId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("Price_Amount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("Price_Currency");
+
+                            b1.HasKey("PackageId");
+
+                            b1.ToTable("Packages", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("PackageId");
@@ -1854,7 +1854,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Orders");
+                            b1.ToTable("Orders", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -1914,30 +1914,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Orders");
-
-                            b1.WithOwner()
-                                .HasForeignKey("OrderId");
-                        });
-
-                    b.OwnsOne("Domain.ValueObjects.Money", "TotalPrice", b1 =>
-                        {
-                            b1.Property<Guid>("OrderId")
-                                .HasColumnType("uuid");
-
-                            b1.Property<decimal>("Amount")
-                                .HasColumnType("decimal(18,2)")
-                                .HasColumnName("TotalAmount");
-
-                            b1.Property<string>("Currency")
-                                .IsRequired()
-                                .HasMaxLength(3)
-                                .HasColumnType("character varying(3)")
-                                .HasColumnName("Currency");
-
-                            b1.HasKey("OrderId");
-
-                            b1.ToTable("Orders");
+                            b1.ToTable("Orders", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -1962,7 +1939,30 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("OrderId");
 
-                            b1.ToTable("Orders");
+                            b1.ToTable("Orders", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
+                    b.OwnsOne("Domain.ValueObjects.Money", "TotalPrice", b1 =>
+                        {
+                            b1.Property<Guid>("OrderId")
+                                .HasColumnType("uuid");
+
+                            b1.Property<decimal>("Amount")
+                                .HasColumnType("decimal(18,2)")
+                                .HasColumnName("TotalAmount");
+
+                            b1.Property<string>("Currency")
+                                .IsRequired()
+                                .HasMaxLength(3)
+                                .HasColumnType("character varying(3)")
+                                .HasColumnName("Currency");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("Orders", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderId");
@@ -2009,7 +2009,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("OrderItemId");
 
-                            b1.ToTable("OrderItems");
+                            b1.ToTable("OrderItems", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderItemId");
@@ -2032,7 +2032,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("OrderItemId");
 
-                            b1.ToTable("OrderItems");
+                            b1.ToTable("OrderItems", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("OrderItemId");
@@ -2080,7 +2080,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("ReturnRequestId");
 
-                            b1.ToTable("ReturnRequests");
+                            b1.ToTable("ReturnRequests", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ReturnRequestId");
@@ -2140,7 +2140,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("ReturnRequestId");
 
-                            b1.ToTable("ReturnRequests");
+                            b1.ToTable("ReturnRequests", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ReturnRequestId");
@@ -2209,7 +2209,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("ShipmentId");
 
-                            b1.ToTable("Shipments");
+                            b1.ToTable("Shipments", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ShipmentId");
@@ -2269,7 +2269,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("ShipmentId");
 
-                            b1.ToTable("Shipments");
+                            b1.ToTable("Shipments", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ShipmentId");
@@ -2310,7 +2310,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("ShipmentItemId");
 
-                            b1.ToTable("ShipmentItems");
+                            b1.ToTable("ShipmentItems", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ShipmentItemId");
@@ -2401,7 +2401,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("RouteTaskId");
 
-                            b1.ToTable("RouteTasks");
+                            b1.ToTable("RouteTasks", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("RouteTaskId");
@@ -2434,7 +2434,7 @@ namespace Infrastructure.Migrations
 
                             b1.HasKey("ScheduleAllocationId");
 
-                            b1.ToTable("ScheduleAllocations");
+                            b1.ToTable("ScheduleAllocations", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ScheduleAllocationId");

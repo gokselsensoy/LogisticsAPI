@@ -6,11 +6,10 @@ namespace Domain.Entities.Orders
     {
         public Guid BasketId { get; private set; }
         public Guid PackageId { get; private set; }
-        public Guid SupplierId { get; private set; } // Siparişi kime oluşturacağız?
+        public Guid SupplierId { get; private set; }
         public int Quantity { get; private set; }
 
         private BasketItem() { }
-
         public BasketItem(Guid basketId, Guid packageId, Guid supplierId, int quantity)
         {
             BasketId = basketId;
@@ -18,7 +17,6 @@ namespace Domain.Entities.Orders
             SupplierId = supplierId;
             Quantity = quantity;
         }
-
         internal void IncreaseQuantity(int amount) => Quantity += amount;
     }
 }

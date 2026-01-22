@@ -10,8 +10,6 @@ namespace Application.Features.Baskets.Commands.Checkout
         public Guid BasketId { get; set; }
         public Guid DeliveryAddressId { get; set; }
 
-        public AddressDto? ManualAddress { get; set; }
-
         public PaymentChannel PaymentInfo { get; set; }
     }
 }

@@ -758,7 +758,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Stocks");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.Order", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.Order", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -787,7 +787,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Orders", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.OrderItem", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.OrderItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -813,7 +813,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("OrderItems", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.ReturnItem", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.ReturnItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -842,7 +842,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("ReturnItems", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.ReturnRequest", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.ReturnRequest", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -871,7 +871,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("ReturnRequests", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.Shipment", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.Shipment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -903,7 +903,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Shipments", (string)null);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.ShipmentItem", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.ShipmentItem", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1677,7 +1677,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.Order", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.Order", b =>
                 {
                     b.OwnsOne("Domain.ValueObjects.ContactInfo", "Contact", b1 =>
                         {
@@ -1831,9 +1831,9 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.OrderItem", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.OrderItem", b =>
                 {
-                    b.HasOne("Domain.Entities.Order.Order", null)
+                    b.HasOne("Domain.Entities.Orders.Order", null)
                         .WithMany("Items")
                         .HasForeignKey("OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -1895,15 +1895,15 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.ReturnItem", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.ReturnItem", b =>
                 {
-                    b.HasOne("Domain.Entities.Order.ReturnRequest", null)
+                    b.HasOne("Domain.Entities.Orders.ReturnRequest", null)
                         .WithMany("Items")
                         .HasForeignKey("ReturnRequestId")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.ReturnRequest", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.ReturnRequest", b =>
                 {
                     b.OwnsOne("Domain.ValueObjects.ContactInfo", "Contact", b1 =>
                         {
@@ -2003,7 +2003,7 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.Shipment", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.Shipment", b =>
                 {
                     b.OwnsOne("Domain.ValueObjects.Address", "DeliveryAddress", b1 =>
                         {
@@ -2132,9 +2132,9 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.ShipmentItem", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.ShipmentItem", b =>
                 {
-                    b.HasOne("Domain.Entities.Order.Shipment", null)
+                    b.HasOne("Domain.Entities.Orders.Shipment", null)
                         .WithMany("Items")
                         .HasForeignKey("ShipmentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2364,17 +2364,17 @@ namespace Infrastructure.Migrations
                     b.Navigation("Packages");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.Order", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.Order", b =>
                 {
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.ReturnRequest", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.ReturnRequest", b =>
                 {
                     b.Navigation("Items");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Order.Shipment", b =>
+            modelBuilder.Entity("Domain.Entities.Orders.Shipment", b =>
                 {
                     b.Navigation("Items");
                 });

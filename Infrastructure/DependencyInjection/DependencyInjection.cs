@@ -52,6 +52,7 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IProductRepository, ProductRepository>();
 
             services.AddScoped<IOrderRepository, OrderRepository>();
+            services.AddScoped<IOrderGroupRepository, OrderGroupRepository>();
             services.AddScoped<IShipmentRepository, ShipmentRepository>();
 
             services.AddScoped<IBasketRepository, BasketRepository>();

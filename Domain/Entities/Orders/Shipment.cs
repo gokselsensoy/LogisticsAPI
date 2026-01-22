@@ -9,20 +9,18 @@ namespace Domain.Entities.Orders
         public Guid? OrderId { get; private set; }
         public Guid? ReturnRequestId { get; private set; }
 
+        // --- KİMLİK (Denormalizasyon) ---
+        // Transporter, "Samsung (Supplier) deposundan alacaklarımı ver" dediğinde hızlı çalışması için.
+        public Guid? SupplierId { get; private set; }
+        public Guid AssignedTransporterId { get; private set; }
+
         public string? ExternalShipmentRef { get; private set; }
-
         public ShipmentType Type { get; private set; }
-
-        // Bu işi kim başlattı? (Order mı? Yoksa Şoför "Gidip bakayım" mı dedi?)
         public ShipmentSource SourceType { get; private set; }
+        public ShipmentStatus Status { get; private set; }
 
         public Address PickupAddress { get; private set; }
         public Address DeliveryAddress { get; private set; }
-
-
-        public Guid AssignedTransporterId { get; private set; }
-
-        public ShipmentStatus Status { get; private set; }
 
         private readonly List<ShipmentItem> _items = new();
         public IReadOnlyCollection<ShipmentItem> Items => _items.AsReadOnly();
@@ -34,6 +32,8 @@ namespace Domain.Entities.Orders
             ShipmentSource sourceType,
             Address pickup,
             Address delivery,
+            Guid transporterId,
+            Guid? supplierId = null, // Order'dan gelir
             Guid? orderId = null,
             Guid? returnId = null)
         {
@@ -42,28 +42,33 @@ namespace Domain.Entities.Orders
             SourceType = sourceType;
             PickupAddress = pickup;
             DeliveryAddress = delivery;
+            AssignedTransporterId = transporterId;
+
+            SupplierId = supplierId; // Denormalized ID set edilir
             OrderId = orderId;
             ReturnRequestId = returnId;
+
             Status = ShipmentStatus.Pending;
         }
 
-        public void AddShipmentItem(Guid orderItemId, Guid? packageId, CargoSpec spec, int plannedQuantity)
+        public void AddShipmentItem(Guid orderItemId, Guid packageId, CargoSpec spec, int plannedQuantity)
         {
-            // Validasyon (Opsiyonel): Aynı orderItem daha önce eklendi mi?
-            if (_items.Any(x => x.OrderItemId == orderItemId))
-            {
-                // Aynı sipariş kalemi parça parça da eklenebilir, o yüzden hata fırlatmak yerine
-                // lojistik mantığına göre karar verilmeli. Şimdilik direkt ekleyelim.
-            }
-
+            // Mükerrer kayıt kontrolü veya lojistik validasyonları buraya eklenebilir.
             var item = new ShipmentItem(Id, orderItemId, packageId, spec, plannedQuantity);
             _items.Add(item);
+
+            // Event fırlatabiliriz: "ShipmentItemAdded" -> OrderItem.ShippedQuantity update edilir.
         }
 
-        // Proaktif (Şoförün başlattığı) boş shipment için
-        public static Shipment CreateProactive(Address targetAddress)
+        // Proaktif (Şoför inisiyatifi) shipment
+        public static Shipment CreateProactive(Address targetAddress, Guid transporterId)
         {
-            return new Shipment(ShipmentType.Pickup, ShipmentSource.TransporterInitiated, targetAddress, targetAddress);
+            return new Shipment(
+                ShipmentType.Pickup,
+                ShipmentSource.TransporterInitiated,
+                targetAddress,
+                targetAddress,
+                transporterId);
         }
     }
 }
